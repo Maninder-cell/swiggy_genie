@@ -68,3 +68,5 @@ exports.deleteAmenities = async (req, res, next) => {
    res.status(400).json({Message:"Something went wrong"}); 
   }
 };
+
+

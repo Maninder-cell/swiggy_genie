@@ -58,6 +58,15 @@ db.Sequelize = Sequelize;
 
 db.user = require('./user')(sequelize,DataTypes);
 db.amenity = require('./amenity')(sequelize,DataTypes);
+db.task = require('./task')(sequelize,DataTypes);
+db.order_details = require('./order_details')(sequelize,DataTypes);
+db.taskAmenity = require('./taskamenity')(sequelize,DataTypes);
 db.sequelize.sync({alter:true});
+
+db.amenity.belongsToMany(db.task, {
+  through: db.taskAmenity,
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+});
 
 module.exports = db;
