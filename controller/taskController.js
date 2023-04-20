@@ -15,35 +15,23 @@ const taskAmenity = db.taskAmenity;
 
 exports.distance = async (req, res) => {
   console.log(req.body);
-// get the origin coordinates from the request body
   directionsClient
     .getDirections({
       profile: "driving-traffic",
       waypoints: [
-        { coordinates: req.body.origin.geometry.coordinates },
-        { coordinates: req.body.destination.geometry.coordinates },
+        { coordinates: req.body.origin },
+        { coordinates: req.body.destination },
       ],
       geometries: "geojson",
       steps: true,
     })
     .send()
     .then((response) => {
-      const distance = response.body.routes[0].distance / 1000;
+      const distance = Math.floor(response.body.routes[0].distance / 1000);
       console.log(distance);
       res.status(200).json({distance});
     });
 };
-
-// exports.distance = async(req,res) => {
-//   try {
-//     const origin = req.query.origin; // get the origin coordinates from the request body
-//     const destination = req.body.destination; // get the destination coordinates from the request body
-//     const result = await distance(origin, destination); // call the distance function with the coordinates
-//     res.json({ distance: result }); // send back the distance as a JSON object
-//   } catch (error) {
-//     res.status(500).json({ error: error.message }); // handle any errors
-//   }
-// }
 
 exports.addAmenity = async (req, res) => {
   const errors = validationResult(req);
@@ -121,14 +109,14 @@ exports.addOrder = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const { Pickup_from, Deliver_to, Instruction, Task_details } =
+    const { originAddress, destinationAddress, Instruction, Task_details,origin,destination } =
       await req.body;
 
     const taskName = await Amenity.findByPk(Task_details);
 
     const task = await Task.create({
-      Pickup_from,
-      Deliver_To: Deliver_to,
+      Pickup_from:originAddress,
+      Deliver_To: destinationAddress,
       Instruction,
       Add_Task_details: taskName.name,
     });
@@ -137,13 +125,28 @@ exports.addOrder = async (req, res, next) => {
       AmenityId: Task_details,
       taskId: task.id,
     });
+    let distance;
+    await directionsClient
+    .getDirections({
+      profile: "driving-traffic",
+      waypoints: [
+        { coordinates: origin },
+        { coordinates: destination },
+      ],
+      geometries: "geojson",
+      steps: true,
+    })
+    .send()
+    .then((response) => {
+      distance = (Math.floor(response.body.routes[0].distance / 1000)*10);
+    });
 
     const order = await Order.create({
-      Pickup_from,
-      Deliver_To: Deliver_to,
+      Pickup_from:originAddress,
+      Deliver_To: destinationAddress,
       Instruction,
       Item_Type: taskName.name,
-      Billing_Details: 300,
+      Billing_Details: distance,
     });
 
     const data = await Task.findOne({
@@ -154,7 +157,7 @@ exports.addOrder = async (req, res, next) => {
         },
       ],
     });
-
+    console.log(data,order);
     return res.status(200).json({
       msg: "task created sucessfully",
       task: data,
