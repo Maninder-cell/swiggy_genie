@@ -14,7 +14,7 @@ const generateToken = (data) => {
     return token;
   } catch (error) {
     console.log(error);
-    return res.status(400).json({Message:"Something Went Wrong"});
+    return res.status(400).json({ Message: "Something Went Wrong" });
   }
 };
 
@@ -24,15 +24,20 @@ exports.profileController = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const { account_type,Name,Email,Phone,Address, } = req.body;
-    
+    const { account_type, Name, Email, Phone, Address } = req.body;
+
     const file = req.file;
 
     if (!account_type || !Name || !Email || !Phone || !Address || !file) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    if (file.mimetype.startsWith("image/")!== true){
+    const oldUser = await User.findOne({ where: { Email } });
+    if (oldUser) {
+      return res.status(400).json({ Message: "User is already registered" });
+    }
+
+    if (file.mimetype.startsWith("image/") !== true) {
       return res.status(400).json({ message: "Please Upload image only" });
     }
 
@@ -42,14 +47,14 @@ exports.profileController = async (req, res) => {
       Phone,
       Address,
       account_type,
-      path: file.path
+      path: file.path,
     });
 
     const accessToken = generateToken({ user });
 
-    return res.status(201).json({ user, accessToken})
+    return res.status(201).json({ user, accessToken });
   } catch (error) {
     console.error(error);
-    return res.status(400).json({Message:"Something Went Wrong"});
+    return res.status(400).json({ Message: "Something Went Wrong" });
   }
 };

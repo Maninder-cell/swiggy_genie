@@ -69,4 +69,10 @@ db.amenity.belongsToMany(db.task, {
   onUpdate: "CASCADE",
 });
 
+db.task.belongsToMany(db.amenity, {
+  through: db.taskAmenity,
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+});
+
 module.exports = db;
