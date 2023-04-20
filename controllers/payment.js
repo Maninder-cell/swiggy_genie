@@ -46,3 +46,10 @@ exports.newPaymentMethod = async (req, res, next) => {
     result: result,
   });
 };
+
+exports.listPaymentMethods = async (req, res, next) => {
+  const list = await StripeMain.ListAllPaymentMethods("cus_Nk47G3wCRLsJrV");
+  return res.status(200).json({
+    list: list,
+  });
+};

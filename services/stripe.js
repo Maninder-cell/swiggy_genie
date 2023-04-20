@@ -44,12 +44,19 @@ class StripeMain {
   static async NewPaymentMethod(customer, payment_method) {
     const paymentMethod = await stripe.paymentMethods.create(payment_method);
 
-    const attach = await stripe.paymentMethods.attach(
-        paymentMethod.id,
-      { customer: customer }
-    );
+    const attach = await stripe.paymentMethods.attach(paymentMethod.id, {
+      customer: customer,
+    });
 
     return attach;
+  }
+
+  static async ListAllPaymentMethods(customer) {
+    const paymentMethods = await stripe.customers.listPaymentMethods(customer, {
+      type: "card",
+    });
+
+    return paymentMethods;
   }
 }
 
