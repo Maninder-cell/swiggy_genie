@@ -1,25 +1,18 @@
-require("dotenv").config();
-
-const stripe = require("stripe")(process.env.stripe_secret_key);
+const StripeMain = require("../services/stripe");
 
 exports.createCustomer = async (req, res, next) => {
-  const paymentMethod = await stripe.paymentMethods.create({
-    type: "card",
-    card: {
-      number: "4242424242424242",
-      exp_month: 12,
-      exp_year: 2024,
-      cvc: "987",
-    },
-  });
-
-  const customer = await stripe.customers.create({
+  const customer = await StripeMain.createCustomer({
     name: "Maninder",
     email: "manindermatharu2001@gmail.com",
-    payment_method: paymentMethod.id,
-    invoice_settings: {
-      default_payment_method: paymentMethod.id
-    }
+    payment_method: {
+      type: "card",
+      card: {
+        number: "4242424242424242",
+        exp_month: 12,
+        exp_year: 2024,
+        cvc: "987",
+      },
+    },
   });
 
   return res.status(200).json({
@@ -28,16 +21,28 @@ exports.createCustomer = async (req, res, next) => {
 };
 
 exports.pay = async (req, res, next) => {
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: 100 * 100000,
-    currency: "usd",
-    confirm: true,
-    customer: "cus_Nk47G3wCRLsJrV",
-    payment_method: "pm_1MyZziJC7o9g4pD4LJiBiQaX",
-    payment_method_types: ["card"],
+  const payment = await StripeMain.Pay(
+    100,
+    "cus_Nk47G3wCRLsJrV",
+    "pm_1MyZziJC7o9g4pD4LJiBiQaX"
+  );
+  return res.status(200).json({
+    payment: payment,
+  });
+};
+
+exports.newPaymentMethod = async (req, res, next) => {
+  const result = await StripeMain.NewPaymentMethod("cus_Nk47G3wCRLsJrV", {
+    type: "card",
+    card: {
+      number: "5555555555554444",
+      exp_month: 12,
+      exp_year: 2028,
+      cvc: "985",
+    },
   });
 
   return res.status(200).json({
-    payment: paymentIntent,
+    result: result,
   });
 };
