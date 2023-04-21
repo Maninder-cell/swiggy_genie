@@ -14,7 +14,6 @@ const Order = db.order_details;
 const taskAmenity = db.taskAmenity;
 
 exports.distance = async (req, res) => {
-  console.log(req.body);
   directionsClient
     .getDirections({
       profile: "driving-traffic",
@@ -28,7 +27,6 @@ exports.distance = async (req, res) => {
     .send()
     .then((response) => {
       const distance = Math.floor(response.body.routes[0].distance / 1000);
-      console.log(distance);
       res.status(200).json({ distance });
     });
 };
@@ -143,9 +141,9 @@ exports.addOrder = async (req, res, next) => {
       .then((response) => {
         distance = Math.floor(response.body.routes[0].distance / 1000) * 10;
       });
-    var OrderId = Math.random();
-    OrderId = OrderId * 100000000;
-    OrderId = parseInt(OrderId);
+      var OrderId = Math.random();
+      OrderId = OrderId * 100000000;
+      OrderId = parseInt(OrderId);
 
     const order = await Order.create({
       Pickup_from: originAddress,
@@ -154,7 +152,7 @@ exports.addOrder = async (req, res, next) => {
       Item_Type: taskName.name,
       Billing_Details: distance,
       Status: "Pending",
-      OrderId,
+      OrderId
     });
 
     const data = await Task.findOne({
@@ -165,7 +163,6 @@ exports.addOrder = async (req, res, next) => {
         },
       ],
     });
-    console.log(data, order);
     return res.status(200).json({
       msg: "task created sucessfully",
       task: data,
@@ -177,18 +174,18 @@ exports.addOrder = async (req, res, next) => {
   }
 };
 
-exports.feedback = async (req, res, next) => {
+exports.feedback = async(req,res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const order = { ...req.body };
-    const update = await Order.findOne({ where: { orderId: order.orderId } });
-    update.update(order);
-    return res.status(200).json({ Message: "Order Updated Sucessfully" });
+    const order = {...req.body};
+   const  update = await Order.findOne({where:{orderId:order.orderId}});
+   update.update(order);
+    return res.status(200).json({Message:"Order Updated Sucessfully"});
   } catch (error) {
     console.log(error);
     return res.status(200).json({ Message: "Something Went Wrong" });
   }
-};
+}
