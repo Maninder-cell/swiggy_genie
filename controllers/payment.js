@@ -1,23 +1,30 @@
 const StripeMain = require("../services/stripe");
 
 exports.createCustomer = async (req, res, next) => {
-  const customer = await StripeMain.createCustomer({
-    name: "Maninder",
-    email: "manindermatharu2001@gmail.com",
+  const {customer,error} = await StripeMain.createCustomer({
+    name: req.body.name,
+    email: req.body.email,
     payment_method: {
       type: "card",
       card: {
-        number: "4242424242424242",
-        exp_month: 12,
-        exp_year: 2024,
-        cvc: "987",
+        number: req.body.number,
+        exp_month: req.body.expiry.split("/")[0],
+        exp_year: req.body.expiry.split("/")[1],
+        cvc: req.body.cvv,
       },
     },
   });
 
-  return res.status(200).json({
-    customer: customer,
-  });
+  if (error){
+    return res.status(402).json({
+      error: error,
+    });
+  }
+  else{
+    return res.status(200).json({
+      customer: customer,
+    });
+  }
 };
 
 exports.pay = async (req, res, next) => {

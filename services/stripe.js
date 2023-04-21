@@ -7,15 +7,18 @@ class StripeMain {
    * @param {object} customer - The customer object with payment_method property
    */
   static async createCustomer(customer) {
-    const paymentMethod = await stripe.paymentMethods.create(
-      customer.payment_method
-    );
-    customer["payment_method"] = paymentMethod.id;
-    customer["invoice_settings"] = {};
-    customer["invoice_settings"]["default_payment_method"] = paymentMethod.id;
-    const customer_obj = await stripe.customers.create(customer);
-
-    return customer_obj;
+    try {
+      const paymentMethod = await stripe.paymentMethods.create(
+        customer.payment_method
+      );
+      customer["payment_method"] = paymentMethod.id;
+      customer["invoice_settings"] = {};
+      customer["invoice_settings"]["default_payment_method"] = paymentMethod.id;
+      const customer_obj = await stripe.customers.create(customer);
+      return { customer: customer_obj, error: false };
+    } catch (err) {
+      return { customer: false, error: err };
+    }
   }
 
   /**
