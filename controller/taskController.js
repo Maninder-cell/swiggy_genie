@@ -4,7 +4,7 @@ const mbxClient = require("@mapbox/mapbox-sdk");
 const mbxDirections = require("@mapbox/mapbox-sdk/services/directions");
 const baseClient = mbxClient({
   accessToken:
-    "pk.eyJ1IjoibmF1c2hhZGlhIiwiYSI6ImNsZ2tvM2x2bjBmOHczZ3FzaG1wcGloc2MifQ.8WmcqqOv6LALyf-CuVpAog",
+    "pk.eyJ1IjoibmF1c2hhZGlhIiwiYSI6ImNsZ296eXA3NDBiOWkzaG1ybWoxM3dmNWcifQ.bB-kCl0347BPsc_q-7GIOg",
 });
 const directionsClient = mbxDirections(baseClient);
 const Amenity = db.amenity;
@@ -29,7 +29,7 @@ exports.distance = async (req, res) => {
     .then((response) => {
       const distance = Math.floor(response.body.routes[0].distance / 1000);
       console.log(distance);
-      res.status(200).json({distance});
+      res.status(200).json({ distance });
     });
 };
 
@@ -109,13 +109,19 @@ exports.addOrder = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const { originAddress, destinationAddress, Instruction, Task_details,origin,destination } =
-      await req.body;
+    const {
+      originAddress,
+      destinationAddress,
+      Instruction,
+      Task_details,
+      origin,
+      destination,
+    } = await req.body;
 
     const taskName = await Amenity.findByPk(Task_details);
 
     const task = await Task.create({
-      Pickup_from:originAddress,
+      Pickup_from: originAddress,
       Deliver_To: destinationAddress,
       Instruction,
       Add_Task_details: taskName.name,
@@ -127,26 +133,28 @@ exports.addOrder = async (req, res, next) => {
     });
     let distance;
     await directionsClient
-    .getDirections({
-      profile: "driving-traffic",
-      waypoints: [
-        { coordinates: origin },
-        { coordinates: destination },
-      ],
-      geometries: "geojson",
-      steps: true,
-    })
-    .send()
-    .then((response) => {
-      distance = (Math.floor(response.body.routes[0].distance / 1000)*10);
-    });
+      .getDirections({
+        profile: "driving-traffic",
+        waypoints: [{ coordinates: origin }, { coordinates: destination }],
+        geometries: "geojson",
+        steps: true,
+      })
+      .send()
+      .then((response) => {
+        distance = Math.floor(response.body.routes[0].distance / 1000) * 10;
+      });
+      var OrderId = Math.random();
+      OrderId = OrderId * 100000000;
+      OrderId = parseInt(OrderId);
 
     const order = await Order.create({
-      Pickup_from:originAddress,
+      Pickup_from: originAddress,
       Deliver_To: destinationAddress,
       Instruction,
       Item_Type: taskName.name,
       Billing_Details: distance,
+      Status: "Pending",
+      OrderId
     });
 
     const data = await Task.findOne({
@@ -157,7 +165,7 @@ exports.addOrder = async (req, res, next) => {
         },
       ],
     });
-    console.log(data,order);
+    console.log(data, order);
     return res.status(200).json({
       msg: "task created sucessfully",
       task: data,
@@ -168,3 +176,19 @@ exports.addOrder = async (req, res, next) => {
     return res.status(200).json({ Message: "Something Went Wrong" });
   }
 };
+
+exports.feedback = async(req,res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  try {
+    const order = {...req.body};
+   const  update = await Order.findOne({where:{orderId:order.orderId}});
+   update.update(order);
+    return res.status(200).json({Message:"Order Updated Sucessfully"});
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json({ Message: "Something Went Wrong" });
+  }
+}

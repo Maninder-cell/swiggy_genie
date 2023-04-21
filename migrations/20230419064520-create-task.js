@@ -21,6 +21,15 @@ module.exports = {
       Instruction: {
         type: Sequelize.STRING
       },
+      feedback: {
+        type: Sequelize.STRING
+      },
+      Status: {
+        type: Sequelize.STRING
+      },
+      OrderId: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

@@ -16,9 +16,6 @@ router.post("/addtask", taskcontroller.addOrder);
 
 router.post("/distance", taskcontroller.distance);
 
-// router.post("/distance", function (req, res) {
-//   console.log(req.body.origin.geometry.coordinates);
-//   res.status(200).json({Message:"data received"})
-// });
+router.patch('/feedback',taskcontroller.feedback);
 
 module.exports = router;

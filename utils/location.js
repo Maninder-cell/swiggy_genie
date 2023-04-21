@@ -1,5 +1,4 @@
-mapboxgl.accessToken =
-  "pk.eyJ1IjoibmF1c2hhZGlhIiwiYSI6ImNsZ2tvM2x2bjBmOHczZ3FzaG1wcGloc2MifQ.8WmcqqOv6LALyf-CuVpAog";
+mapboxgl.accessToken = "pk.eyJ1IjoibmF1c2hhZGlhIiwiYSI6ImNsZ296eXA3NDBiOWkzaG1ybWoxM3dmNWcifQ.bB-kCl0347BPsc_q-7GIOg"
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/mapbox/satellite-streets-v12",
@@ -42,8 +41,8 @@ directions.on("route", async () => {
       destination: destinationCoordinates,
       destinationAddress: destinationData.destinationAddress,
       originAddress: originData.originAddress,
-      Task_details:2,
-      Instruction:"Handle with care"
+      Task_details: 1,
+      Instruction: "Handle with care",
     }),
   });
 });
