@@ -1,20 +1,23 @@
 const express = require("express");
 const { login, register } = require("../Controllers/authController");
 const { body, check } = require("express-validator");
+const loginLimiter = require("../Middleware/limitMiddleware");
+
 const router = express.Router();
 
 // login route
 router.post(
   "/Signin",
   [
-    body("PhoneNumber")
+    body("phoneNumber")
       .notEmpty()
       .withMessage("Phone number is required.")
       .isNumeric()
       .withMessage("Phone number must be numeric.")
-      .isLength({ min: 10, max: 12 })
+      .isLength({ max: 15 })
       .withMessage("Phone number must be exactly 10 digits."),
   ],
+  loginLimiter,
   login
 );
 
@@ -22,14 +25,15 @@ router.post(
 router.post(
   "/Signup",
   [
-    body("PhoneNumber")
+    body("phoneNumber")
       .notEmpty()
       .withMessage("Phone number is required.")
       .isNumeric()
       .withMessage("Phone number must be numeric.")
-      .isLength({ min: 10, max: 12 })
+      .isLength({max: 15 })
       .withMessage("Phone number must be exactly 10 digits."),
   ],
+  loginLimiter,
   register
 );
 

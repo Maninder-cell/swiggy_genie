@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const authRoutes = require("./Routes/authRoute");
 const orderRoutes = require("./Routes/oderListRoute");
 const path = require('path');
+const config = require('config');
 require("dotenv").config();
 
 const app = express();

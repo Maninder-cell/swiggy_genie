@@ -29,22 +29,22 @@ const order=async (req, res) => {
 // Get all orders
 const getAll = async (req, res) => {
     const user_id= req.user.id;
-  const orders = await Order.findAll();
-  res.json({user_id,orders});
+    const orders = await Order.findAll({ where: { user_id: user_id } });
+    res.json({user_id,orders});
 };
 
 // Get all pending orders
 const pending = async (req, res) => {
     const user_id= req.user.id;
 
-  const orders = await Order.findAll({ where: { status: 'pending' } });
+  const orders = await Order.findAll({ where: {user_id: user_id , status: 'pending' } });
   res.json({user_id,orders});
 };
 
 // Get all completed orders
 const completed= async (req, res) => {
     const user_id= req.user.id;
-  const orders = await Order.findAll({ where: { status: 'completed' } });
+  const orders = await Order.findAll({ where: {user_id: user_id , status: 'completed' } });
   res.json({user_id,orders});
 };
 
@@ -52,7 +52,7 @@ const completed= async (req, res) => {
 const accepted= async (req, res) => {
     const user_id= req.user.id;
 
-  const orders = await Order.findAll({ where: { status: 'accepted' } });
+  const orders = await Order.findAll({ where: {user_id: user_id , status: 'accepted' } });
   res.json({user_id,orders});
 };
 
@@ -60,18 +60,20 @@ const accepted= async (req, res) => {
 const cancelled= async (req, res) => {
     const user_id= req.user.id;
 
-  const orders = await Order.findAll({ where: { status: 'cancelled' } });
+  const orders = await Order.findAll({ where: {user_id: user_id , status: 'cancelled' } });
   res.json({user_id,orders});
 };
 
 // Cancel an order by ID
 const cancelOrder= async (req, res) => {
     const user_id= req.user.id;
-  const order = await Order.findByPk(req.params.id);
-  if (!order) {
-    return res.status(404).json({ message: 'Order not found' });
-  }
-  if (order.status === 'completed' || order.status === 'cancelled') {
+    const order = await Order.findOne({
+      where: { id: req.params.id, user_id: user_id },
+    });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    if (order.status === 'completed' || order.status === 'cancelled') {
     return res.status(400).json({ message: 'Order cannot be cancelled' });
   }
   order.status = 'cancelled';

@@ -8,7 +8,7 @@ require("dotenv").config();
 
 const register = async (req, res) => {
   try {
-      const { PhoneNumber } = req.body;
+      const { phoneNumber } = req.body;
 
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -16,7 +16,7 @@ const register = async (req, res) => {
       }
 
       //missing fields
-      if (!PhoneNumber) {
+      if (!phoneNumber) {
         return res
           .status(400)
           .json({ success: false, msg: "Please enter all fields" });
@@ -24,7 +24,7 @@ const register = async (req, res) => {
 
       //find user
       const userExists = await User.findOne(
-        { where: { PhoneNumber } }
+        { where: { phoneNumber } }
       );
 
       if (userExists) {
@@ -35,10 +35,12 @@ const register = async (req, res) => {
 
       const newUser = await User.create(
         {
-          phoneNumber: PhoneNumber,
+          phoneNumber: phoneNumber,
         }
       );
-      return res.json(res, 200, {
+      return  res
+      .status(200)
+      .json(  {
         success: true,
         msg: "User created successfully",
         data: {
@@ -58,7 +60,7 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { PhoneNumber } = req.body;
+    const { phoneNumber } = req.body;
 
     //validation error
     const errors = validationResult(req);
@@ -67,7 +69,7 @@ const login = async (req, res) => {
     }
 
     //find user by PhoneNumber
-    const user = await User.findOne({ where: { PhoneNumber } });
+    const user = await User.findOne({ where: { phoneNumber } });
 
     if (!user) {
       return res.status(401).json({ message: "Invalid phone number" });
