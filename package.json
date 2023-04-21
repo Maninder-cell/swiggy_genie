@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "order",
   "version": "1.0.0",
   "description": "",
@@ -25,23 +24,4 @@
   "devDependencies": {
     "sequelize-cli": "^6.6.0"
   }
-=======
-  "name": "swiggy_genie",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Maninder-cell/swiggy_genie.git"
-  },
-  "author": "Maninder Singh",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Maninder-cell/swiggy_genie/issues"
-  },
-  "homepage": "https://github.com/Maninder-cell/swiggy_genie#readme"
->>>>>>> b9c2fe750a05c4b447e25591da1a1b5f1dc0c43c
 }
