@@ -15,7 +15,7 @@ router.post(
       .withMessage("Phone number is required.")
       .isNumeric()
       .withMessage("Phone number must be numeric.")
-      .isLength({ max: 15 })
+      .isLength({min:10, max: 15 })
       .withMessage("Phone number must be exactly 10 digits."),
   ],
   loginLimiter,
@@ -31,7 +31,7 @@ router.post(
       .withMessage("Phone number is required.")
       .isNumeric()
       .withMessage("Phone number must be numeric.")
-      .isLength({max: 15 })
+      .isLength({min:10, max: 15 })
       .withMessage("Phone number must be exactly 10 digits."),
   ],
   loginLimiter,

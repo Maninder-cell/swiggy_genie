@@ -1,92 +1,90 @@
-const models = require('../models');
+const models = require("../models");
 const Order = models.Order;
 const User = models.User;
 
-const order=async (req, res) => {
-    try {
-     const user_id= req.user.id;
-      const {status } = req.body;
+const order = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const { status } = req.body;
 
-      // Check if user exists
-      const user = await User.findByPk(user_id);
-      if (!user) {
-        return res.status(400).json({ message: "User not found" });
-      }
-
-      // Create order
-      const order = await Order.create({
-        user_id,
-        status: status,
-      });
-
-      return res.status(201).json(order);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Server error" });
+    // Check if user exists
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
     }
+
+    // Create order
+    const order = await Order.create({
+      user_id,
+      status: status,
+    });
+
+    return res.status(201).json(order);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
   }
-
-// Get all orders
-const getAll = async (req, res) => {
-    const user_id= req.user.id;
-    const orders = await Order.findAll({ where: { user_id: user_id } });
-    res.json({user_id,orders});
 };
 
-// Get all pending orders
-const pending = async (req, res) => {
-    const user_id= req.user.id;
+const getOrdersByStatus = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    let orders;
 
-  const orders = await Order.findAll({ where: {user_id: user_id , status: 'pending' } });
-  res.json({user_id,orders});
-};
+    switch (req.path) {
+      case "/orders":
+        orders = await Order.findAll({ where: { user_id: user_id } });
+        break;
+      case "/pending":
+        orders = await Order.findAll({
+          where: { user_id: user_id, status: "pending" },
+        });
+        break;
+      case "/completed":
+        orders = await Order.findAll({
+          where: { user_id: user_id, status: "completed" },
+        });
+        break;
+      case "/accepted":
+        orders = await Order.findAll({
+          where: { user_id: user_id, status: "accepted" },
+        });
+        break;
+      case "/cancelled":
+        orders = await Order.findAll({
+          where: { user_id: user_id, status: "cancelled" },
+        });
+        break;
+      default:
+        return res.status(404).json({ message: "Endpoint not found" });
+    }
 
-// Get all completed orders
-const completed= async (req, res) => {
-    const user_id= req.user.id;
-  const orders = await Order.findAll({ where: {user_id: user_id , status: 'completed' } });
-  res.json({user_id,orders});
-};
-
-// Get all accepted orders
-const accepted= async (req, res) => {
-    const user_id= req.user.id;
-
-  const orders = await Order.findAll({ where: {user_id: user_id , status: 'accepted' } });
-  res.json({user_id,orders});
-};
-
-// Get all cancelled orders
-const cancelled= async (req, res) => {
-    const user_id= req.user.id;
-
-  const orders = await Order.findAll({ where: {user_id: user_id , status: 'cancelled' } });
-  res.json({user_id,orders});
+    res.json({ user_id, orders });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
 };
 
 // Cancel an order by ID
-const cancelOrder= async (req, res) => {
-    const user_id= req.user.id;
-    const order = await Order.findOne({
-      where: { id: req.params.id, user_id: user_id },
-    });
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-    if (order.status === 'completed' || order.status === 'cancelled') {
-    return res.status(400).json({ message: 'Order cannot be cancelled' });
+const cancelOrder = async (req, res) => {
+  const user_id = req.user.id;
+  const order = await Order.findOne({
+    where: { id: req.params.id, user_id: user_id },
+  });
+  if (!order) {
+    return res.status(404).json({ message: "Order not found" });
   }
-  order.status = 'cancelled';
+  if (order.status === "completed" || order.status === "cancelled") {
+    return res.status(400).json({ message: "Order cannot be cancelled" });
+  }
+  order.status = "cancelled";
   await order.save();
-  res.json({user_id,order});
+  res.json({ user_id, order });
 };
 
-module.exports ={
-    getAll,
-    cancelled,
-    cancelOrder,
-    pending,
-    completed,
-    accepted,
-    order
-}
+module.exports = {
+  order,
+  cancelOrder,
+  getOrdersByStatus,
+};

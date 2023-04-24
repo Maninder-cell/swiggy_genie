@@ -72,7 +72,7 @@ const login = async (req, res) => {
     const user = await User.findOne({ where: { phoneNumber } });
 
     if (!user) {
-      return res.status(401).json({ message: "Invalid phone number" });
+      return res.status(401).json({ message: "User doesn't exist please Signup" });
     }
 
     //generate token
