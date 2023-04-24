@@ -1,7 +1,6 @@
 {
   "name": "order",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -26,5 +25,14 @@
   },
   "devDependencies": {
     "sequelize-cli": "^6.6.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Maninder-cell/swiggy_genie.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Maninder-cell/swiggy_genie/issues"
+  },
+  "homepage": "https://github.com/Maninder-cell/swiggy_genie#readme",
+  "description": ""
 }
