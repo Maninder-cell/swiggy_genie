@@ -16,10 +16,13 @@ module.exports = (sequelize, DataTypes) => {
   User.init({
     Name: DataTypes.STRING,
     Email: DataTypes.STRING,
-    Phone: DataTypes.INTEGER,
+    Phone: DataTypes.STRING,
     Address: DataTypes.STRING,
-    account_type: DataTypes.STRING,
-    path:DataTypes.STRING
+    account_type: {
+      type: DataTypes.ENUM(['0', '1']),
+      comment: "0->Customer\n1->Driver"
+    },
+    photoUri:DataTypes.STRING
   }, {
     sequelize,
     modelName: 'User',

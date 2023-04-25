@@ -47,7 +47,7 @@ directions.on("route", async () => {
       originAddress: originData.originAddress,
       Task_details: 1,
       Instruction: "Handle with care",
-      Status: "Pending",
+      status: 0,
       OrderId
     }),
   });

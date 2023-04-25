@@ -2,6 +2,7 @@ const db = require("../models");
 const { validationResult } = require("express-validator");
 const mbxClient = require("@mapbox/mapbox-sdk");
 const mbxDirections = require("@mapbox/mapbox-sdk/services/directions");
+const moment = require("moment");
 const baseClient = mbxClient({
   accessToken:
     "pk.eyJ1IjoibmF1c2hhZGlhIiwiYSI6ImNsZ296eXA3NDBiOWkzaG1ybWoxM3dmNWcifQ.bB-kCl0347BPsc_q-7GIOg",
@@ -13,23 +14,23 @@ const Order = db.order_details;
 
 const taskAmenity = db.taskAmenity;
 
-exports.distance = async (req, res) => {
-  directionsClient
-    .getDirections({
-      profile: "driving-traffic",
-      waypoints: [
-        { coordinates: req.body.origin },
-        { coordinates: req.body.destination },
-      ],
-      geometries: "geojson",
-      steps: true,
-    })
-    .send()
-    .then((response) => {
-      const distance = Math.floor(response.body.routes[0].distance / 1000);
-      res.status(200).json({ distance });
-    });
-};
+// exports.distance = async (req, res) => {
+//   directionsClient
+//     .getDirections({
+//       profile: "driving-traffic",
+//       waypoints: [
+//         { coordinates: req.body.origin },
+//         { coordinates: req.body.destination },
+//       ],
+//       geometries: "geojson",
+//       steps: true,
+//     })
+//     .send()
+//     .then((response) => {
+//       const distance = Math.floor(response.body.routes[0].distance / 1000);
+//       res.status(200).json({ distance });
+//     });
+// };
 
 exports.addAmenity = async (req, res) => {
   const errors = validationResult(req);
@@ -88,7 +89,7 @@ exports.deleteAmenities = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const { amenity_id } = req.body;
+    const { amenity_id } = req.params;
     await Amenity.destroy({ where: { id: amenity_id } });
     return res.json({
       statusCode: 200,
@@ -107,33 +108,27 @@ exports.addOrder = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const {
-      originAddress,
-      destinationAddress,
-      Instruction,
-      Task_details,
-      origin,
-      destination,
-    } = await req.body;
+    console.log(req.body);
+    const attr = {...req.body};
 
-    const taskName = await Amenity.findByPk(Task_details);
+    const taskName = await Amenity.findByPk(attr.Task_details);
 
     const task = await Task.create({
-      Pickup_from: originAddress,
-      Deliver_To: destinationAddress,
-      Instruction,
+      Pickup_from: attr.originAddress,
+      Deliver_To: attr.destinationAddress,
+      Instruction: attr.Instruction,
       Add_Task_details: taskName.name,
     });
 
     await taskAmenity.create({
-      AmenityId: Task_details,
+      AmenityId: attr.Task_details,
       taskId: task.id,
     });
     let distance;
     await directionsClient
       .getDirections({
         profile: "driving-traffic",
-        waypoints: [{ coordinates: origin }, { coordinates: destination }],
+        waypoints: [{ coordinates: attr.origin }, { coordinates: attr.destination }],
         geometries: "geojson",
         steps: true,
       })
@@ -141,18 +136,18 @@ exports.addOrder = async (req, res, next) => {
       .then((response) => {
         distance = Math.floor(response.body.routes[0].distance / 1000) * 10;
       });
-      var OrderId = Math.random();
-      OrderId = OrderId * 100000000;
-      OrderId = parseInt(OrderId);
+    var OrderId = Math.random();
+    OrderId = OrderId * 100000000;
+    OrderId = parseInt(OrderId);
 
     const order = await Order.create({
-      Pickup_from: originAddress,
-      Deliver_To: destinationAddress,
-      Instruction,
+      Pickup_from: attr.originAddress,
+      Deliver_To: attr.destinationAddress,
+      Instruction: attr.Instruction,
       Item_Type: taskName.name,
       Billing_Details: distance,
-      Status: "Pending",
-      OrderId
+      status: '0',
+      OrderId,
     });
 
     const data = await Task.findOne({
@@ -174,18 +169,65 @@ exports.addOrder = async (req, res, next) => {
   }
 };
 
-exports.feedback = async(req,res, next) => {
+exports.feedback = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const order = {...req.body};
-   const  update = await Order.findOne({where:{orderId:order.orderId}});
-   update.update(order);
-    return res.status(200).json({Message:"Order Updated Sucessfully"});
+    const order = { ...req.body };
+    const update = await Order.findOne({ where: { orderId: req.params.orderId } });
+    console.log(update);
+    await update.update(order);
+    if (req.role == 1) {
+      update.update({
+        DriverId: req.id,
+      });
+    }
+    return res.status(200).json({ Message: "Order Updated Sucessfully" });
   } catch (error) {
     console.log(error);
     return res.status(200).json({ Message: "Something Went Wrong" });
   }
-}
+};
+
+exports.getOrder = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  try {
+    // const {count : orderCount, rows: orders} = await Order.findAndCountAll({where:{DriverId:req.id,status:'1'},attributes:['Pickup_from','Deliver_To','Item_Type','OrderId','createdAt']});
+    var today = new Date();
+    var Till =
+      today.getDate() +
+      " " +
+      today.toLocaleString("default", { month: "long" }) +
+      " " +
+      today.getFullYear();
+    const totalOrders = await Order.count({
+      // where: { DriverId: req.id, status: "1" },
+      where: { DriverId: "4", status: "1" },
+    });
+    const PendingOrder = await Order.findAll({
+      where: { status: "0" },
+      attributes: [
+        "Pickup_from",
+        "Deliver_To",
+        "Item_Type",
+        "OrderId",
+        "createdAt",
+      ],
+    });
+    const PendingOrders = PendingOrder.map((order) => {
+      return {
+        ...order.toJSON(),
+        createdAt: moment(order.createdAt).format("DD MMMM YYYY, hh:mm:ss A"),
+      };
+    });
+    return res.status(200).json({ totalOrders, PendingOrders, Till });
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json({ Message: "Something Went Wrong" });
+  }
+};

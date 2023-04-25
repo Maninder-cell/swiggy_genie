@@ -21,11 +21,12 @@ module.exports = {
       Instruction: {
         type: Sequelize.STRING
       },
-      feedback: {
-        type: Sequelize.STRING
+      DriverId: {
+        type: Sequelize.INTEGER
       },
-      Status: {
-        type: Sequelize.STRING
+      status: {
+        type: Sequelize.ENUM(['0', '1', '2', '3', '4']),
+        comment: "0->Pending\n1->Accepted\n2->Completed\n3->Rejected\n4->Cancelled"
       },
       OrderId: {
         type: Sequelize.INTEGER

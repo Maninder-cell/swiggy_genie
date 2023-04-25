@@ -22,6 +22,10 @@ module.exports = {
         type: Sequelize.STRING
       },
       account_type: {
+        type: Sequelize.ENUM(['0', '1']),
+        comment: "0->Customer\n1->Driver"
+      },
+      photoUri: {
         type: Sequelize.STRING
       },
       createdAt: {

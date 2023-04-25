@@ -19,8 +19,11 @@ module.exports = (sequelize, DataTypes) => {
     Item_Type: DataTypes.STRING,
     Billing_Details: DataTypes.INTEGER,
     Instruction: DataTypes.STRING,
-    feedback: DataTypes.STRING,
-    Status: DataTypes.STRING,
+    status: {
+      type: DataTypes.ENUM(['0', '1', '2', '3', '4']),
+      comment: "0->Pending\n1->Accepted\n2->Completed\n3->Rejected\n4->Cancelled"
+    },
+    DriverId: DataTypes.INTEGER,
     OrderId: DataTypes.INTEGER
   }, {
     sequelize,
