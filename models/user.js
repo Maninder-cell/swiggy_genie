@@ -70,6 +70,7 @@ module.exports = (sequelize, DataTypes) => {
     allowNull:true,
     commnet:"0:off , 1:on",
   } ,
+  path:DataTypes.STRING,
   lastLoggedIn: {
     type: DataTypes.DATE,
     allowNull: true,
