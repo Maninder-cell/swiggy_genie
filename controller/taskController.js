@@ -11,6 +11,7 @@ const directionsClient = mbxDirections(baseClient);
 const Amenity = db.amenity;
 const Task = db.task;
 const Order = db.order_details;
+const User = db.user;
 
 const taskAmenity = db.taskAmenity;
 
@@ -198,6 +199,7 @@ exports.getOrder = async (req, res) => {
   }
   try {
     // const {count : orderCount, rows: orders} = await Order.findAndCountAll({where:{DriverId:req.id,status:'1'},attributes:['Pickup_from','Deliver_To','Item_Type','OrderId','createdAt']});
+    const {count : totalOrders, rows: orders} = await Order.findAndCountAll({where:{status:'0'},attributes:['Pickup_from','Deliver_To','Item_Type','OrderId','createdAt']});
     var today = new Date();
     var Till =
       today.getDate() +
@@ -205,27 +207,33 @@ exports.getOrder = async (req, res) => {
       today.toLocaleString("default", { month: "long" }) +
       " " +
       today.getFullYear();
-    const totalOrders = await Order.count({
-      // where: { DriverId: req.id, status: "1" },
-      where: { DriverId: "4", status: "1" },
-    });
-    const PendingOrder = await Order.findAll({
-      where: { status: "0" },
-      attributes: [
-        "Pickup_from",
-        "Deliver_To",
-        "Item_Type",
-        "OrderId",
-        "createdAt",
-      ],
-    });
-    const PendingOrders = PendingOrder.map((order) => {
+    // const totalOrders = await Order.count({
+    //   // where: { DriverId: req.id, status: "1" },
+    //   where: { DriverId: "1", status: "2" },
+    // });
+    // const PendingOrder = await Order.findAll({
+    //   where: { status: "0" },
+    //   attributes: [
+    //     "Pickup_from",
+    //     "Deliver_To",
+    //     "Item_Type",
+    //     "OrderId",
+    //     "createdAt",
+    //   ],
+    // });
+    const PendingOrders = orders.map((order) => {
       return {
         ...order.toJSON(),
-        createdAt: moment(order.createdAt).format("DD MMMM YYYY, hh:mm:ss A"),
+        createdAt: moment(order.createdAt).format("DD MMMM YYYY, hh:mm A"),
       };
     });
-    return res.status(200).json({ totalOrders, PendingOrders, Till });
+    // const user = await User.findByPk((req.id));
+    const user = await User.findByPk((1));
+    if (user.status == '1') {
+      return res.status(200).json({ totalOrders, PendingOrders, Till });
+    } else {
+      return res.status(200).json({  Till });
+    }
   } catch (error) {
     console.log(error);
     return res.status(200).json({ Message: "Something Went Wrong" });

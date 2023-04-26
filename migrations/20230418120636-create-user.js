@@ -28,6 +28,10 @@ module.exports = {
       photoUri: {
         type: Sequelize.STRING
       },
+      status: {
+        type: Sequelize.ENUM(['0', '1']),
+        comment: "0->Off\n1->On"
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

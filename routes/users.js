@@ -23,4 +23,6 @@ router.patch('/update',authcontroller.editprofileController);
 
 router.get('/get',authcontroller.getProfileController);
 
+router.post('/local',authcontroller.local);
+
 module.exports = router;

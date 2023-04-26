@@ -3,6 +3,7 @@ const db = require("../models");
 const User = db.user;
 
 const jwt = require("jsonwebtoken");
+const store = require('store2');
 
 const { validationResult } = require("express-validator");
 
@@ -17,6 +18,11 @@ const generateToken = (data) => {
     return res.status(400).json({ Message: "Something Went Wrong" });
   }
 };
+
+exports.local = async(req, res) => {
+  console.log(store.getAll());
+  return res.status(200).json({Message:"Local Get Sucessfully"})
+}
 
 exports.editprofileController = async (req, res) => {
   const errors = validationResult(req);
@@ -33,6 +39,8 @@ exports.editprofileController = async (req, res) => {
     } else {
       const user = await find.update(updatedUser,{returning: true, attributes: ['Name','photoUri','Address','Email','Phone']});
       const accessToken = generateToken({ id:user.id,account_type:user.account_type });
+      store.set('token',accessToken);
+      console.log(store.get('token'));
       return res.status(201).json({ user,accessToken,Message:"User Updated Sucessfully" });
     }
   } catch (error) {

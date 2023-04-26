@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM(['0', '1']),
       comment: "0->Customer\n1->Driver"
     },
+    status: {
+      type: DataTypes.ENUM(['0', '1']),
+      comment: "0->Off\n1->On"
+    },
     photoUri:DataTypes.STRING
   }, {
     sequelize,
