@@ -24,6 +24,9 @@ module.exports = {
       role: {
         type: Sequelize.ENUM('admin', 'driver', 'customer')
       },
+      tokens: {
+        type: Sequelize.ARRAY
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

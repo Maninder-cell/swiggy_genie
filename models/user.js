@@ -1,5 +1,19 @@
-"use strict";
-const { Model } = require("sequelize");
+'use strict';
+const {
+  Model
+} = require('sequelize');
+
+const ROLE = {
+  ADMIN: 0,
+  DRIVER: 1,
+  CUSTOMER: 2,
+};
+
+const STATUS={
+  OFF:0,
+  ON:1,
+};
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -8,36 +22,62 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      // define association here
       models.User.hasMany(models.Order, {
-        foreignKey: "user_id",
+        foreignKey: 'user_id',
+        onDelete: "CASCADE",
+
       });
+
+      // models.User.belongsTo(models.Payment, {
+      //   foreignKey: 'user_id',
+      //         onDelete: "CASCADE",
+      // });
+
+      // models.User.belongsTo(models.Feedback, {
+      //   foreignKey: 'user_id',
+      // onDelete: "CASCADE",
+      // });
     }
   }
-  User.init(
-    {
-      phoneNumber: {
-        type: DataTypes.BIGINT,
-        allowNull: false,
-      },
-      name: DataTypes.STRING,
-      email: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      address: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      role: {
-        type: DataTypes.ENUM("admin", "driver", "customer"),
-        defaultValue: "customer",
-        allowNull: true,
-      },
+  User.init({
+    phoneNumber: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
     },
-    {
-      sequelize,
-      modelName: "User",
-    }
-  );
+    name: DataTypes.STRING,
+    email: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    role: {
+      type: DataTypes.INTEGER,
+      defaultValue: ROLE.CUSTOMER,
+      allowNull: true,
+      comment: "0: admin, 1: driver, 2: customer",
+
+    },
+    tokens: {
+      type: DataTypes.STRING
+    } ,
+  status:{
+    type:DataTypes.INTEGER,
+    defaultValue:STATUS.OFF,
+    allowNull:true,
+    commnet:"0:off , 1:on",
+  } ,
+  lastLoggedIn: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: "Timestamp of last login"
+  }
+}, {
+    sequelize,
+    modelName: 'User',
+  });
   return User;
 };

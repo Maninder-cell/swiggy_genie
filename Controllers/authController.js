@@ -8,51 +8,43 @@ require("dotenv").config();
 
 const register = async (req, res) => {
   try {
-      const { phoneNumber } = req.body;
+    const { phoneNumber } = req.body;
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-      //missing fields
-      if (!phoneNumber) {
-        return res
-          .status(400)
-          .json({ success: false, msg: "Please enter all fields" });
-      }
+    //missing fields
+    if (!phoneNumber) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Please enter all fields" });
+    }
 
-      //find user
-      const userExists = await User.findOne(
-        { where: { phoneNumber } }
-      );
+    //find user
+    const userExists = await User.findOne({ where: { phoneNumber } });
 
-      if (userExists) {
-        return res
-          .status(400)
-          .json({ success: false, msg: "User already exists" });
-      }
+    if (userExists) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "User already exists" });
+    }
 
-      const newUser = await User.create(
-        {
-          phoneNumber: phoneNumber,
-        }
-      );
-      return  res
-      .status(200)
-      .json(  {
-        success: true,
-        msg: "User created successfully",
-        data: {
-          user_id: newUser.id,
-          phoneNumber: newUser.phoneNumber,
-        },
-      });
+    const newUser = await User.create({
+      phoneNumber: phoneNumber,
+    });
+    return res.status(200).json({
+      success: true,
+      msg: "User created successfully",
+      data: {
+        user_id: newUser.id,
+        phoneNumber: newUser.phoneNumber,
+      },
+    });
   } catch (err) {
     console.log(err);
-    return  res
-    .status(500)
-    .json( {
+    return res.status(500).json({
       message: "Internal server error",
     });
   }
@@ -72,21 +64,25 @@ const login = async (req, res) => {
     const user = await User.findOne({ where: { phoneNumber } });
 
     if (!user) {
-      return res.status(401).json({ message: "User doesn't exist please Signup" });
+      return res
+        .status(401)
+        .json({ message: "User doesn't exist please Signup" });
     }
 
     //generate token
     const token = jwt.sign(
       { phoneNumber: user.phoneNumber, id: user.id, role: user.role },
       process.env.JWT_SECRET,
-    //   {
-    //     expiresIn: "60m",
-    //   }
+      {
+        expiresIn: "15d",
+      }
     );
+    // save token in user model
+    user.tokens = token;
+    user.lastLoggedIn = Date.now();
+    await user.save();
 
-    return res
-      .status(200)
-      .json( {
+    return res.status(200).json({
       success: true,
       msg: "User logged in successfully",
       data: {
@@ -103,8 +99,30 @@ const login = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const user = await User.findByPk(user_id);
+    if (!user || !user.tokens) {
+      return res.status(401).json({ message: "Token not found" });
+    }
+    user.tokens = null;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      msg: "User logged out successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", err: err.message });
+  }
+};
+
 module.exports = {
-    login,
-    register,
-  };
-  
+  login,
+  register,
+  logout,
+};
