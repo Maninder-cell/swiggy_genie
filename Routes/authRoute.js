@@ -1,7 +1,7 @@
 
 const express = require("express");
 const { login, register,logout } = require("../Controllers/authController");
-const { body, check } = require("express-validator");
+const { body } = require("express-validator");
 const loginLimiter = require("../Middleware/limitMiddleware");
 const verifyToken = require("../Middleware/verifyToken");
 
@@ -44,5 +44,7 @@ router.post(
 
 // logout route
 router.post("/logout",verifyToken,logout);
+
+
 
 module.exports = router;

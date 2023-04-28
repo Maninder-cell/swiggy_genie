@@ -24,10 +24,11 @@ module.exports = (sequelize, DataTypes) => {
     Instruction: DataTypes.STRING,
     status: {
       type: DataTypes.ENUM(['0', '1', '2', '3', '4']),
-      comment: "0->Pending\n1->Accepted\n2->completed\n3->Rejected\n4->Cancelled",
+      comment: "0->Pending\n1->Accepted\n2->Completed\n3->Rejected\n4->Cancelled"
     },
     user_id: DataTypes.INTEGER,
-    OrderNo: DataTypes.INTEGER
+    DriverId: DataTypes.INTEGER,
+    OrderId: DataTypes.INTEGER
      }, {
     sequelize,
     modelName: 'Order',

@@ -1,45 +1,72 @@
 const models = require("../models");
+const { validationResult } = require("express-validator");
+const mbxClient = require("@mapbox/mapbox-sdk");
+const mbxDirections = require("@mapbox/mapbox-sdk/services/directions");
+const baseClient = mbxClient({
+  accessToken:
+    "pk.eyJ1IjoibmF1c2hhZGlhIiwiYSI6ImNsZ296eXA3NDBiOWkzaG1ybWoxM3dmNWcifQ.bB-kCl0347BPsc_q-7GIOg",
+});
+const directionsClient = mbxDirections(baseClient);
 const Order = models.Order;
-const User = models.User;
+const Task = models.task;
 
-const order = async (req, res) => {
+const addOrder = async (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   try {
-    const user_id = req.user.id;
-    const {
-      status,
-      Pickup_from,
-      Deliver_To,
-      Instruction,
-      Item_Type,
-      Billing_Details,
-    } = req.body;
+    const attr = { ...req.body };
+    console.log(attr);
 
-    // Check if user exists
-    const user = await User.findByPk(user_id);
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
-    }
-
-    var OrderNo = Math.random() * 100000000;
-    OrderNo = parseInt(OrderNo);
-    console.log(req.body);
-
-    // Create order
-    const order = await Order.create({
-      user_id,
-      status: status,
-      OrderNo: OrderNo,
-      Pickup_from: Pickup_from,
-      Deliver_To: Deliver_To,
-      Instruction: Instruction,
-      Item_Type: Item_Type,
-      Billing_Details: Billing_Details,
+    const task = await Task.create({
+      Pickup_from: attr.originAddress,
+      Deliver_To: attr.destinationAddress,
+      Instruction: attr.Instruction,
+      Add_Task_details: attr.Item_Type,
     });
 
-    return res.status(201).json(order);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
+    let distance;
+    await directionsClient
+      .getDirections({
+        profile: "driving-traffic",
+        waypoints: [
+          { coordinates: attr.origin },
+          { coordinates: attr.destination },
+        ],
+        geometries: "geojson",
+        steps: true,
+      })
+      .send()
+      .then((response) => {
+        distance = Math.floor(response.body.routes[0].distance / 1000) * 10;
+      });
+    var OrderId = Math.random();
+    OrderId = OrderId * 100000000;
+    OrderId = parseInt(OrderId);
+
+    const order = await Order.create({
+      Pickup_from: attr.originAddress,
+      Deliver_To: attr.destinationAddress,
+      Instruction: attr.Instruction,
+      Item_Type: attr.Item_Type,
+      Billing_Details: distance,
+      status: "0",
+      OrderId,
+    });
+
+    const data = await Task.findOne({
+      where: { id: task.id }
+    });
+    return res.status(200).json({
+      msg: "task created sucessfully",
+      task: data,
+      order: order,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(200).json({ Message: "Something Went Wrong" });
   }
 };
 
@@ -101,7 +128,7 @@ const cancelOrder = async (req, res) => {
 };
 
 module.exports = {
-  order,
   cancelOrder,
   getOrdersByStatus,
+  addOrder
 };

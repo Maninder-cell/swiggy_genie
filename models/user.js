@@ -53,20 +53,20 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    phoneNumber: {
+    Phone: {
       type: DataTypes.BIGINT,
       allowNull: false,
     },
-    name: DataTypes.STRING,
-    email: {
+    Name: DataTypes.STRING,
+    Email: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    address: {
+    Address: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    role: {
+    account_type: {
       type: DataTypes.INTEGER,
       defaultValue: ROLE.CUSTOMER,
       allowNull: true,
@@ -76,13 +76,13 @@ module.exports = (sequelize, DataTypes) => {
     tokens: {
       type: DataTypes.STRING
     } ,
-  status:{
+    status:{
     type:DataTypes.INTEGER,
     defaultValue:STATUS.OFF,
     allowNull:true,
     commnet:"0:off , 1:on",
   } ,
-  path:DataTypes.STRING,
+  photoUri:DataTypes.STRING,
   lastLoggedIn: {
     type: DataTypes.DATE,
     allowNull: true,

@@ -9,23 +9,31 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      phoneNumber: {
+      Phone: {
         type: Sequelize.BIGINT
       },
-      name: {
+      Name: {
         type: Sequelize.STRING
       },
-      email: {
+      Email: {
         type: Sequelize.STRING
       },
-      address: {
+      Address: {
         type: Sequelize.STRING
       },
-      role: {
-        type: Sequelize.ENUM('admin', 'driver', 'customer')
+      account_type: {
+        type: Sequelize.ENUM(['0', '1','2']),
+        comment: "0->Customer\n1->Driver\n2->Admin"
       },
       tokens: {
-        type: Sequelize.ARRAY
+        type: Sequelize.STRING
+      },
+      photoUri: {
+        type: Sequelize.STRING
+      },
+      status: {
+        type: Sequelize.ENUM(['0', '1']),
+        comment: "0->Off\n1->On"
       },
       createdAt: {
         allowNull: false,

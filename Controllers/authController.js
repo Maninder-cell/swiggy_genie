@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const models = require("../models");
-const { sequelize } = require("../models");
 const { validationResult } = require("express-validator");
 const User = models.User;
 
@@ -23,7 +22,7 @@ const register = async (req, res) => {
     }
 
     //find user
-    const userExists = await User.findOne({ where: { phoneNumber } });
+    const userExists = await User.findOne({ where: { Phone } });
 
     if (userExists) {
       return res
@@ -32,14 +31,14 @@ const register = async (req, res) => {
     }
 
     const newUser = await User.create({
-      phoneNumber: phoneNumber,
+      Phone: phoneNumber,
     });
     return res.status(200).json({
       success: true,
       msg: "User created successfully",
       data: {
         user_id: newUser.id,
-        phoneNumber: newUser.phoneNumber,
+        Phone: newUser.Phone,
       },
     });
   } catch (err) {
@@ -61,7 +60,7 @@ const login = async (req, res) => {
     }
 
     //find user by PhoneNumber
-    const user = await User.findOne({ where: { phoneNumber } });
+    const user = await User.findOne({ where: { Phone } });
 
     if (!user) {
       return res
@@ -71,7 +70,7 @@ const login = async (req, res) => {
 
     //generate token
     const token = jwt.sign(
-      { phoneNumber: user.phoneNumber, id: user.id, role: user.role },
+      { phoneNumber: user.Phone, id: user.id, role: user.account_type },
       process.env.JWT_SECRET,
       {
         expiresIn: "15d",
@@ -94,7 +93,7 @@ const login = async (req, res) => {
       msg: "User logged in successfully",
       data: {
         user_id: user.id,
-        role: user.role,
+        role: user.account_type,
         token: token,
       },
     });
