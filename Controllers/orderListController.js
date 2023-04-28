@@ -47,20 +47,26 @@ const addOrder = async (req, res, next) => {
     OrderId = parseInt(OrderId);
 
     const order = await Order.create({
-      user_id,
-      status: status,
-      OrderNo: OrderNo,
-      Pickup_from: Pickup_from,
-      Deliver_To: Deliver_To,
-      Instruction: Instruction,
-      Item_Type: Item_Type,
-      Billing_Details: Billing_Details,
+      Pickup_from: attr.originAddress,
+      Deliver_To: attr.destinationAddress,
+      Instruction: attr.Instruction,
+      Item_Type: attr.Item_Type,
+      Billing_Details: distance,
+      OrderId,
+      user_id:req.user.id,
     });
 
-    return res.status(201).json(order);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
+    const data = await Task.findOne({
+      where: { id: task.id }
+    });
+    return res.status(200).json({
+      msg: "task created sucessfully",
+      task: data,
+      order: order,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(200).json({ Message: "Something Went Wrong" });
   }
 };
 
@@ -116,10 +122,10 @@ const cancelOrder = async (req, res) => {
   if (!order) {
     return res.status(404).json({ message: "Order not found" });
   }
-  if (order.status === "2" || order.status === "4") {
+  if (order.status === "completed" || order.status === "cancelled") {
     return res.status(400).json({ message: "Order cannot be cancelled" });
   }
-  order.status = "4";
+  order.status = "cancelled";
   await order.save();
   res.json({ user_id, order });
 };
@@ -127,4 +133,5 @@ const cancelOrder = async (req, res) => {
 module.exports = {
   cancelOrder,
   getOrdersByStatus,
+  addOrder
 };
