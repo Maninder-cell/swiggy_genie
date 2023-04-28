@@ -12,8 +12,30 @@ module.exports = {
       user_id: {
         type: Sequelize.INTEGER
       },
+      Pickup_from: {
+        type: Sequelize.STRING
+      },
+      Deliver_To: {
+        type: Sequelize.STRING
+      },
+      Item_Type: {
+        type: Sequelize.STRING
+      },
+      Billing_Details: {
+        type: Sequelize.INTEGER
+      },
+      Instruction: {
+        type: Sequelize.STRING
+      },
       status: {
-        type: Sequelize.ENUM('pending', 'accepted', 'completed', 'cancelled')
+        type: Sequelize.ENUM(['0', '1', '2', '3', '4']),
+        comment: "0->Pending\n1->Accepted\n2->Completed\n3->Rejected\n4->Cancelled"
+      },
+      DriverId: {
+        type: Sequelize.INTEGER
+      },
+      OrderId: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
