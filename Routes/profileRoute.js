@@ -4,7 +4,6 @@ const verifyToken = require("../Middleware/verifyToken");
 
 const profileController = require("../Controllers/profileController");
 
-router.patch('/update',verifyToken,profileController.editprofileController);
+router.patch('/update',profileController.editprofileController);
 
-module.exports = router;
 module.exports = router;
