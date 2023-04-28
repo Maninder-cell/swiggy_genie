@@ -2,6 +2,7 @@
 const {
   Model
 } = require('sequelize');
+const { v4: uuidv4 } = require('uuid');
 
 const ROLE = {
   ADMIN: 0,
@@ -29,6 +30,12 @@ module.exports = (sequelize, DataTypes) => {
 
       });
 
+      // models.User.hasMany(models.task, {
+      //   foreignKey: 'user_id',
+      //   onDelete: "CASCADE",
+
+      // });
+
       // models.User.belongsTo(models.Payment, {
       //   foreignKey: 'user_id',
       //         onDelete: "CASCADE",
@@ -41,6 +48,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
     phoneNumber: {
       type: DataTypes.BIGINT,
       allowNull: false,

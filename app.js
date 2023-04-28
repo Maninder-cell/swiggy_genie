@@ -4,6 +4,7 @@ const authRoutes = require("./Routes/authRoute");
 const orderRoutes = require("./Routes/oderListRoute");
 const driverRoutes = require("./Routes/driverRoute");
 const path = require('path');
+const cookieParser = require('cookie-parser');
 
 const cron = require("cron");
 const deleteUserData = require("./deleteUserData");
@@ -17,6 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/auth", authRoutes);
 app.use(orderRoutes);

@@ -82,6 +82,13 @@ const login = async (req, res) => {
     user.lastLoggedIn = Date.now();
     await user.save();
 
+        // Set token as cookie
+        res.cookie("auth_token", token, {
+          maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+          httpOnly: true,
+          // secure: process.env.NODE_ENV === "production",
+        });
+    
     return res.status(200).json({
       success: true,
       msg: "User logged in successfully",
@@ -108,6 +115,8 @@ const logout = async (req, res) => {
     }
     user.tokens = null;
     await user.save();
+
+    res.clearCookie("auth_token");
 
     return res.status(200).json({
       success: true,

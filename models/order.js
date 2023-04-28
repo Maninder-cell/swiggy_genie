@@ -17,11 +17,18 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Order.init({
-    user_id: DataTypes.INTEGER,
+    Pickup_from: DataTypes.STRING,
+    Deliver_To: DataTypes.STRING,
+    Item_Type: DataTypes.STRING,
+    Billing_Details: DataTypes.INTEGER,
+    Instruction: DataTypes.STRING,
     status: {
-      type: DataTypes.ENUM('pending', 'accepted', 'completed', 'cancelled'),
-      defaultValue: 'pending'
-    }  }, {
+      type: DataTypes.ENUM(['0', '1', '2', '3', '4']),
+      comment: "0->Pending\n1->Accepted\n2->completed\n3->Rejected\n4->Cancelled",
+    },
+    user_id: DataTypes.INTEGER,
+    OrderNo: DataTypes.INTEGER
+     }, {
     sequelize,
     modelName: 'Order',
   });
