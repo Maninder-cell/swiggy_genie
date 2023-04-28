@@ -3,6 +3,10 @@ const models = require("../models");
 const User = models.User;
 
 const { validationResult } = require("express-validator");
+const models = require("../models");
+
+
+const { validationResult } = require("express-validator");
 
 exports.editprofileController = async (req, res) => {
     const errors = validationResult(req);

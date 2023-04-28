@@ -47,27 +47,20 @@ const addOrder = async (req, res, next) => {
     OrderId = parseInt(OrderId);
 
     const order = await Order.create({
-      Pickup_from: attr.originAddress,
-      Deliver_To: attr.destinationAddress,
-      Instruction: attr.Instruction,
-      Item_Type: attr.Item_Type,
-      Billing_Details: distance,
-      status: "0",
-      OrderId,
-      user_id: req.user.id,
+      user_id,
+      status: status,
+      OrderNo: OrderNo,
+      Pickup_from: Pickup_from,
+      Deliver_To: Deliver_To,
+      Instruction: Instruction,
+      Item_Type: Item_Type,
+      Billing_Details: Billing_Details,
     });
 
-    const data = await Task.findOne({
-      where: { id: task.id },
-    });
-    return res.status(200).json({
-      msg: "task created sucessfully",
-      task: data,
-      order: order,
-    });
-  } catch (err) {
-    console.log(err);
-    return res.status(200).json({ Message: "Something Went Wrong" });
+    return res.status(201).json(order);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -134,5 +127,4 @@ const cancelOrder = async (req, res) => {
 module.exports = {
   cancelOrder,
   getOrdersByStatus,
-  addOrder,
 };

@@ -1,6 +1,4 @@
-const models = require("../models");
-const { validationResult } = require("express-validator");
-const moment = require("moment");
+const models = require('../models');
 const Order = models.Order;
 const User = models.User;
 
@@ -99,59 +97,8 @@ const actionController = async (req, res, next) => {
   }
 };
 
-const getOrder = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  try {
-    // const {count : orderCount, rows: orders} = await Order.findAndCountAll({where:{DriverId:req.id,status:'1'},attributes:['Pickup_from','Deliver_To','Item_Type','OrderId','createdAt']});
-    const { count: totalOrders, rows: orders } = await Order.findAndCountAll({
-      where: {status: "1" },
-      attributes: [
-        "Pickup_from",
-        "Deliver_To",
-        "Item_Type",
-        "OrderId",
-        "createdAt",
-      ],
-      include: [
-        {
-          model: User,
-          attributes: ["name", "photoUri"],
-        },
-      ],
-    });
-    var today = new Date();
-    var Till =
-      today.getDate() +
-      " " +
-      today.toLocaleString("default", { month: "long" }) +
-      " " +
-      today.getFullYear();
-    const PendingOrders = orders.map((order) => {
-      return {
-        ...order.toJSON(),
-        createdAt: moment(order.createdAt).format("DD MMMM YYYY, hh:mm A"),
-      };
-    });
-    // const user = await User.findByPk((req.id));
-    const user = await User.findByPk(req.user.id);
-    if (user.status == "1") {
-      return res
-        .status(200)
-        .json({ totalOrders, PendingOrders, Till, toggleStatus: user.status });
-    } else {
-      return res.status(200).json({ Till });
-    }
-  } catch (error) {
-    console.log(error);
-    return res.status(200).json({ Message: "Something Went Wrong" });
-  }
-};
 
-module.exports = {
-  getOrdersByStatus,
-  actionController,
-  getOrder,
-};
+module.exports={
+    getCompletedOrdersCount,
+    getOrdersByStatus
+}

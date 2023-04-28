@@ -7,3 +7,4 @@ const profileController = require("../Controllers/profileController");
 router.patch('/update',verifyToken,profileController.editprofileController);
 
 module.exports = router;
+module.exports = router;
