@@ -22,7 +22,7 @@ const register = async (req, res) => {
     }
 
     //find user
-    const userExists = await User.findOne({ where: { phoneNumber } });
+    const userExists = await User.findOne({ where: { Phone:phoneNumber } });
 
     if (userExists) {
       return res
@@ -60,7 +60,7 @@ const login = async (req, res) => {
     }
 
     //find user by PhoneNumber
-    const user = await User.findOne({ where: { phoneNumber } });
+    const user = await User.findOne({ where: { Phone:phoneNumber } });
 
     if (!user) {
       return res
