@@ -1,13 +1,15 @@
 const StripeMain = require("../services/stripe");
+const { validationResult } = require("express-validator");
 
 exports.createCustomer = async (req, res, next) => {
+  const number = req.body.number.replace(/\s/g, '');
   const {customer,error} = await StripeMain.createCustomer({
     name: req.body.name,
     email: req.body.email,
     payment_method: {
       type: "card",
       card: {
-        number: req.body.number,
+        number: number,
         exp_month: req.body.expiry.split("/")[0],
         exp_year: req.body.expiry.split("/")[1],
         cvc: req.body.cvv,
@@ -28,24 +30,32 @@ exports.createCustomer = async (req, res, next) => {
 };
 
 exports.pay = async (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const payment = await StripeMain.Pay(
-    100,
-    "cus_Nk47G3wCRLsJrV",
-    "pm_1MyZziJC7o9g4pD4LJiBiQaX"
+    req.body.amount,
+    "cus_NoVup9TQKR9ZJn",
+    req.body.pay_id
   );
+
   return res.status(200).json({
     payment: payment,
   });
 };
 
 exports.newPaymentMethod = async (req, res, next) => {
-  const result = await StripeMain.NewPaymentMethod("cus_Nk47G3wCRLsJrV", {
+  const number = req.body.number.replace(/\s/g, '');
+  const result = await StripeMain.NewPaymentMethod("cus_NmD7JOk3zTJANY", {
     type: "card",
     card: {
-      number: "5555555555554444",
-      exp_month: 12,
-      exp_year: 2028,
-      cvc: "985",
+      number: number,
+      exp_month: req.body.expiry.split("/")[0],
+      exp_year: req.body.expiry.split("/")[1],
+      cvc: req.body.cvv,
     },
   });
 
@@ -55,7 +65,7 @@ exports.newPaymentMethod = async (req, res, next) => {
 };
 
 exports.listPaymentMethods = async (req, res, next) => {
-  const list = await StripeMain.ListAllPaymentMethods("cus_Nk47G3wCRLsJrV");
+  const list = await StripeMain.ListAllPaymentMethods("cus_NoVup9TQKR9ZJn");
   return res.status(200).json({
     list: list,
   });
