@@ -13,7 +13,7 @@ exports.editprofileController = async (req, res) => {
       const updatedUser = {...req.body};
       console.log(updatedUser);
       // const find = await User.findOne({where:{Phone:updatedUser.Phone}});
-      const find = await User.findByPk((1));
+      const find = await User.findByPk((req.user.id));
       if (!find) {
         const user = await User.create(updatedUser);
         return res.status(201).json({ user,Message:"User Created Sucessfully" });

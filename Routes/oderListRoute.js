@@ -11,19 +11,7 @@ const router = express.Router();
 router.post('/place',verifyToken,addOrder);
 
 // Route to get all orders
-router.get('/orders', verifyToken,getOrdersByStatus);
-
-// Route to get all pending orders
-router.get('/pending', verifyToken,getOrdersByStatus);
-
-// Route to get all completed orders
-router.get('/completed', verifyToken,getOrdersByStatus);
-
-// Route to get all accepted orders
-router.get('/accepted', verifyToken,getOrdersByStatus);
-
-// Route to get all cancelled orders
-router.get('/cancelled', verifyToken,getOrdersByStatus);
+router.post('/orders', verifyToken,getOrdersByStatus);
 
 // Route to cancel an order by ID
 router.put('/orders/:id/cancel', verifyToken,cancelOrder);

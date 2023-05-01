@@ -2,40 +2,38 @@ const models = require('../models');
 const { validationResult } = require("express-validator");
 const moment = require("moment");
 const Order = models.Order;
-const User = models.user;
+const User = models.User;
 
 
 const getOrdersByStatus = async (req, res) => {
     try {
       const user_id = req.user.id;
       let orders;
-  
-      switch (req.path) {
-        case "/orders":
-          orders = await Order.findAll({ where: { user_id: user_id } });
-          break;
-        case "/pending":
+      const status = { ...req.body };
+      switch (true) {
+        case status.status === "0":
           orders = await Order.findAll({
-            where: { user_id: user_id, status: "pending" },
+            where: { user_id: user_id, status: "0" },
           });
           break;
-        case "/completed":
+        case status.status === "2":
           orders = await Order.findAll({
-            where: { user_id: user_id, status: "completed" },
+            where: { user_id: user_id, status: "2" },
           });
           break;
-        case "/accepted":
+        case status.status === "1":
           orders = await Order.findAll({
-            where: { user_id: user_id, status: "accepted" },
+            where: { user_id: user_id, status: "1" },
           });
           break;
-        case "/rejected":
+        case status.status === "3":
           orders = await Order.findAll({
-            where: { user_id: user_id, status: "rejected" },
+            where: { user_id: user_id, status: "3" },
           });
           break;
         default:
-          return res.status(404).json({ message: "Endpoint not found" });
+          orders = await Order.findAll({ where: { user_id: user_id } });
+          break;
       }
   
       res.json({ user_id, orders });
@@ -45,7 +43,7 @@ const getOrdersByStatus = async (req, res) => {
     }
   };
 
- const actionController = async (req, res, next) => {
+  const actionController = async (req, res, next) => {
     console.log(req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -60,14 +58,14 @@ const getOrdersByStatus = async (req, res) => {
         case update.status === "0":
           if (order.status !== "3" && order.status !== "4") {
             (update.status = order.status),
-              (update.DriverId = order.DriverId),
+              (update.DriverId = req.user.id),
               await update.save();
             return res.json({ Message: "Accepted Sucessfully" });
           } else {
             (update.status = "0"), (update.DriverId = null), await update.save();
             return res.json({ Message: "Rejected Sucessfully" });
           }
-        case update.status === "1" && update.DriverId === order.DriverId:
+        case update.status === "1" && update.DriverId === req.user.id:
           if (order.status !== "3" && order.status !== "4") {
             (update.status = order.status), await update.save();
             return res.json({ Message: "Updated Sucessfully" });
@@ -80,7 +78,7 @@ const getOrdersByStatus = async (req, res) => {
         case update.status === "3":
           if (order.status !== "3" && order.status !== "4") {
             (update.status = order.status),
-              (update.DriverId = order.DriverId),
+              (update.DriverId = req.user.id),
               await update.save();
             return res.json({ Message: "Accepted Sucessfully" });
           } else {
@@ -109,7 +107,7 @@ const getOrdersByStatus = async (req, res) => {
     }
     try {
       // const {count : orderCount, rows: orders} = await Order.findAndCountAll({where:{DriverId:req.id,status:'1'},attributes:['Pickup_from','Deliver_To','Item_Type','OrderId','createdAt']});
-      const { count: totalOrders, rows: orders } = await Order.findAndCountAll({
+      const { count: totalOrders, rows: orders } = await Order.findAndCountAll({where:{status: "0"},
         attributes: [
           "Pickup_from",
           "Deliver_To",
@@ -138,7 +136,7 @@ const getOrdersByStatus = async (req, res) => {
         };
       });
       // const user = await User.findByPk((req.id));
-      const user = await User.findByPk(1);
+      const user = await User.findByPk(req.user.id);
       if (user.status == 1) {
         return res
           .status(200)
