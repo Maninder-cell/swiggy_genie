@@ -136,7 +136,7 @@ const logout = async (req, res) => {
     user.tokens = null;
     await user.save();
 
-    res.clearCookie("token");
+    res.clearCookie("auth_token");
 
     return res.status(200).json({
       success: true,
