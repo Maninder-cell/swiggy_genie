@@ -53,11 +53,11 @@ const addOrder = async (req, res, next) => {
       Item_Type: attr.Item_Type,
       Billing_Details: distance,
       OrderId,
-      user_id:req.user.id,
+      user_id: req.user.id,
     });
 
     const data = await Task.findOne({
-      where: { id: task.id }
+      where: { id: task.id },
     });
     return res.status(200).json({
       msg: "task created sucessfully",
@@ -77,27 +77,27 @@ const getOrdersByStatus = async (req, res) => {
     const status = req.params.status;
     console.log(status);
     switch (true) {
-      case status.status === "0":
+      case status === "0":
         orders = await Order.findAll({
           where: { user_id: user_id, status: "0" },
         });
         break;
-      case status.status === "2":
+      case status === "2":
         orders = await Order.findAll({
           where: { user_id: user_id, status: "2" },
         });
         break;
-      case status.status === "1":
+      case status === "1":
         orders = await Order.findAll({
           where: { user_id: user_id, status: "1" },
         });
         break;
-      case status.status === "4":
+      case status === "4":
         orders = await Order.findAll({
           where: { user_id: user_id, status: "4" },
         });
         break;
-      case status.status === "3":
+      case status === "3":
         orders = await Order.findAll({
           where: { user_id: user_id, status: "3" },
         });
@@ -134,5 +134,5 @@ const cancelOrder = async (req, res) => {
 module.exports = {
   cancelOrder,
   getOrdersByStatus,
-  addOrder
+  addOrder,
 };

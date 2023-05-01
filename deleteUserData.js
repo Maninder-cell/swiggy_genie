@@ -24,3 +24,22 @@ const job = async () => {
 
 module.exports = job;
 
+// app.js
+
+// const cron = require("cron");
+// const deleteUserData = require("./deleteUserData");
+
+// // Setup cron job to delete user data
+// const cronJob = new cron.CronJob(
+//     "20 11 * * *", // Run every day at 11:15 AM according to India time standard
+//     async () => {
+//       await deleteUserData(); // Call function to delete user data
+//     },
+//     null,
+//     true,
+//     "Asia/Kolkata" // Set timezone to India Standard Time
+//   );
+  
+//   // Start the cron job
+//   cronJob.start();
+  

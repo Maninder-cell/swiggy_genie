@@ -1,6 +1,5 @@
-
 const express = require("express");
-const { login, register,logout } = require("../Controllers/authController");
+const { login, register, logout } = require("../Controllers/authController");
 const { body } = require("express-validator");
 const loginLimiter = require("../Middleware/limitMiddleware");
 const verifyToken = require("../Middleware/verifyToken");
@@ -16,10 +15,8 @@ router.post(
       .withMessage("Phone number is required.")
       .isNumeric()
       .withMessage("Phone number must be numeric.")
-      .isLength({min:9, max: 15 })
+      .isLength({ min: 9, max: 15 })
       .withMessage("Please enter correct phoneNumber."),
-
-  
   ],
   loginLimiter,
   login
@@ -34,17 +31,14 @@ router.post(
       .withMessage("Phone number is required.")
       .isNumeric()
       .withMessage("Phone number must be numeric.")
-      .isLength({min:9, max: 15 })
+      .isLength({ min: 9, max: 15 })
       .withMessage("Please enter correct phoneNumber."),
-    
-    ],
+  ],
   loginLimiter,
   register
 );
 
 // logout route
-router.post("/logout",verifyToken,logout);
-
-
+router.post("/logout", verifyToken, logout);
 
 module.exports = router;

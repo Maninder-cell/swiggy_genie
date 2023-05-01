@@ -1,7 +1,10 @@
-const express = require('express');
+const express = require("express");
 
-const {getOrder,actionController,getOrdersByStatus} = require("../Controllers/driverController");
-
+const {
+  getOrder,
+  actionController,
+  getOrdersByStatus,
+} = require("../Controllers/driverController");
 
 // Import middleware to verify JWT token
 const verifyToken = require("../Middleware/verifyToken");
@@ -9,12 +12,12 @@ const verifyToken = require("../Middleware/verifyToken");
 const router = express.Router();
 
 // get order count
-router.get("/getCount",verifyToken,getOrder);
+router.get("/getCount", verifyToken, getOrder);
 
 // driver Accept/Reject
-router.post("/action",verifyToken,actionController);
+router.post("/action", verifyToken, actionController);
 
 // Route to get all orders
-router.get('/orders', verifyToken, getOrdersByStatus);
+router.get("/driverOrders/:status", verifyToken, getOrdersByStatus);
 
 module.exports = router;
