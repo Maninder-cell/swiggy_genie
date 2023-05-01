@@ -24,8 +24,6 @@ const job = async () => {
 
 module.exports = job;
 
-
-
 // app.js
 
 // const cron = require("cron");
