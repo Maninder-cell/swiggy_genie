@@ -22,7 +22,7 @@ const register = async (req, res) => {
     }
 
     //find user
-    const userExists = await User.findOne({ where: { Phone:phoneNumber } });
+    const userExists = await User.findOne({ where: { Phone: phoneNumber } });
 
     if (userExists) {
       return res
@@ -36,7 +36,11 @@ const register = async (req, res) => {
 
     //generate token
     const token = jwt.sign(
-      { phoneNumber: newUser.Phone, id: newUser.id, role: newUser.account_type },
+      {
+        phoneNumber: newUser.Phone,
+        id: newUser.id,
+        role: newUser.account_type,
+      },
       process.env.JWT_SECRET,
       {
         expiresIn: "15d",
@@ -47,18 +51,19 @@ const register = async (req, res) => {
     newUser.lastLoggedIn = Date.now();
     await newUser.save();
 
-        // Set token as cookie
-        res.cookie("auth_token", token, {
-          maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-          httpOnly: true,
-          // secure: process.env.NODE_ENV === "production",
-        });
+    // Set token as cookie
+    res.cookie("auth_token", token, {
+      maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+    });
     return res.status(200).json({
       success: true,
       msg: "User created successfully",
       data: {
         user_id: newUser.id,
         Phone: newUser.Phone,
+        // Token:newUser.tokens
       },
     });
   } catch (err) {
@@ -80,7 +85,7 @@ const login = async (req, res) => {
     }
 
     //find user by PhoneNumber
-    const user = await User.findOne({ where: { Phone:phoneNumber } });
+    const user = await User.findOne({ where: { Phone: phoneNumber } });
 
     if (!user) {
       return res
@@ -101,13 +106,13 @@ const login = async (req, res) => {
     user.lastLoggedIn = Date.now();
     await user.save();
 
-        // Set token as cookie
-        res.cookie("auth_token", token, {
-          maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-          httpOnly: true,
-          // secure: process.env.NODE_ENV === "production",
-        });
-    
+    // Set token as cookie
+    res.cookie("auth_token", token, {
+      maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+    });
+
     return res.status(200).json({
       success: true,
       msg: "User logged in successfully",

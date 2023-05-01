@@ -7,11 +7,12 @@ const {cancelOrder,getOrdersByStatus,addOrder} = require("../Controllers/orderLi
 const verifyToken = require("../Middleware/verifyToken");
 
 const router = express.Router();
+
 // Route to post  orders
 router.post('/place',verifyToken,addOrder);
 
 // Route to get all orders
-router.post('/orders', verifyToken,getOrdersByStatus);
+router.get('/orders/:status', verifyToken,getOrdersByStatus);
 
 // Route to cancel an order by ID
 router.put('/orders/:id/cancel', verifyToken,cancelOrder);

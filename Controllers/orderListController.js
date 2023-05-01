@@ -74,7 +74,8 @@ const getOrdersByStatus = async (req, res) => {
   try {
     const user_id = req.user.id;
     let orders;
-    const status = { ...req.body };
+    const status = req.params.status;
+    console.log(status);
     switch (true) {
       case status.status === "0":
         orders = await Order.findAll({

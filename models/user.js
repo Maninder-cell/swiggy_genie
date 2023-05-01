@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model
+  Model, STRING
 } = require('sequelize');
 const { v4: uuidv4 } = require('uuid');
 
@@ -54,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV4,
     },
     Phone: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     Name: DataTypes.STRING,
@@ -87,6 +87,10 @@ module.exports = (sequelize, DataTypes) => {
     type: DataTypes.DATE,
     allowNull: true,
     comment: "Timestamp of last login"
+  },
+  fcmtoken:{
+    type:DataTypes.STRING,
+    allowNull:true,
   }
 }, {
     sequelize,

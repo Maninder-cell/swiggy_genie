@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       Phone: {
-        type: Sequelize.BIGINT
+        type: Sequelize.STRING
       },
       Name: {
         type: Sequelize.STRING
@@ -34,6 +34,9 @@ module.exports = {
       status: {
         type: Sequelize.ENUM(['0', '1']),
         comment: "0->Off\n1->On"
+      },
+      fcmtoken:{
+        type:Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
