@@ -98,7 +98,7 @@ const getOrdersByStatus = async (req, res) => {
           where: { user_id: user_id, status: "4" },
         });
         break;
-      case status.status === "3":
+      case status === "3":
         orders = await Order.findAll({
           where: { user_id: user_id, status: "3" },
         });
