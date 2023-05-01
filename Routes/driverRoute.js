@@ -18,6 +18,6 @@ router.get("/getCount", verifyToken, getOrder);
 router.post("/action", verifyToken, actionController);
 
 // Route to get all orders
-router.get("/driverOrders", verifyToken, getOrdersByStatus);
+router.get("/driverOrders/:status", verifyToken, getOrdersByStatus);
 
 module.exports = router;

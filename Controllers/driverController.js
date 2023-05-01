@@ -9,24 +9,24 @@ const getOrdersByStatus = async (req, res) => {
   try {
     const user_id = req.user.id;
     let orders;
-    const status = { ...req.body };
+    const status = req.params.status;
     switch (true) {
-      case status.status === "0":
+      case status === "0":
         orders = await Order.findAll({
           where: { DriverId: user_id, status: "0" },
         });
         break;
-      case status.status === "2":
+      case status === "2":
         orders = await Order.findAll({
           where: { DriverId: user_id, status: "2" },
         });
         break;
-      case status.status === "1":
+      case status === "1":
         orders = await Order.findAll({
           where: { DriverId: user_id, status: "1" },
         });
         break;
-      case status.status === "3":
+      case status === "3":
         orders = await Order.findAll({
           where: { DriverId: user_id, status: "3" },
         });
