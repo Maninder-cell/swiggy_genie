@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Order extends Model {
     /**
@@ -11,28 +9,32 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       models.Order.belongsTo(models.User, {
-        foreignKey: 'user_id',
-        onDelete: "CASCADE",
+        foreignKey: "user_id",
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE",
       });
     }
   }
-  Order.init({
-    Pickup_from: DataTypes.STRING,
-    Deliver_To: DataTypes.STRING,
-    Item_Type: DataTypes.STRING,
-    Billing_Details: DataTypes.INTEGER,
-    Instruction: DataTypes.STRING,
-    status: {
-      type: DataTypes.ENUM(['0', '1', '2', '3', '4']),
-      comment: "0->Pending\n1->Accepted\n2->Completed\n3->Rejected\n4->Cancelled",
-      defaultValue: "0"
+  Order.init(
+    {
+      Pickup_from: DataTypes.STRING,
+      Deliver_To: DataTypes.STRING,
+      Item_Type: DataTypes.STRING,
+      Billing_Details: DataTypes.INTEGER,
+      Instruction: DataTypes.STRING,
+      status: {
+        type: DataTypes.ENUM(["0", "1", "2", "3", "4"]),
+        comment:
+          "0->Pending\n1->Accepted\n2->Completed\n3->Rejected\n4->Cancelled",
+        defaultValue: "0",
+      },
+      DriverId: DataTypes.INTEGER,
+      OrderId: DataTypes.INTEGER,
     },
-    user_id: DataTypes.INTEGER,
-    DriverId: DataTypes.INTEGER,
-    OrderId: DataTypes.INTEGER
-     }, {
-    sequelize,
-    modelName: 'Order',
-  });
+    {
+      sequelize,
+      modelName: "Order",
+    }
+  );
   return Order;
 };
