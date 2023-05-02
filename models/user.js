@@ -73,6 +73,9 @@ module.exports = (sequelize, DataTypes) => {
       tokens: {
         type: DataTypes.STRING,
       },
+      CallingCode: {
+        type: DataTypes.STRING
+      },
       fcmtoken: {
         type: DataTypes.STRING,
       },
