@@ -1,8 +1,6 @@
-'use strict';
-const {
-  Model, STRING
-} = require('sequelize');
-const { v4: uuidv4 } = require('uuid');
+"use strict";
+const { Model } = require("sequelize");
+const { v4: uuidv4 } = require("uuid");
 
 const ROLE = {
   ADMIN: 0,
@@ -10,9 +8,9 @@ const ROLE = {
   CUSTOMER: 2,
 };
 
-const STATUS={
-  OFF:0,
-  ON:1,
+const STATUS = {
+  OFF: 0,
+  ON: 1,
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -25,11 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       models.User.hasMany(models.Order, {
-        foreignKey: 'user_id',
-        onDelete: "CASCADE",
-
+        foreignKey: "user_id",
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE",
       });
-
       // models.User.hasMany(models.task, {
       //   foreignKey: 'user_id',
       //   onDelete: "CASCADE",
@@ -47,54 +44,55 @@ module.exports = (sequelize, DataTypes) => {
       // });
     }
   }
-  User.init({
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
+  User.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+      },
+      Phone: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
+      Name: DataTypes.STRING,
+      Email: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      Address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      account_type: {
+        type: DataTypes.INTEGER,
+        defaultValue: ROLE.CUSTOMER,
+        allowNull: true,
+        comment: "0: admin, 1: driver, 2: customer",
+      },
+      tokens: {
+        type: DataTypes.STRING,
+      },
+      fcmtoken: {
+        type: DataTypes.STRING,
+      },
+      status: {
+        type: DataTypes.INTEGER,
+        defaultValue: STATUS.OFF,
+        allowNull: true,
+        commnet: "0:off , 1:on",
+      },
+      photoUri: DataTypes.STRING,
+      lastLoggedIn: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        comment: "Timestamp of last login",
+      },
     },
-    Phone: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    Name: DataTypes.STRING,
-    Email: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    Address: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    account_type: {
-      type: DataTypes.INTEGER,
-      defaultValue: ROLE.CUSTOMER,
-      allowNull: true,
-      comment: "0: admin, 1: driver, 2: customer",
-
-    },
-    tokens: {
-      type: DataTypes.STRING
-    } ,
-    status:{
-    type:DataTypes.INTEGER,
-    defaultValue:STATUS.OFF,
-    allowNull:true,
-    commnet:"0:off , 1:on",
-  } ,
-  photoUri:DataTypes.STRING,
-  lastLoggedIn: {
-    type: DataTypes.DATE,
-    allowNull: true,
-    comment: "Timestamp of last login"
-  },
-  fcmtoken:{
-    type:DataTypes.STRING,
-    allowNull:true,
-  }
-}, {
-    sequelize,
-    modelName: 'User',
-  });
+    {
+      sequelize,
+      modelName: "User",
+    }
+  );
   return User;
 };
