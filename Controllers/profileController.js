@@ -16,7 +16,7 @@ exports.editprofileController = async (req, res) => {
     // const find = await User.findOne({where:{Phone:updatedUser.Phone}});
     const find = await User.findByPk(req.user.id);
     if (!find) {
-      return res.status(400).json({ Message: "User Not Foung" });
+      return res.status(400).json({ Message: "User Not Found" });
     } else {
       if (!req.file) {
         const user = await find.update(updatedUser, {
