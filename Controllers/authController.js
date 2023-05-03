@@ -7,7 +7,7 @@ require("dotenv").config();
 
 const register = async (req, res) => {
   try {
-    const { phoneNumber } = req.body;
+    const { phoneNumber,CallingCode } = req.body;
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -32,11 +32,12 @@ const register = async (req, res) => {
 
     const newUser = await User.create({
       Phone: phoneNumber,
+      CallingCode: CallingCode
     });
 
     //generate token
     const token = jwt.sign(
-      { phoneNumber: newUser.Phone, id: newUser.id, role: newUser.account_type },
+      {  id: newUser.id, role: newUser.account_type },
       process.env.JWT_SECRET,
       {
         expiresIn: "15d",
@@ -73,7 +74,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { phoneNumber } = req.body;
-
+    console.log(phoneNumber);
     //validation error
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

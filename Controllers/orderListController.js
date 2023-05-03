@@ -9,6 +9,77 @@ const baseClient = mbxClient({
 const directionsClient = mbxDirections(baseClient);
 const Order = models.Order;
 const Task = models.task;
+const Categories = models.categories;
+const taskCategories = models.taskCategory;
+
+const addCategories = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  let category = [];
+  try {
+    let asize = 0;
+    req.files.forEach((file) => {
+      asize += 1;
+      if (file.mimetype.startsWith("image/") === true) {
+        let obj = {
+          path: file.path,
+          iconname: file.filename,
+          name: req.body.name,
+        };
+        category.push(obj);
+      } else {
+        return res.status(400).json({ message: "Please Upload image only" });
+      }
+    });
+    if (category.length === asize) {
+      await Categories.bulkCreate(category);
+      return res
+        .status(200)
+        .json({ MSG: "category uploaded sucessfully", category });
+    }
+  } catch (e) {
+    console.error(e);
+    return res.status(400).json({ msg: "category not found" });
+  }
+};
+
+const getCategories = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  try {
+    const categories = await Categories.findAll();
+
+    return res.status(200).json({
+      message: "Amenities found successfully",
+      data: categories,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ Message: "Something went wrong" });
+  }
+};
+
+const deleteCategories = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  try {
+    const { category_id } = req.params;
+    await Categories.destroy({ where: { id: category_id } });
+    return res.json({
+      statusCode: 200,
+      message: "Category deleted sucessfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ Message: "Something went wrong" });
+  }
+};
 
 const addOrder = async (req, res, next) => {
   const errors = validationResult(req);
@@ -20,11 +91,17 @@ const addOrder = async (req, res, next) => {
     const attr = { ...req.body };
     console.log(attr);
 
+    const category = await Categories.findByPk(attr.Task_details);
+
     const task = await Task.create({
       Pickup_from: attr.originAddress,
       Deliver_To: attr.destinationAddress,
       Instruction: attr.Instruction,
-      Add_Task_details: attr.Item_Type,
+      Add_Task_details: category.name,
+    });
+    await taskCategories.create({
+      categoryId: attr.Task_details,
+      taskId: task.id,
     });
 
     let distance;
@@ -50,7 +127,7 @@ const addOrder = async (req, res, next) => {
       Pickup_from: attr.originAddress,
       Deliver_To: attr.destinationAddress,
       Instruction: attr.Instruction,
-      Item_Type: attr.Item_Type,
+      Item_Type: category.name,
       Billing_Details: distance,
       OrderId,
       user_id: req.user.id,
@@ -58,6 +135,11 @@ const addOrder = async (req, res, next) => {
 
     const data = await Task.findOne({
       where: { id: task.id },
+      include: [
+        {
+          model: Categories,
+        }
+      ]
     });
     return res.status(200).json({
       msg: "task created sucessfully",
@@ -136,4 +218,7 @@ module.exports = {
   cancelOrder,
   getOrdersByStatus,
   addOrder,
+  addCategories,
+  getCategories,
+  deleteCategories
 };

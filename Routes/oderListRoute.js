@@ -1,10 +1,14 @@
 const express = require("express");
+const upload = require("../utils/multer");
 
 // Import controller functions for each route
 const {
   cancelOrder,
   getOrdersByStatus,
   addOrder,
+  addCategories,
+  getCategories,
+  deleteCategories
 } = require("../Controllers/orderListController");
 
 // Import middleware to verify JWT token
@@ -20,4 +24,20 @@ router.get("/orders/:status", verifyToken, getOrdersByStatus);
 // Route to cancel an order by ID
 router.put("/orders/:id/cancel", verifyToken, cancelOrder);
 
+router.post(
+  "/upload-category",
+  upload.array("category"),
+  verifyToken,
+  addCategories
+);
+router.get(
+  "/getCategory",
+  verifyToken,
+  getCategories
+);
+router.delete(
+  "/deleteCategory/:category_id",
+  verifyToken,
+  deleteCategories
+);
 module.exports = router;
