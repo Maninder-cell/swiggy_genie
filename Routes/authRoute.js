@@ -22,7 +22,6 @@ router.post(
   login
 );
 
-// register route
 router.post(
   "/Signup",
   [

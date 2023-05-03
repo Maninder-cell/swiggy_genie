@@ -27,7 +27,7 @@ router.put("/orders/:id/cancel", verifyToken, cancelOrder);
 
 router.post(
   "/upload-category",
-  upload.array("category"),
+  upload.array(),
   verifyToken,
   addCategories
 );
