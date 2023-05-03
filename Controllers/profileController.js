@@ -35,34 +35,21 @@ exports.editprofileController = async (req, res) => {
   }
 };
 
-// exports.getProfileController = async (req, res) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty()) {
-//     return res.status(400).json({ errors: errors.array() });
-//   }
-//   try {
-//     // const updatedUser = {...req.body};
-//     const find = await User.findOne({where:{id:req.user.id},attributes: ['Name','photoUri','Address','Email','Phone','status']});
-//     return res.status(200).json({Message:"User",find});
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(400).json({ Message: "Something Went Wrong" });
-//   }
-// };
-
-exports.getProfileController = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  try {
-    // const updatedUser = {...req.body};
-    const find = await User.findOne({where:{id:req.user.id},attributes: ['Name','photoUri','Address','Email','Phone','status','id']});
-    find.fcmtoken = req.headers.fcmtoken;
-    find.save();
-    return res.status(200).json({Message:"User",find});
-  } catch (error) {
-    console.error(error);
-    return res.status(400).json({ Message: "Something Went Wrong" });
-  }
-};
+  exports.getProfileController = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      // const updatedUser = {...req.body};
+      const find = await User.findOne({where:{id:req.user.id},attributes: ['Name','photoUri','Address','Email','Phone','status','id']});
+        find.fcmtoken = req.headers.fcmtoken;
+        await find.save();
+      
+        return res.status(200).json({Message:"User",find});
+    } catch (error) {
+      console.error(error);
+      return res.status(400).json({ Message: "Something Went Wrong" });
+    }
+  };
+  
