@@ -43,6 +43,18 @@ module.exports = {
         type: Sequelize.ENUM(['0', '1']),
         comment: "0->No-Assign\n1->Assign"
       },
+      pickup_latitude: {
+        type: Sequelize.DECIMAL
+      },
+      pickup_longitude: {
+        type: Sequelize.DECIMAL
+      },
+      delivery_latitude: {
+        type: Sequelize.DECIMAL
+      },
+      delivery_longitude: {
+        type: Sequelize.DECIMAL
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

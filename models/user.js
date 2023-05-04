@@ -54,12 +54,25 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     account_type: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM(['0', '1','2']),
       defaultValue: ROLE.CUSTOMER,
       allowNull: true,
       comment: "0->Admin\n1->Driver\n2->Customer",
     },
+    block: {
+      type: DataTypes.ENUM(['0', '1']),
+      comment: "0->active\n1->block"
+    },
+    latitude: {
+      type: DataTypes.DECIMAL
+    },
+    longitude: {
+      type: DataTypes.DECIMAL
+    },
     tokens: {
+      type: DataTypes.STRING
+    },
+    stripe_id: {
       type: DataTypes.STRING
     },
     status: {

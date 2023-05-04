@@ -28,18 +28,28 @@ module.exports = {
         type: Sequelize.ENUM(['0', '1','2']),
         comment: "0->Customer\n1->Driver\n2->Admin"
       },
+      block: {
+        type: Sequelize.ENUM(['0', '1']),
+        comment: "0->active\n1->block"
+      },
+      latitude: {
+        type: Sequelize.DECIMAL
+      },
+      longitude: {
+        type: Sequelize.DECIMAL
+      },
       tokens: {
         type: Sequelize.STRING
       },
       photoUri: {
         type: Sequelize.STRING
       },
+      stripe_id: {
+        type: Sequelize.STRING
+      },
       status: {
         type: Sequelize.ENUM(['0', '1']),
         comment: "0->Off\n1->On"
-      },
-      fcmtoken:{
-        type:Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('OrderStatuses', {
+    await queryInterface.createTable('Payments', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -12,22 +12,11 @@ module.exports = {
       user_id: {
         type: Sequelize.INTEGER
       },
-      Order_Id: {
+      order_id: {
         type: Sequelize.INTEGER
       },
-      Driver_Id: {
+      stripe_payment_id: {
         type: Sequelize.INTEGER
-      },
-      Order_Completed_time: {
-        type: Sequelize.STRING
-      },
-      Order_Status: {
-        type: Sequelize.ENUM(['0', '1', '2']),
-        comment: "0->Pending\n1->Accepted\n2->Completed"
-      },
-      Order_Assign: {
-        type: Sequelize.ENUM(['0', '1']),
-        comment: "0->No-Assign\n1->Assign"
       },
       createdAt: {
         allowNull: false,
@@ -40,6 +29,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('OrderStatuses');
+    await queryInterface.dropTable('Payments');
   }
 };

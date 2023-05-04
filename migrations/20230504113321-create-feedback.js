@@ -2,34 +2,24 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('tasks', {
+    await queryInterface.createTable('Feedbacks', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      Pickup_from: {
-        type: Sequelize.STRING
-      },
-      Deliver_To: {
-        type: Sequelize.STRING
-      },
-      Add_Task_details: {
-        type: Sequelize.STRING
-      },
-      Instruction: {
-        type: Sequelize.STRING
-      },
-      DriverId: {
+      user_id: {
         type: Sequelize.INTEGER
       },
-      status: {
-        type: Sequelize.ENUM(['0', '1', '2', '3', '4']),
-        comment: "0->Pending\n1->Accepted\n2->Completed\n3->Rejected\n4->Cancelled"
-      },
-      OrderId: {
+      submit_by_id: {
         type: Sequelize.INTEGER
+      },
+      stars: {
+        type: Sequelize.INTEGER
+      },
+      comment: {
+        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,
@@ -42,6 +32,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('tasks');
+    await queryInterface.dropTable('Feedbacks');
   }
 };
