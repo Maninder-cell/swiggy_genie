@@ -9,19 +9,19 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      CallingCode:{
+      calling_code:{
         type: Sequelize.STRING
       },
-      Phone: {
+      phone: {
         type: Sequelize.BIGINT
       },
-      Name: {
+      name: {
         type: Sequelize.STRING
       },
-      Email: {
+      email: {
         type: Sequelize.STRING
       },
-      Address: {
+      address: {
         type: Sequelize.STRING
       },
       account_type: {
@@ -41,7 +41,7 @@ module.exports = {
       tokens: {
         type: Sequelize.STRING
       },
-      photoUri: {
+      photo_uri: {
         type: Sequelize.STRING
       },
       stripe_id: {
@@ -50,6 +50,9 @@ module.exports = {
       status: {
         type: Sequelize.ENUM(['0', '1']),
         comment: "0->Off\n1->On"
+      },
+      last_logged_in : {
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,

@@ -36,20 +36,20 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
-    CallingCode: {
+    calling_code: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    Phone: {
+    phone: {
       type: DataTypes.BIGINT,
       allowNull: false,
     },
-    Name: DataTypes.STRING,
-    Email: {
+    name: DataTypes.STRING,
+    email: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    Address: {
+    address: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -81,8 +81,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       commnet: "0->Off\n1->On",
     },
-    photoUri: DataTypes.STRING,
-    lastLoggedIn: {
+    photo_uri: DataTypes.STRING,
+    last_logged_in: {
       type: DataTypes.DATE,
       allowNull: true,
       comment: "Timestamp of last login"

@@ -16,6 +16,9 @@ const authRoutes = require("./Routes/authRoute");
 const orderRoutes = require("./Routes/oderListRoute");
 const driverRoutes = require("./Routes/driverRoute");
 const profileROute = require('./Routes/profileRoute');
+const paymentRoutes = require("./Routes/payment");
+const feedbackRoutes = require("./Routes/feedback");
+const notificationRoutes = require("./Routes/notification");
 
 const app = express();
 
@@ -33,6 +36,9 @@ app.use("/auth", authRoutes);
 app.use(orderRoutes);
 app.use(driverRoutes);
 app.use(profileROute);
+app.use("/payment", paymentRoutes);
+app.use("/feedback", feedbackRoutes);
+app.use("/notification", notificationRoutes);
 
 const PORT = process.env.PORT || 3001;
 

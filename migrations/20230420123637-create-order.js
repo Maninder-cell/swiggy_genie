@@ -6,40 +6,40 @@ module.exports = {
       user_id: {
         type: Sequelize.STRING
       },
-      Order_Id: {
+      order_id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.STRING
       },
-      Driver_Id: {
+      driver_id: {
         type: Sequelize.INTEGER
       },
-      Pickup_from: {
+      pickup_from: {
         type: Sequelize.STRING
       },
-      Deliver_To: {
+      deliver_to: {
         type: Sequelize.STRING
       },
-      Item_Type: {
+      item_type: {
         type: Sequelize.STRING
       },
-      Billing_Details: {
+      billing_details: {
         type: Sequelize.INTEGER
       },
-      Instruction: {
+      instruction: {
         type: Sequelize.STRING
       },
-      Order_Created_time: {
+      order_created_time: {
         type: Sequelize.STRING
       },
-      Order_Completed_time: {
+      order_completed_time: {
         type: Sequelize.STRING
       },
-      Order_Status: {
+      order_status: {
         type: Sequelize.ENUM(['0', '1', '2']),
         comment: "0->Pending\n1->Accepted\n2->Completed"
       },
-      Order_Assign: {
+      order_assign: {
         type: Sequelize.ENUM(['0', '1']),
         comment: "0->No-Assign\n1->Assign"
       },

@@ -29,24 +29,24 @@ module.exports = (sequelize, DataTypes) => {
   }
   Order.init({
     user_id: DataTypes.INTEGER,
-    Order_Id: {
+    order_id: {
       allowNull: false,
       primaryKey: true,
       type: DataTypes.STRING
     },
-    Driver_Id: DataTypes.INTEGER,
-    Pickup_from: DataTypes.STRING,
-    Deliver_To: DataTypes.STRING,
-    Item_Type: DataTypes.STRING,
-    Billing_Details: DataTypes.INTEGER,
-    Instruction: DataTypes.STRING,
-    Order_Created_time: DataTypes.STRING,
-    Order_Completed_time: DataTypes.STRING,
-    Order_Status: {
+    driver_id: DataTypes.INTEGER,
+    pickup_from: DataTypes.STRING,
+    deliver_to: DataTypes.STRING,
+    item_type: DataTypes.STRING,
+    billing_details: DataTypes.INTEGER,
+    instruction: DataTypes.STRING,
+    order_created_time: DataTypes.STRING,
+    order_completed_time: DataTypes.STRING,
+    order_status: {
       type: DataTypes.STRING,
       comment: "0->Pending\n1->Accepted\n2->Completed",
     },
-    Order_Assign: {
+    order_assign: {
       type: DataTypes.STRING,
       comment: "0->No-Assign\n1->Assign",
     }
