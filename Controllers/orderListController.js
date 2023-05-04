@@ -23,12 +23,12 @@ const addOrder = async (req, res, next) => {
     const attr = { ...req.body };
     console.log(attr);
 
-    const task = await Task.create({
-      Pickup_from: attr.originAddress,
-      Deliver_To: attr.destinationAddress,
-      Instruction: attr.Instruction,
-      Add_Task_details: attr.Item_Type,
-    });
+    // const task = await Task.create({
+    //   Pickup_from: attr.originAddress,
+    //   Deliver_To: attr.destinationAddress,
+    //   Instruction: attr.Instruction,
+    //   Add_Task_details: attr.Item_Type,
+    // });
 
     let distance;
     await directionsClient
@@ -64,9 +64,10 @@ const addOrder = async (req, res, next) => {
 
     });
 
-    const data = await Task.findOne({
-      where: { id: task.id },
-    });
+    // const data = await Task.findOne({
+    //   where: { id: task.id },
+    // });
+
     return res.status(200).json({
       msg: "task created sucessfully",
       task: data,
@@ -87,25 +88,25 @@ const getOrdersByStatus = async (req, res) => {
 
       case status === "0":
         orders = await Order.findAll({
-          where: { user_id: user_id, Order_Status: "0" },
+          where: { user_id: user_id, order_status: "0" },
         });
         break;
 
       case status === "1":
         orders = await Order.findAll({
-          where: { user_id: user_id, Order_Status: "1" },
+          where: { user_id: user_id, order_status: "1" },
         });
         break;
 
       case status === "2":
         orders = await Order.findAll({
-          where: { user_id: user_id, Order_Status: "2" },
+          where: { user_id: user_id, order_status: "2" },
         });
         break;
 
       case status === "3":
         orders = await Order.findAll({
-          where: { user_id: user_id, Order_Status: "3" },
+          where: { user_id: user_id, order_status: "3" },
         });
         break;
 

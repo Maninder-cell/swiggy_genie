@@ -59,19 +59,19 @@ module.exports.DriverOrderAccept = async (req, res) => {
     try {
         const Order_Id = req.body.Order_Id;
         const order = await Order.findOne({
-            where: { Order_Id: Order_Id }
+            where: { order_id: Order_Id }
         })
         const orderAssign = await Order.findOne({
-            where: { Order_Id: Order_Id, Driver_Id: null, Order_Assign: "0" }
+            where: { order_id: Order_Id, driver_id: null, order_assign: "0" }
         });
         //Check the order is assigned to order person or not
         if (orderAssign == null) {
             return res.json({ msg: "Order is Already Assigned", value: "1" });
         } else {
             await orderAssign.update({
-                Driver_Id: req.body.Driver_Id,
-                Order_Assign: "1",
-                Order_Status: "1"
+                driver_id: req.body.Driver_Id,
+                order_assign: "1",
+                order_status: "1"
             });
         }
 
@@ -108,17 +108,17 @@ module.exports.DriverOrderComplete = async (req, res) => {
         const Order_Id = req.body.Order_Id;
 
         const OrderComplete = await Order.findOne({
-            where: { Order_Id: Order_Id }
+            where: { order_id: Order_Id }
         });
 
         const complete_time = moment().format("DD MMMM YYYY, hh:mm A");;
         await OrderComplete.update({
-            Order_Completed_time: complete_time,
-            Order_Status: "2"
+            order_completed_time: complete_time,
+            order_status: "2"
         })
         //Find the fcmtoken regarding the order 
         const order = await Order.findOne({
-            where: { Order_Id: Order_Id }
+            where: { order_id: Order_Id }
         })
         const fcm_tokens = await User_fcmtoken.findAll({
             where: { user_id: order.user_id },
@@ -153,37 +153,16 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
         const orderTill = ` ${Till}`;
         console.log(orderTill);
         const NoAssign = await Order.findAndCountAll({
-            where: { Order_Assign: "0", Order_Status: "0" },
-            attributes: ['Order_Id', 'Pickup_from', 'Deliver_To', 'Item_Type', 'Instruction', 'Order_Status', 'Order_Created_time', 'Order_Completed_time'],
+            where: { order_assign: "0", order_status: "0" },
+            attributes: ['order_id', 'pickup_from', 'deliver_to', 'item_type', 'instruction', 'order_status', 'order_created_time', 'order_completed_time'],
             include: [{
                 model: User,
-                attributes: ['Name', 'photoUri'],
+                attributes: ['name', 'photo_uri'],
                 required: true,
             }],
         })
         console.log(NoAssign);
-        res.json({ Till: orderTill, msg: NoAssign, Till: orderTill, });
-    }
-    catch (error) {
-        res.status(400).json({
-            message: error.message
-        })
-    }
-}
-module.exports.DriverStatusUpdate = async (req, res) => {
-    try {
-        // 04/May/2023:07:15:25
-        const DriverComplete = await Order.findAndCountAll({
-            where: { Order_Assign: "0", Order_Status: "0" },
-            attributes: ['Order_Id', 'Pickup_from', 'Deliver_To', 'Item_Type', 'Instruction', 'Order_Status', 'Order_Created_time'],
-            include: [{
-                model: User,
-                attributes: ['Name', 'photoUri'],
-                required: true,
-            }],
-        })
-        console.log(NoAssign);
-        res.json({ msg: NoAssign });
+        res.json({ Till: orderTill, msg: NoAssign });
     }
     catch (error) {
         res.status(400).json({
@@ -192,9 +171,28 @@ module.exports.DriverStatusUpdate = async (req, res) => {
     }
 }
 
+// module.exports.DriverStatusUpdate = async (req, res) => {
+//     try {
+//         // 04/May/2023:07:15:25
+//         const DriverComplete = await Order.findAndCountAll({
+//             where: { Order_Assign: "0", Order_Status: "0" },
+//             attributes: ['Order_Id', 'Pickup_from', 'Deliver_To', 'Item_Type', 'Instruction', 'Order_Status', 'Order_Created_time'],
+//             include: [{
+//                 model: User,
+//                 attributes: ['Name', 'photoUri'],
+//                 required: true,
+//             }],
+//         })
+//         console.log(NoAssign);
+//         res.json({ msg: NoAssign });
+//     }
+//     catch (error) {
+//         res.status(400).json({
+//             message: error.message
+//         })
+//     }
+//}
 
-
-//
 module.exports.Userfcmtoken = async (req, res) => {
     try {
         const { user_id, fcmtoken } = req.body;

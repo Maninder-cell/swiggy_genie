@@ -23,7 +23,7 @@ exports.editprofileController = async (req, res) => {
     } else {
       const user = await find.update(updatedUser, {
         returning: true,
-        attributes: ["Name", "photoUri", "Address", "Email", "Phone", "status"],
+        attributes: ["name", "photo_uri", "address", "email", "phone", "status"],
       });
       return res
         .status(201)
@@ -57,7 +57,7 @@ exports.getProfileController = async (req, res) => {
   }
   try {
     // const updatedUser = {...req.body};
-    const find = await User.findOne({where:{id:req.user.id},attributes: ['Name','photoUri','Address','Email','Phone','status','id']});
+    const find = await User.findOne({where:{id:req.user.id},attributes: ['name','photo_uri','address','email','phone','status','id']});
     find.fcmtoken = req.headers.fcmtoken;
     find.save();
     return res.status(200).json({Message:"User",find});

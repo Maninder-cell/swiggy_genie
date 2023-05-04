@@ -32,11 +32,11 @@ const register = async (req, res) => {
     }
 
     const newUser = await User.create({
-      CallingCode: CallingCode,
-      Phone: phoneNumber,
-      Name: name,
-      Email: email,
-      Address: address,
+      calling_code: CallingCode,
+      phone: phoneNumber,
+      name: name,
+      email: email,
+      address: address,
     });
 
     //generate token
@@ -86,7 +86,7 @@ const login = async (req, res) => {
     }
 
     //find user by PhoneNumber
-    const user = await User.findOne({ where: { Phone: phoneNumber } });
+    const user = await User.findOne({ where: { phone: phoneNumber } });
 
     if (!user) {
       return res
@@ -104,7 +104,7 @@ const login = async (req, res) => {
     );
     // save token in user model
     user.tokens = token;
-    user.lastLoggedIn = Date.now();
+    user.last_logged_in = Date.now();
     await user.save();
 
     // Set token as cookie
