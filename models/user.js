@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     phone: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     name: DataTypes.STRING,
@@ -76,7 +76,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     status: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       defaultValue: STATUS.OFF,
       allowNull: true,
       commnet: "0->Off\n1->On",

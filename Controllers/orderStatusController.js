@@ -2,6 +2,7 @@ const db = require('../models');
 const OrderStatus = db.OrderStatus;
 const User = db.User;
 const Order = db.Order;
+const Notification = db.Notification;
 const User_fcmtoken = db.User_fcmtoken;
 var admin = require("firebase-admin");
 var serviceAccount = require("../serviceAccountKey.json");
@@ -57,7 +58,7 @@ admin.initializeApp({
 
 module.exports.DriverOrderAccept = async (req, res) => {
     try {
-        const Order_Id = req.body.Order_Id;
+        const Order_Id = req.body.order_id;
         const order = await Order.findOne({
             where: { order_id: Order_Id }
         })
@@ -84,13 +85,13 @@ module.exports.DriverOrderAccept = async (req, res) => {
         fcm_tokens.forEach(user => {
             let message = {
                 notification: {
-                    android: { priority: high },
                     title: "Order Confirmed", body: "You Order has Confirmed",
                 },
                 token: user.dataValues.fcmtoken
             };
-            console.log(message);
-            admin.messaging().send(message);
+            admin.messaging().send(message).then(async(msg) => {
+                await Notification.create({user_id: order.user_id,text: message.notification.body});
+            });
         });
 
         res.json({ msg: "Order Confirmed Successfully" });
@@ -130,10 +131,9 @@ module.exports.DriverOrderComplete = async (req, res) => {
                     title: "Order Complete", body: "You Ordered Completed Successfully",
                 }, token: user.dataValues.fcmtoken
             };
-            admin.messaging().send(message);
-            console.log(user)
-
-
+            admin.messaging().send(message).then(async(msg) => {
+                await Notification.create({user_id: order.user_id,text: message.notification.body});
+            });;
         })
         res.json({ msg: "Order Completed Successfully" });
 
@@ -152,17 +152,15 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
         const Till = moment().format("DD MMMM, YYYY");
         const orderTill = ` ${Till}`;
         console.log(orderTill);
-        const NoAssign = await Order.findAndCountAll({
+        const {count,rows} = await Order.findAndCountAll({
             where: { order_assign: "0", order_status: "0" },
-            attributes: ['order_id', 'pickup_from', 'deliver_to', 'item_type', 'instruction', 'order_status', 'order_created_time', 'order_completed_time'],
+            attributes: ['order_id','pickup_from', 'deliver_to', 'item_type', 'instruction', 'order_status', 'order_created_time', 'order_completed_time'],
             include: [{
                 model: User,
                 attributes: ['name', 'photo_uri'],
-                required: true,
             }],
         })
-        console.log(NoAssign);
-        res.json({ Till: orderTill, msg: NoAssign });
+        res.json({ Till: orderTill,count:count, msg: rows });
     }
     catch (error) {
         res.status(400).json({

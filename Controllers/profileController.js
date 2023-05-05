@@ -1,6 +1,6 @@
 const { where } = require("sequelize");
 const models = require("../models");
-
+const User_fcmtoken = models.User_fcmtoken;
 const User = models.User;
 
 const { validationResult } = require("express-validator");
@@ -57,12 +57,25 @@ exports.getProfileController = async (req, res) => {
   }
   try {
     // const updatedUser = {...req.body};
-    const find = await User.findOne({where:{id:req.user.id},attributes: ['name','photo_uri','address','email','phone','status','id']});
-    find.fcmtoken = req.headers.fcmtoken;
-    find.save();
-    return res.status(200).json({Message:"User",find});
+    const find = await User.findOne({ where: { id: req.user.id }, attributes: ['name', 'photo_uri', 'address', 'email', 'phone', 'status', 'id'] });
+    return res.status(200).json({ Message: "User", find });
   } catch (error) {
     console.error(error);
     return res.status(400).json({ Message: "Something Went Wrong" });
   }
 };
+
+
+exports.saveFcmTokenController = async(req,res,next) => {
+  const fcmtoken = req.body.fcmtoken;
+  if(fcmtoken){
+    const check = await User_fcmtoken.findOne({where: {fcmtoken: fcmtoken,user_id: req.user.id}})
+    if(!check){
+      await User_fcmtoken.create({
+        user_id: req.user.id,
+        fcmtoken: fcmtoken,
+      })
+    }
+  }
+  return true;
+}

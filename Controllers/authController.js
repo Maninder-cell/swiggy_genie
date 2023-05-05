@@ -3,6 +3,7 @@ const models = require("../models");
 const { validationResult } = require("express-validator");
 const User = models.User;
 const User_fcmtoken = models.User_fcmtoken;
+const moment = require('moment');
 
 require("dotenv").config();
 
@@ -63,7 +64,7 @@ const register = async (req, res) => {
       msg: "User created successfully",
       data: {
         user_id: newUser.id,
-        Phone: newUser.Phone,
+        Phone: newUser.phone,
         token: token,
       },
     });
@@ -103,8 +104,9 @@ const login = async (req, res) => {
       }
     );
     // save token in user model
+    const last_logged_in = moment().format("DD MMMM YYYY, hh:mm A");
     user.tokens = token;
-    user.last_logged_in = Date.now();
+    user.last_logged_in = last_logged_in;
     await user.save();
 
     // Set token as cookie
@@ -114,13 +116,9 @@ const login = async (req, res) => {
       // secure: process.env.NODE_ENV === "production",
     });
 
-    const { fcmtoken } = req.body;
-    const Usertoken = await User_fcmtoken.create({
-      user_id: user.id,
-      fcmtoken: fcmtoken,
-    })
+   
     // res.json({ msg: "Your fcmtoken saved Successfully", data: Usertoken });
-    console.log(Usertoken);
+    // console.log(Usertoken);
 
     return res.status(200).json({
       success: true,

@@ -19,6 +19,7 @@ exports.saveNotification = async (req, res, next) => {
 exports.listNotifications = async (req, res, next) => {
   const notifications = await Notification.findAll({
     where: { user_id: 2 },
+    order: [["createdAt","DESC"]]
   });
 
   return res.status(200).json({

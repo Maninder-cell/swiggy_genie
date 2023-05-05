@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       phone: {
-        type: Sequelize.BIGINT
+        type: Sequelize.STRING
       },
       name: {
         type: Sequelize.STRING
@@ -48,7 +48,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       status: {
-        type: Sequelize.ENUM(['0', '1']),
+        type: Sequelize.INTEGER,
         comment: "0->Off\n1->On"
       },
       last_logged_in : {

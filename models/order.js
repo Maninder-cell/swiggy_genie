@@ -29,11 +29,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Order.init({
     user_id: DataTypes.INTEGER,
-    order_id: {
-      allowNull: false,
-      primaryKey: true,
-      type: DataTypes.STRING
-    },
+    order_id: DataTypes.STRING,
     driver_id: DataTypes.INTEGER,
     pickup_from: DataTypes.STRING,
     deliver_to: DataTypes.STRING,
@@ -44,12 +40,16 @@ module.exports = (sequelize, DataTypes) => {
     order_completed_time: DataTypes.STRING,
     order_status: {
       type: DataTypes.STRING,
-      comment: "0->Pending\n1->Accepted\n2->Completed",
+      comment: "0->Pending\n1->Accepted\n2->Completed\n3->Cancelled",
     },
     order_assign: {
       type: DataTypes.STRING,
       comment: "0->No-Assign\n1->Assign",
-    }
+    },
+    pickup_latitude: DataTypes.STRING,
+    pickup_longitude: DataTypes.STRING,
+    delivery_latitude: DataTypes.STRING,
+    delivery_longitude: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Order',

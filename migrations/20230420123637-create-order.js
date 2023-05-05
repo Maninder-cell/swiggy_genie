@@ -3,13 +3,17 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Orders', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
       user_id: {
         type: Sequelize.STRING
       },
       order_id: {
-        allowNull: false,
-        primaryKey: true,
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       driver_id: {
         type: Sequelize.INTEGER
@@ -36,24 +40,24 @@ module.exports = {
         type: Sequelize.STRING
       },
       order_status: {
-        type: Sequelize.ENUM(['0', '1', '2']),
-        comment: "0->Pending\n1->Accepted\n2->Completed"
+        type: Sequelize.ENUM(['0', '1', '2','3']),
+        comment: "0->Pending\n1->Accepted\n2->Completed\nCancelled"
       },
       order_assign: {
         type: Sequelize.ENUM(['0', '1']),
         comment: "0->No-Assign\n1->Assign"
       },
       pickup_latitude: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.STRING
       },
       pickup_longitude: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.STRING
       },
       delivery_latitude: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.STRING
       },
       delivery_longitude: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

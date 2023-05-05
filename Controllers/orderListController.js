@@ -1,6 +1,7 @@
 const models = require("../models");
 const Order = models.Order;
 const Task = models.task;
+
 // const OrderStatus = models.OrderStatus;
 const moment = require('moment');
 const { validationResult } = require("express-validator");
@@ -52,16 +53,17 @@ const addOrder = async (req, res, next) => {
     const order_create = moment().format("DD MMMM YYYY, hh:mm A");
     const order = await Order.create({
       user_id: req.user.id,
-      Order_Id: Order_Id,
-      Pickup_from: attr.originAddress,
-      Deliver_To: attr.destinationAddress,
-      Instruction: attr.Instruction,
-      Item_Type: attr.Item_Type,
-      Billing_Details: distance,
-      Order_Status: "0",
-      Order_Assign: "0",
-      Order_Created_time: order_create
-
+      order_id: Order_Id,
+      pickup_from: attr.originAddress,
+      deliver_to: attr.destinationAddress,
+      instruction: attr.Instruction,
+      item_type: attr.Item_Type,
+      billing_details: distance,
+      order_status: "0",
+      order_assign: "0",
+      pickup_latitude: attr.pickup_latitude,
+      pickup_longitude: attr.pickup_longitude,
+      order_created_time: order_create
     });
 
     // const data = await Task.findOne({
@@ -70,7 +72,6 @@ const addOrder = async (req, res, next) => {
 
     return res.status(200).json({
       msg: "task created sucessfully",
-      task: data,
       order: order,
     });
   } catch (err) {
@@ -126,19 +127,21 @@ const getOrdersByStatus = async (req, res) => {
 // Cancel an order by ID
 const cancelOrder = async (req, res) => {
   const user_id = req.user.id;
+  console.log(req.params.id);
   const order = await Order.findOne({
-    where: { id: req.params.id, user_id: user_id },
+    where: { order_id: req.params.id },
   });
   if (!order) {
     return res.status(404).json({ message: "Order not found" });
   }
-  if (order.status === "2" || order.status === "4") {
-    return res.status(400).json({ message: "Order cannot be cancelled" });
-  }
-  order.status = "4";
-  await order.save();
-  res.json({ user_id, order });
-};
+  if (order.order_status == "1") {
+    const orderCancel = await order.update({
+      order_status: "3",
+    });
+    return res.json({ msg: orderCancel });
+  };
+  return res.json({ msg: "Cannot be cancelled" });
+}
 
 module.exports = {
   cancelOrder,

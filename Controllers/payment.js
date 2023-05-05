@@ -1,33 +1,36 @@
 const StripeMain = require("../services/stripe");
 const { validationResult } = require("express-validator");
+const db = require('../models');
+const User = db.User;
+const Payment = db.Payment;
 
-exports.createCustomer = async (req, res, next) => {
-  const number = req.body.number.replace(/\s/g, '');
-  const {customer,error} = await StripeMain.createCustomer({
-    name: req.body.name,
-    email: req.body.email,
-    payment_method: {
-      type: "card",
-      card: {
-        number: number,
-        exp_month: req.body.expiry.split("/")[0],
-        exp_year: req.body.expiry.split("/")[1],
-        cvc: req.body.cvv,
-      },
-    },
-  });
+// exports.createCustomer = async (req, res, next) => {
+//   const number = req.body.number.replace(/\s/g, '');
+//   const {customer,error} = await StripeMain.createCustomer({
+//     name: req.body.name,
+//     email: req.body.email,
+//     payment_method: {
+//       type: "card",
+//       card: {
+//         number: number,
+//         exp_month: req.body.expiry.split("/")[0],
+//         exp_year: req.body.expiry.split("/")[1],
+//         cvc: req.body.cvv,
+//       },
+//     },
+//   });
 
-  if (error){
-    return res.status(402).json({
-      error: error,
-    });
-  }
-  else{
-    return res.status(200).json({
-      customer: customer,
-    });
-  }
-};
+//   if (error){
+//     return res.status(402).json({
+//       error: error,
+//     });
+//   }
+//   else{
+//     return res.status(200).json({
+//       customer: customer,
+//     });
+//   }
+// };
 
 exports.pay = async (req, res, next) => {
   const errors = validationResult(req);
@@ -36,37 +39,81 @@ exports.pay = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
+  const user = await User.findOne({where: {id: req.user.id}});
+
   const payment = await StripeMain.Pay(
     req.body.amount,
-    "cus_NoVup9TQKR9ZJn",
+    user.stripe_id,
     req.body.pay_id
   );
-
+  
+  await Payment.create({user_id: req.user.id,order_id:2,stripe_payment_id: payment.id});
+  
   return res.status(200).json({
     payment: payment,
   });
 };
 
 exports.newPaymentMethod = async (req, res, next) => {
-  const number = req.body.number.replace(/\s/g, '');
-  const result = await StripeMain.NewPaymentMethod("cus_NmD7JOk3zTJANY", {
-    type: "card",
-    card: {
-      number: number,
-      exp_month: req.body.expiry.split("/")[0],
-      exp_year: req.body.expiry.split("/")[1],
-      cvc: req.body.cvv,
-    },
-  });
+  const user = await User.findOne({where: {id: req.user.id}});
 
-  return res.status(200).json({
-    result: result,
-  });
+  if(user.stripe_id){
+    const number = req.body.number.replace(/\s/g, '');
+    const result = await StripeMain.NewPaymentMethod(user.stripe_id, {
+      type: "card",
+      card: {
+        number: number,
+        exp_month: req.body.expiry.split("/")[0],
+        exp_year: req.body.expiry.split("/")[1],
+        cvc: req.body.cvv,
+      },
+    });
+
+    return res.status(200).json({
+      result: result,
+    });
+  }
+  else{
+    const number = req.body.number.replace(/\s/g, '');
+    const {customer,error} = await StripeMain.createCustomer({
+      name: user.name,
+      email: user.email,
+      payment_method: {
+        type: "card",
+        card: {
+          number: number,
+          exp_month: req.body.expiry.split("/")[0],
+          exp_year: req.body.expiry.split("/")[1],
+          cvc: req.body.cvv,
+        },
+      },
+    });
+
+    if (error){
+      return res.status(402).json({
+        error: error,
+      });
+    }
+    else{
+      user.stripe_id = customer.id;
+      user.save();
+      return res.status(200).json({
+        customer: customer,
+      });
+    }
+  }
 };
 
 exports.listPaymentMethods = async (req, res, next) => {
-  const list = await StripeMain.ListAllPaymentMethods("cus_NoVup9TQKR9ZJn");
-  return res.status(200).json({
-    list: list,
-  });
+  const user = await User.findOne({where: {id: req.user.id}});
+
+  if(user.stripe_id){
+    const list = await StripeMain.ListAllPaymentMethods(user.stripe_id);
+    console.log(list);
+    return res.status(200).json({
+      list: list,
+    });
+  }
+
+  return res.status(200).json({data:[]});
 };
