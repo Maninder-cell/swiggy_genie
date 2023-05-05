@@ -29,10 +29,10 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE"
       });
 
-      // User.hasMany(models.User_fcmtoken, { foreignKey: 'user_id' }, {
-      //   onDelete: "CASCADE",
-      //   onUpdate: "CASCADE"
-      // });
+      User.hasMany(models.User_fcmtoken, { foreignKey: 'user_id' }, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      });
     }
   }
   User.init({
@@ -54,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     account_type: {
-      type: DataTypes.ENUM(['0', '1','2']),
+      type: DataTypes.ENUM(['0', '1', '2']),
       defaultValue: ROLE.CUSTOMER,
       allowNull: true,
       comment: "0->Admin\n1->Driver\n2->Customer",

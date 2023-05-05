@@ -11,10 +11,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      // User_fcmtoken.belongsTo(models.User,{ foreignKey: 'user_id' }, {
-      //   onDelete: "CASCADE",
-      //   onUpdate: "CASCADE"
-      // })
+      User_fcmtoken.belongsTo(models.User, { foreignKey: 'user_id' }, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      })
     }
   }
   User_fcmtoken.init({

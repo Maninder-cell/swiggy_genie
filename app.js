@@ -13,7 +13,7 @@ dotenv.config('./.env');
 var db = require('./models');
 
 const authRoutes = require("./Routes/authRoute");
-const orderRoutes = require("./Routes/oderListRoute");
+const orderRoutes = require("./Routes/orderListRoute");
 const driverRoutes = require("./Routes/driverRoute");
 const profileROute = require('./Routes/profileRoute');
 const paymentRoutes = require("./Routes/payment");
@@ -46,16 +46,16 @@ app.listen(PORT);
 
 // Setup cron job to delete user data
 const cronJob = new cron.CronJob(
-    "37 11 * * *", // Run every day at 11:15 AM according to India time standard
-    async () => {
-      await deleteUserData(); // Call function to delete user data
-    },
-    null,
-    true,
-    "Asia/Kolkata" // Set timezone to India Standard Time
-  );
-  
-  // Start the cron job
-  cronJob.start();
+  "37 11 * * *", // Run every day at 11:15 AM according to India time standard
+  async () => {
+    await deleteUserData(); // Call function to delete user data
+  },
+  null,
+  true,
+  "Asia/Kolkata" // Set timezone to India Standard Time
+);
 
-  module.exports = app;
+// Start the cron job
+cronJob.start();
+
+module.exports = app;
