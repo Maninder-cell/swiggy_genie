@@ -24,13 +24,6 @@ const addOrder = async (req, res, next) => {
     const attr = { ...req.body };
     console.log(attr);
 
-    // const task = await Task.create({
-    //   Pickup_from: attr.originAddress,
-    //   Deliver_To: attr.destinationAddress,
-    //   Instruction: attr.Instruction,
-    //   Add_Task_details: attr.Item_Type,
-    // });
-
     let distance;
     await directionsClient
       .getDirections({
@@ -84,7 +77,7 @@ const getOrdersByStatus = async (req, res) => {
   try {
     const user_id = req.user.id;
     let orders;
-    const status = req.params.status;
+    const status = req.body.status;
     switch (true) {
 
       case status === "0":
@@ -134,7 +127,7 @@ const cancelOrder = async (req, res) => {
   if (!order) {
     return res.status(404).json({ message: "Order not found" });
   }
-  if (order.order_status == "1") {
+  if (order.order_status == "1" || order.order_status == "0") {
     const orderCancel = await order.update({
       order_status: "3",
     });

@@ -64,10 +64,10 @@ module.exports = (sequelize, DataTypes) => {
       comment: "0->active\n1->block"
     },
     latitude: {
-      type: DataTypes.DECIMAL
+      type: DataTypes.STRING
     },
     longitude: {
-      type: DataTypes.DECIMAL
+      type: DataTypes.STRING
     },
     tokens: {
       type: DataTypes.STRING

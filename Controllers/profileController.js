@@ -35,20 +35,6 @@ exports.editprofileController = async (req, res) => {
   }
 };
 
-// exports.getProfileController = async (req, res) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty()) {
-//     return res.status(400).json({ errors: errors.array() });
-//   }
-//   try {
-//     // const updatedUser = {...req.body};
-//     const find = await User.findOne({where:{id:req.user.id},attributes: ['Name','photoUri','Address','Email','Phone','status']});
-//     return res.status(200).json({Message:"User",find});
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(400).json({ Message: "Something Went Wrong" });
-//   }
-// };
 
 exports.getProfileController = async (req, res) => {
   const errors = validationResult(req);
@@ -66,11 +52,11 @@ exports.getProfileController = async (req, res) => {
 };
 
 
-exports.saveFcmTokenController = async(req,res,next) => {
+exports.saveFcmTokenController = async (req, res, next) => {
   const fcmtoken = req.body.fcmtoken;
-  if(fcmtoken){
-    const check = await User_fcmtoken.findOne({where: {fcmtoken: fcmtoken,user_id: req.user.id}})
-    if(!check){
+  if (fcmtoken) {
+    const check = await User_fcmtoken.findOne({ where: { fcmtoken: fcmtoken, user_id: req.user.id } })
+    if (!check) {
       await User_fcmtoken.create({
         user_id: req.user.id,
         fcmtoken: fcmtoken,

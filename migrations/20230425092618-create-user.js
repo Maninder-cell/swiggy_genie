@@ -9,7 +9,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      calling_code:{
+      calling_code: {
         type: Sequelize.STRING
       },
       phone: {
@@ -25,7 +25,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       account_type: {
-        type: Sequelize.ENUM(['0', '1','2']),
+        type: Sequelize.ENUM(['0', '1', '2']),
         comment: "0->Customer\n1->Driver\n2->Admin"
       },
       block: {
@@ -33,10 +33,10 @@ module.exports = {
         comment: "0->active\n1->block"
       },
       latitude: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.STRING
       },
       longitude: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.STRING
       },
       tokens: {
         type: Sequelize.STRING
@@ -51,7 +51,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         comment: "0->Off\n1->On"
       },
-      last_logged_in : {
+      last_logged_in: {
         type: Sequelize.DATE
       },
       createdAt: {

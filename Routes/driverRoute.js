@@ -1,8 +1,6 @@
 const express = require("express");
 const orderstatus = require('../Controllers/orderStatusController');
 const {
-  getOrder,
-  actionController,
   getOrdersByStatus,
 } = require("../Controllers/driverController");
 

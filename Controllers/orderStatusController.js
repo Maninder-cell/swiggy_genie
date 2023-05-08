@@ -101,6 +101,52 @@ module.exports.DriverOrderComplete = async (req, res) => {
 }
 
 // //When the order has been not to assign anyone and driver pick in the five kilometer
+// module.exports.DriverOrderNoAssign = async (req, res) => {
+//     try {
+
+//         const delivery_latitude = req.body.delivery_latitude; // User's latitude
+//         const delivery_longitude = req.body.delivery_longitude; // User's longitude
+//         const maxDistance = 5; // Maximum distance in km
+
+//         const haversine = `(
+//                 6371 * acos(
+//                     cos(radians(${delivery_latitude}))
+//                     * cos(radians(pickup_latitude))
+//                     * cos(radians(pickup_longitude) - radians(${delivery_longitude}))
+//                     + sin(radians(${delivery_latitude})) * sin(radians(pickup_latitude))
+//                 )
+//             )`;
+
+//         const order = await Order.findAll({
+//             where: { order_assign: "0", order_status: "0" },
+//             attributes: [
+//                 'order_id', 'pickup_from', 'deliver_to', 'item_type', 'instruction', 'order_status', 'order_created_time', 'order_completed_time',
+//                 [Sequelize.literal(`round(${haversine}, 3)`), 'distance'],
+//             ],
+//             order: Sequelize.col('distance'),
+//             having: Sequelize.literal(`distance <= ${maxDistance}`),
+//             order: [["createdAt", "DESC"]],
+//             include: [{
+//                 model: User,
+//                 attributes: ['name', 'photo_uri'],
+//                 required: true,
+//             }],
+//         });
+
+//         console.log(haversine);
+//         console.log(order);
+//         const Till = moment().format("DD MMMM, YYYY");
+//         const orderTill = ` ${Till}`;
+//         console.log(order);
+//         res.json({ Till: orderTill, count: order.length, order: order })
+//     }
+//     catch (error) {
+//         res.status(400).json({
+//             message: error.message
+//         })
+//     }
+// }
+
 module.exports.DriverOrderNoAssign = async (req, res) => {
     try {
 
@@ -125,6 +171,7 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
             ],
             order: Sequelize.col('distance'),
             having: Sequelize.literal(`distance <= ${maxDistance}`),
+            order: [["createdAt", "DESC"]],
             include: [{
                 model: User,
                 attributes: ['name', 'photo_uri'],
