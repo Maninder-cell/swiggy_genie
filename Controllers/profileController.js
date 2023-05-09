@@ -17,17 +17,14 @@ exports.editprofileController = async (req, res) => {
     const find = await User.findByPk(req.user.id);
     if (!find) {
       const user = await User.create(updatedUser);
-      return res
-        .status(201)
-        .json({ user, Message: "User Created Sucessfully" });
-    } else {
+      return res.status(201).json({ user, Message: "User Created Sucessfully" });
+    } else 
+    {
       const user = await find.update(updatedUser, {
         returning: true,
         attributes: ["name", "photo_uri", "address", "email", "phone", "status"],
       });
-      return res
-        .status(201)
-        .json({ user, Message: "User Updated Sucessfully" });
+      return res.status(201).json({ user, Message: "User Updated Sucessfully" });
     }
   } catch (error) {
     console.error(error);

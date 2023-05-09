@@ -14,10 +14,11 @@ exports.feedBack = async (req, res, next) => {
   const order = await Order.findOne({ where: { order_id: req.body.order_id } });
 
   const obj = {
+    user_id: req.user.id,
+    driver_id: order.user_id,
+    order_id: order.id,
     stars: req.body.stars,
     comment: req.body.comment,
-    user_id: order.driver_id,
-    submit_by_id: req.user.id
   }
   const feedback = await Feedback.create(obj);
 
@@ -28,7 +29,7 @@ exports.feedBack = async (req, res, next) => {
 
 exports.listFeedbacks = async (req, res, next) => {
   const feedbacks = await Feedback.findAll({
-    where: { submit_by_id: req.user.id },
+    where: { user_id: req.user.id },
     include: [{
       model: User,
       attributes: ['name', 'photo_uri'],

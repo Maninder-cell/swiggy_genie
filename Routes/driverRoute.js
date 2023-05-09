@@ -3,12 +3,10 @@ const orderstatus = require('../Controllers/orderStatusController');
 const {
   getOrdersByStatus,
 } = require("../Controllers/driverController");
-
 // Import middleware to verify JWT token
 const verifyToken = require("../Middleware/verifyToken");
 
 const router = express.Router();
-
 // get order count
 // router.get("/getCount", verifyToken, getOrder);
 router.get("/getCount", orderstatus.DriverOrderNoAssign);

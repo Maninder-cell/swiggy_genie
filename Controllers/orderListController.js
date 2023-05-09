@@ -1,6 +1,8 @@
 const models = require("../models");
 const Order = models.Order;
-const Task = models.task;
+const Category = models.Category;
+const User = models.User;
+// const OrderCategory = models.OrderCategory;
 
 // const OrderStatus = models.OrderStatus;
 const moment = require('moment');
@@ -12,7 +14,6 @@ const baseClient = mbxClient({
     "pk.eyJ1IjoibmF1c2hhZGlhIiwiYSI6ImNsZ296eXA3NDBiOWkzaG1ybWoxM3dmNWcifQ.bB-kCl0347BPsc_q-7GIOg",
 });
 const directionsClient = mbxDirections(baseClient);
-
 
 const addOrder = async (req, res, next) => {
   const errors = validationResult(req);
@@ -50,15 +51,20 @@ const addOrder = async (req, res, next) => {
       pickup_from: attr.originAddress,
       deliver_to: attr.destinationAddress,
       instruction: attr.Instruction,
-      item_type: attr.Item_Type,
+      category_item_type: attr.checkedItem,
       billing_details: distance,
       order_status: "0",
       order_assign: "0",
       pickup_latitude: attr.pickup_latitude,
       pickup_longitude: attr.pickup_longitude,
-      order_created_time: order_create
+      order_created_time: order_create,
     });
 
+
+    // const ordercategory = OrderCategory.findOne({
+    //   where: { order_id },
+    //   order: [['createdAt', 'DESC']],
+    // })
     // const data = await Task.findOne({
     //   where: { id: task.id },
     // });
@@ -77,7 +83,7 @@ const getOrdersByStatus = async (req, res) => {
   try {
     const user_id = req.user.id;
     let orders;
-    const status = req.body.status;
+    const status = req.params.status;
     switch (true) {
 
       case status === "0":
@@ -136,7 +142,77 @@ const cancelOrder = async (req, res) => {
   return res.json({ msg: "Cannot be cancelled" });
 }
 
+const getCategory = async (req, res) => {
+  try {
+    const category = await Category.findAll({
+      attributes: ['id', 'name', 'path', 'icon_name']
+    });
+    res.json({ data: category });
+    // console.log(category[0].path);
+
+  }
+  catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
+
+const AddCategory = async (req, res) => {
+  try {
+    const user = req.user.id;
+    const Admin = await User.findOne({
+      where: { id: user }
+    });
+    if (Admin.account_type == "0") {
+      const { name, path, icon_name } = req.body;
+      const category = await Category.create({
+        name: name,
+        path: path,
+        icon_name: icon_name
+      })
+      return res.json({ data: category });
+    } else {
+      return res.json({ msg: "You have no permissions" });
+    }
+  }
+  catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
+// const CategoryOrder = async (req, res) => {
+//   try {
+//     //Generate temporary 
+//     var Order_Id = Math.random();
+//     Order_Id = Order_Id * 100000000;
+//     Order_Id = parseInt(Order_Id);
+
+//     const category_array = [];
+//     req.body.checkedItem.forEach(category => {
+//       category_array.push({
+//         order_id: Order_Id,
+//         amenity_id: category.id
+//       });
+//     });
+//     const data = await OrderCategory.bulkCreate(category_array);
+
+//     res.json({ msg: data });
+//   } catch (error) {
+//     res.status(400).json({
+//       message: error.message
+//     })
+//   }
+// }
+
+
 module.exports = {
+  AddCategory,
+  getCategory,
+  // CategoryOrder,
   cancelOrder,
   getOrdersByStatus,
   addOrder,

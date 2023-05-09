@@ -9,10 +9,13 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      driver_id: {
+        type: Sequelize.INTEGER
+      },
       user_id: {
         type: Sequelize.INTEGER
       },
-      submit_by_id: {
+      order_id: {
         type: Sequelize.INTEGER
       },
       stars: {

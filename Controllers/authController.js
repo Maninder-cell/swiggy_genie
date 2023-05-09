@@ -45,7 +45,7 @@ const register = async (req, res) => {
     );
     // save token in user model
     newUser.tokens = token;
-    newUser.lastLoggedIn = Date.now();
+    newUser.last_logged_in = moment().format("DD MMMM YYYY, hh:mm A");
     await newUser.save();
 
     // Set token as cookie
@@ -56,9 +56,10 @@ const register = async (req, res) => {
     });
     return res.status(200).json({
       success: true,
-      msg: "User created successfully",
+      msg: "User Created Successfully",
       data: {
         user_id: newUser.id,
+        CallingCode: CallingCode,
         Phone: newUser.phone,
         token: token,
       },
@@ -107,7 +108,7 @@ const login = async (req, res) => {
     });
     return res.status(200).json({
       success: true,
-      msg: "User logged in successfully",
+      msg: "User Logged In Successfully",
       data: {
         user_id: user.id,
         role: user.account_type,

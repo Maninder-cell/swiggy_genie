@@ -24,7 +24,7 @@ module.exports = {
       deliver_to: {
         type: Sequelize.STRING
       },
-      item_type: {
+      category_item_type: {
         type: Sequelize.STRING
       },
       billing_details: {
@@ -40,7 +40,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       order_status: {
-        type: Sequelize.ENUM(['0', '1', '2','3']),
+        type: Sequelize.ENUM(['0', '1', '2', '3']),
         comment: "0->Pending\n1->Accepted\n2->Completed\nCancelled"
       },
       order_assign: {

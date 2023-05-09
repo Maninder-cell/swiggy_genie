@@ -33,11 +33,11 @@ module.exports = (sequelize, DataTypes) => {
     driver_id: DataTypes.INTEGER,
     pickup_from: DataTypes.STRING,
     deliver_to: DataTypes.STRING,
-    item_type: DataTypes.STRING,
     billing_details: DataTypes.INTEGER,
     instruction: DataTypes.STRING,
     order_created_time: DataTypes.STRING,
     order_completed_time: DataTypes.STRING,
+    category_item_type: DataTypes.STRING,
     order_status: {
       type: DataTypes.STRING,
       comment: "0->Pending\n1->Accepted\n2->Completed\n3->Cancelled",

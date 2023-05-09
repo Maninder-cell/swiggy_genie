@@ -3,6 +3,7 @@ const User = db.User;
 const Order = db.Order;
 const Notification = db.Notification;
 const User_fcmtoken = db.User_fcmtoken;
+const Category = db.Category;
 const { Sequelize } = require('sequelize');
 const moment = require('moment');
 var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
@@ -208,3 +209,7 @@ module.exports.Userfcmtoken = async (req, res) => {
         })
     }
 }
+
+
+
+

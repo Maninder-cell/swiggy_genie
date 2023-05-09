@@ -13,12 +13,23 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
       });
+
+      Feedback.belongsTo(models.User, { foreignKey: 'driver_id' }, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      });
+
+      Feedback.belongsTo(models.Order, { foreignKey: 'order_id' }, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      });
     }
   }
   Feedback.init(
     {
       user_id: DataTypes.INTEGER,
-      submit_by_id: DataTypes.INTEGER,
+      driver_id: DataTypes.INTEGER,
+      order_id: DataTypes.INTEGER,
       stars: DataTypes.INTEGER,
       comment: DataTypes.TEXT,
     },
