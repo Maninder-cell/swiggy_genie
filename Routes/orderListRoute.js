@@ -8,6 +8,8 @@ const {
   cancelOrder,
   getOrdersByStatus,
   addOrder,
+  getask,
+  addtask
 } = require("../Controllers/orderListController");
 
 // Import middleware to verify JWT token
@@ -17,7 +19,8 @@ const router = express.Router();
 // Route to post  orders
 
 router.post("/place", verifyToken, addOrder);
-
+router.post("/task", verifyToken, addtask);
+router.get('/taskdetails',verifyToken,getask);
 // Route to get all orders
 router.get("/orders/:status", verifyToken, getOrdersByStatus);
 

@@ -9,7 +9,7 @@ const job = async () => {
   const usersToDelete = await User.findAll({
     where: {
       tokens: null,
-      lastLoggedIn: null,
+      last_logged_in: null,
       createdAt: {
         [Op.lte]: twoDaysAgo,
       },

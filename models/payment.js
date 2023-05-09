@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   Payment.init({
     user_id: DataTypes.INTEGER,
     order_id: DataTypes.INTEGER,
-    stripe_payment_id: DataTypes.INTEGER
+    stripe_payment_id: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Payment',
