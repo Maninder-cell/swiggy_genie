@@ -19,6 +19,8 @@ const profileROute = require('./Routes/profileRoute');
 const paymentRoutes = require("./Routes/payment");
 const feedbackRoutes = require("./Routes/feedback");
 const notificationRoutes = require("./Routes/notification");
+const loginr=require('./Routes/loginroute');
+const customroute=require('./Routes/customerroute');
 
 const app = express();
 
@@ -41,6 +43,8 @@ app.use(profileROute);
 app.use("/payment", paymentRoutes);
 app.use("/feedback", feedbackRoutes);
 app.use("/notification", notificationRoutes);
+app.use(loginr);
+app.use(customroute);
 
 const PORT = process.env.PORT || 3000;
 
