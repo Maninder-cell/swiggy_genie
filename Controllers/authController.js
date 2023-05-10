@@ -34,6 +34,7 @@ const register = async (req, res) => {
       name: name,
       email: email,
       address: address,
+      account_type: "2"
     });
     //generate token
     const token = jwt.sign(

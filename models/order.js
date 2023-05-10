@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE"
       });
 
-      Order.belongsTo(models.DriverAcceptReject, { foreignKey: 'driver_id' }, {
+      Order.hasMany(models.DriverAcceptReject, { foreignKey: 'order_id',targetKey:'order_id' }, {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
       });
@@ -35,7 +35,10 @@ module.exports = (sequelize, DataTypes) => {
   Order.init({
     user_id: DataTypes.INTEGER,
     order_id: DataTypes.STRING,
-    driver_id: DataTypes.INTEGER,
+    driver_id: {
+      type: DataTypes.INTEGER,
+      comment: "0->NoDriver\n1->DriverAssigned"
+    },
     pickup_from: DataTypes.STRING,
     deliver_to: DataTypes.STRING,
     billing_details: DataTypes.INTEGER,

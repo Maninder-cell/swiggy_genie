@@ -11,10 +11,15 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      DriverAcceptReject.hasMany(models.Order, { foreignKey: 'driver_id' }, {
+      DriverAcceptReject.belongsTo(models.User, { foreignKey: 'driver_id' }, {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
       });
+
+      DriverAcceptReject.belongsTo(models.Order,{ foreignKey: 'order_id',targetKey:'order_id' }, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      })
 
     }
   }

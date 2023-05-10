@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     account_type: {
       type: DataTypes.ENUM(['0', '1', '2']),
-      defaultValue: ROLE.CUSTOMER,
+      // defaultValue: ROLE.CUSTOMER,
       allowNull: true,
       comment: "0->Admin\n1->Driver\n2->Customer",
     },

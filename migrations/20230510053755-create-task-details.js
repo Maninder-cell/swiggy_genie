@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Orders', {
+    await queryInterface.createTable('TaskDetails', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,14 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       user_id: {
-        type: Sequelize.STRING
-      },
-      order_id: {
         type: Sequelize.INTEGER
-      },
-      driver_id: {
-        type: Sequelize.INTEGER,
-        comment: "0->NoDriver\n1->DriverAssigned"
       },
       pickup_from: {
         type: Sequelize.STRING
@@ -33,20 +26,6 @@ module.exports = {
       },
       instruction: {
         type: Sequelize.STRING
-      },
-      order_created_time: {
-        type: Sequelize.STRING
-      },
-      order_completed_time: {
-        type: Sequelize.STRING
-      },
-      order_status: {
-        type: Sequelize.ENUM(['0', '1', '2', '3']),
-        comment: "0->Pending\n1->Accepted\n2->Completed\nCancelled"
-      },
-      order_assign: {
-        type: Sequelize.ENUM(['0', '1']),
-        comment: "0->No-Assign\n1->Assign"
       },
       pickup_latitude: {
         type: Sequelize.STRING
@@ -71,6 +50,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Orders');
+    await queryInterface.dropTable('TaskDetails');
   }
 };

@@ -20,7 +20,7 @@ const router = express.Router();
 
 router.post("/place", verifyToken, addOrder);
 router.post("/task", verifyToken, addtask);
-router.get('/taskdetails',verifyToken,getask);
+router.get('/taskdetails', verifyToken, getask);
 // Route to get all orders
 router.get("/orders/:status", verifyToken, getOrdersByStatus);
 

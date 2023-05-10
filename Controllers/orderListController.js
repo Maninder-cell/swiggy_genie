@@ -24,15 +24,14 @@ const addtask = async (req, res, next) => {
   }
   try {
     const order_create = moment().format("DD MMMM YYYY, hh:mm A");
+    const attr = { ...req.body };
     const task = await TaskDetails.create({
       user_id: req.user.id,
       pickup_from: attr.pickup_from,
       deliver_to: attr.deliver_to,
-      instruction: attr.Instruction,
+      instruction: attr.instruction,
       category_item_type: "Food Item",
-      billing_details: attr.billing_details,
-      order_status: "0",
-      order_assign: "0",
+      billing_details: "0",
       pickup_latitude: attr.pickup_latitude,
       pickup_longitude: attr.pickup_longitude,
       delivery_latitude: attr.delivery_latitude,
@@ -41,7 +40,7 @@ const addtask = async (req, res, next) => {
     });
 
     return res.status(200).json({
-      msg: "order created sucessfully",
+      msg: "order task sucessfully",
       order: task,
     });
   }
@@ -55,10 +54,14 @@ const addtask = async (req, res, next) => {
 const getask = async (req, res, next) => {
   try {
     const task = await TaskDetails.findOne({
-      where: { user_id: req.user.id }
-
+      limit: 1,
+      where: { user_id: req.user.id },
+      order: [['createdAt', 'DESC']]
     })
-    res.json({ msg: task });
+    const taskupdate = await task.update({
+      billing_details: 1220,
+    })
+    res.json({ taskupdate, msg: "Order Get Successfully" });
   }
   catch {
 
@@ -98,6 +101,7 @@ const addOrder = async (req, res, next) => {
     const order = await Order.create({
       user_id: req.user.id,
       order_id: Order_Id,
+      driver_id: "0",
       pickup_from: attr.pickup_from,
       deliver_to: attr.deliver_to,
       instruction: attr.Instruction,

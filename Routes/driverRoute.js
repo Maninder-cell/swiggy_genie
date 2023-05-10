@@ -17,14 +17,14 @@ router.post("/driver/action/accept", verifyToken, orderstatus.DriverOrderAccept)
 
 router.get("/driver/action/complete", verifyToken, orderstatus.GetDriverOrderCompleled);
 
-router.get("/driver/action/cancell", verifyToken, orderstatus.GetDriverOrderCancelled);
+router.get("/driver/action/cancel", verifyToken, orderstatus.GetDriverOrderCancelled);
 
 router.get("/driver/action/reject", verifyToken, orderstatus.GetDriverOrderRejected);
 
 router.post("/driver/action/reject", verifyToken, orderstatus.DriverOrderReject);
 
 
-router.patch("/driver/action/cancell", verifyToken, orderstatus.DriverOrderCancell);
+router.post("/driver/action/cancel", verifyToken, orderstatus.DriverOrderCancell);
 // Route to get all orders
 router.get("/driverOrders/:status", verifyToken, getOrdersByStatus);
 
