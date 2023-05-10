@@ -240,30 +240,6 @@ const AddCategory = async (req, res) => {
   }
 }
 
-// const CategoryOrder = async (req, res) => {
-//   try {
-//     //Generate temporary 
-//     var Order_Id = Math.random();
-//     Order_Id = Order_Id * 100000000;
-//     Order_Id = parseInt(Order_Id);
-
-//     const category_array = [];
-//     req.body.checkedItem.forEach(category => {
-//       category_array.push({
-//         order_id: Order_Id,
-//         amenity_id: category.id
-//       });
-//     });
-//     const data = await OrderCategory.bulkCreate(category_array);
-
-//     res.json({ msg: data });
-//   } catch (error) {
-//     res.status(400).json({
-//       message: error.message
-//     })
-//   }
-// }
-
 
 module.exports = {
   AddCategory,

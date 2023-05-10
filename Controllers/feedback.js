@@ -34,7 +34,7 @@ exports.listFeedbacks = async (req, res, next) => {
       model: User,
       attributes: ['name', 'photo_uri'],
     }],
-    order: [["createdAt","DESC"]]
+    order: [["createdAt", "DESC"]]
   });
 
   return res.status(200).json({
@@ -44,15 +44,17 @@ exports.listFeedbacks = async (req, res, next) => {
 
 exports.driverFeedback = async (req, res, next) => {
   console.log('amsdm');
-  const order = await Order.findOne({ 
-    where: { 
-      order_id: req.params.order_id 
+  const Order_id = req.body.order_id;
+  const order = await Order.findOne({
+    where: {
+      order_id: Order_id
     },
     include: [{
       model: User,
       attributes: ['name', 'photo_uri'],
     }],
   });
+
   console.log(order);
   return res.json(order);
 }

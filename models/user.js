@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE"
       });
 
-      User.hasMany(models.Card,{foreignKey: "user_id"},{
+      User.hasMany(models.Card, { foreignKey: "user_id" }, {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
       });
