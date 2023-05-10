@@ -25,12 +25,10 @@ router.post("/driver/action/cancel", verifyToken, orderstatus.DriverOrderCancell
 router.get("/driver/action/reject", verifyToken, orderstatus.GetDriverOrderRejected);
 router.post("/driver/action/reject", verifyToken, orderstatus.DriverOrderReject);
 
-router.get("/driver/accept/all", verifyToken, orderstatus.GetDriverOrderAll);
-
+router.get("/driver/action/all", verifyToken, orderstatus.GetDriverOrderAll);
 
 // Route to get all orders
 router.get("/driverOrders/:status", verifyToken, getOrdersByStatus);
-
 //
 router.post("/Order-status/Accept", verifyToken, orderstatus.DriverOrderAccept);
 router.post("/Order-status/Complete", orderstatus.DriverOrderComplete);

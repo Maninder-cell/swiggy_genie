@@ -27,7 +27,6 @@ router.get("/orders/:status", verifyToken, getOrdersByStatus);
 // Route to cancel an order by ID
 router.put("/orders/:id/cancel", verifyToken, cancelOrder);
 
-
 router.post("/Order/Category", verifyToken, AddCategory)
 router.get("/Order/Category", getCategory);
 // router.post("/Order/CategoryOrder", CategoryOrder);

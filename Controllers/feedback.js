@@ -43,6 +43,7 @@ exports.listFeedbacks = async (req, res, next) => {
 };
 
 exports.driverFeedback = async (req, res, next) => {
+  console.log('amsdm');
   const order = await Order.findOne({ 
     where: { 
       order_id: req.params.order_id 
@@ -52,6 +53,6 @@ exports.driverFeedback = async (req, res, next) => {
       attributes: ['name', 'photo_uri'],
     }],
   });
-
+  console.log(order);
   return res.json(order);
 }

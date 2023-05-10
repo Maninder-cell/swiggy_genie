@@ -30,7 +30,6 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
                 'order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'order_status', 'order_created_time', 'order_completed_time'],
             include: [{
                 model: User,
-                attributes: ['name', 'photo_uri'],
                 required: true,
             }],
         });
@@ -155,10 +154,10 @@ module.exports.DriverOrderComplete = async (req, res) => {
             order_status: "2"
         })
 
-        const checkdriver = DriverAcceptReject.findOne({
-            where: { order_id: Order_Id, driver_order_status: "1" }
+        const checkdriver = await DriverAcceptReject.findOne({
+            where: { order_id: Order_Id, driver_order_status: 1 }
         })
-
+        console.log(checkdriver);
         await checkdriver.update({
             driver_order_status: "2"
         })
@@ -218,10 +217,14 @@ module.exports.GetDriverOrderAll = async (req, res) => {
     try {
 
         const accepted = await DriverAcceptReject.findAll({
-            where: { driver_id: req.user.id, driver_order_status: 1, driver_order_status: 2, driver_order_status: 3, driver_order_status: 4 },
+            where: { driver_id: req.user.id, driver_order_status: [1, 2, 3, 4] },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'order_created_time', 'order_completed_time'],
+                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'billing_details', 'order_created_time', 'order_completed_time'],
+                include: [{
+                    model: User,
+                    required: true,
+                }],
                 required: true
             }],
         })
@@ -240,7 +243,12 @@ module.exports.GetDriverOrderAccepted = async (req, res) => {
             where: { driver_id: req.user.id, driver_order_status: 1 },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction','billing_details','order_created_time', 'order_completed_time'],
+                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'billing_details', 'order_created_time', 'order_completed_time'],
+                include: [{
+                    model: User,
+    
+                    required: true,
+                }],
                 required: true
             }],
         })
@@ -259,7 +267,11 @@ module.exports.GetDriverOrderCompleled = async (req, res) => {
             where: { driver_id: req.user.id, driver_order_status: 2 },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction','billing_details', 'order_created_time', 'order_completed_time'],
+                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'billing_details', 'order_created_time', 'order_completed_time'],
+                include: [{
+                    model: User,
+                    required: true,
+                }],
                 required: true
             }],
         })
@@ -278,7 +290,11 @@ module.exports.GetDriverOrderCancelled = async (req, res) => {
             where: { driver_id: req.user.id, driver_order_status: 3 },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction','billing_details','order_created_time', 'order_completed_time'],
+                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'billing_details', 'order_created_time', 'order_completed_time'],
+                include: [{
+                    model: User,
+                    required: true,
+                }],
                 required: true
             }],
         })
@@ -297,6 +313,10 @@ module.exports.GetDriverOrderRejected = async (req, res) => {
             include: [{
                 model: Order,
                 attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'billing_details', 'instruction', 'order_created_time', 'order_completed_time'],
+                include: [{
+                    model: User,
+                    required: true,
+                }],
                 required: true,
             }],
         })
