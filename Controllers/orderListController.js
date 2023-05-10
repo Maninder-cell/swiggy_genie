@@ -30,7 +30,7 @@ const addtask = async (req, res, next) => {
       pickup_from: attr.pickup_from,
       deliver_to: attr.deliver_to,
       instruction: attr.instruction,
-      category_item_type: "Food Item",
+      category_item_type: attr.category_item_type,
       billing_details: "0",
       pickup_latitude: attr.pickup_latitude,
       pickup_longitude: attr.pickup_longitude,

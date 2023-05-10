@@ -12,6 +12,47 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
 
+// //When the order has been not to assign anyone and driver pick in the five kilometer
+module.exports.DriverOrderNoAssign = async (req, res) => {
+    try {
+        const rejectorder = await DriverAcceptReject.findAll({
+            where: { driver_id: req.user.id, driver_order_status: 4 },
+            attributes: ['order_id']
+        });
+
+        ids = rejectorder.map((obj) => {
+            return obj.order_id;
+        });
+
+        const { count, rows } = await Order.findAndCountAll({
+            where: { order_assign: "0", order_status: "0", order_id: { [Op.notIn]: ids } },
+            attributes: [
+                'order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'order_status', 'order_created_time', 'order_completed_time'],
+            include: [{
+                model: User,
+                attributes: ['name', 'photo_uri'],
+                required: true,
+            }],
+        });
+        // console.log(order);
+
+        const Till = moment().format("DD MMMM, YYYY");
+        const orderTill = ` ${Till}`;
+        console.log('fdgkja');
+        // assuming the driver id is available in the request
+
+        // console.log(acceptedOrders);
+        // const acceptedOrderIds = acceptedOrders.map(order => order.order_id);
+        // const filteredRows = rows.filter(order => !acceptedOrderIds.includes(order.order_id));
+        res.json({ Till: orderTill, count: count, order: rows, reject: rejectorder })
+    }
+    catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
 //Driver Accept the Order 
 module.exports.DriverOrderAccept = async (req, res) => {
     try {
@@ -68,6 +109,37 @@ module.exports.DriverOrderAccept = async (req, res) => {
     }
 }
 
+//Order if driver accept then the cancell order option
+module.exports.DriverOrderCancell = async (req, res) => {
+    try {
+        const Order_Id = req.body.order_id;
+        // const Driver_Id = req.user.id;
+
+        const accept = await DriverAcceptReject.findOne({
+            where: { order_id: Order_Id, driver_order_status: 1 }
+        });
+
+        const cancelled = await accept.update({
+            driver_order_status: 3
+        });
+
+        const OrderDriverStatus = await Order.findOne({
+            where: { order_id: Order_Id },
+            attributes: ['driver_id', 'order_status', 'order_assign', 'id']
+        })
+        console.log(OrderDriverStatus);
+
+        const updateOrder = OrderDriverStatus.update({ driver_id: "0", order_status: "0", order_assign: "0" })
+
+
+        res.json({ msg: cancelled, order: OrderDriverStatus, update: updateOrder, data: "Order Cancelled Sucessfully" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error" });
+    }
+}
+
+
 //When the driver complete the orders
 module.exports.DriverOrderComplete = async (req, res) => {
     try {
@@ -81,6 +153,14 @@ module.exports.DriverOrderComplete = async (req, res) => {
         await OrderComplete.update({
             order_completed_time: complete_time,
             order_status: "2"
+        })
+
+        const checkdriver = DriverAcceptReject.findOne({
+            where: { order_id: Order_Id, driver_order_status: "1" }
+        })
+
+        await checkdriver.update({
+            driver_order_status: "2"
         })
         //Find the fcmtoken regarding the order 
         const order = await Order.findOne({
@@ -110,64 +190,7 @@ module.exports.DriverOrderComplete = async (req, res) => {
     }
 }
 
-// //When the order has been not to assign anyone and driver pick in the five kilometer
-module.exports.DriverOrderNoAssign = async (req, res) => {
-    try {
-        const rejectorder = await DriverAcceptReject.findAll({
-            where: { driver_id: req.user.id, driver_order_status: 4 },
-            attributes: ['order_id']
-        });
-
-        ids = rejectorder.map((obj) => {
-            return obj.order_id;
-        });
-
-        const { count, rows } = await Order.findAndCountAll({
-            where: { order_assign: "0", order_status: "0", order_id: { [Op.notIn]: ids } },
-            attributes: [
-                'order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'order_status', 'order_created_time', 'order_completed_time'],
-            include: [{
-                model: User,
-                attributes: ['name', 'photo_uri'],
-                required: true,
-            }],
-        });
-        // console.log(order);
-
-        const Till = moment().format("DD MMMM, YYYY");
-        const orderTill = ` ${Till}`;
-        console.log('fdgkja');
-        // assuming the driver id is available in the request
-
-        // console.log(acceptedOrders);
-        // const acceptedOrderIds = acceptedOrders.map(order => order.order_id);
-        // const filteredRows = rows.filter(order => !acceptedOrderIds.includes(order.order_id));
-        res.json({ Till: orderTill, count: count, order: rows, reject: rejectorder })
-    }
-    catch (error) {
-        res.status(400).json({
-            message: error.message
-        })
-    }
-}
-
-
-module.exports.Userfcmtoken = async (req, res) => {
-    try {
-        const { user_id, fcmtoken } = req.body;
-        const Usertoken = await User_fcmtoken.create({
-            user_id: user_id,
-            fcmtoken: fcmtoken,
-        })
-        res.json({ msg: "Your fcmtoken saved Successfully", data: Usertoken });
-    }
-    catch (error) {
-        res.status(400).json({
-            message: error.message
-        })
-    }
-}
-
+//Driver reject the order
 module.exports.DriverOrderReject = async (req, res) => {
     try {
         const Order_Id = req.body.order_id;
@@ -186,53 +209,23 @@ module.exports.DriverOrderReject = async (req, res) => {
     }
 }
 
-//Order if driver accept then the cancell order option
-module.exports.DriverOrderCancell = async (req, res) => {
-    try {
-        const Order_Id = req.body.order_id;
-        // const Driver_Id = req.user.id;
-
-        const accept = await DriverAcceptReject.findOne({
-            where: { order_id: Order_Id, driver_order_status: 1 }
-        });
-
-        const cancelled = await accept.update({
-            driver_order_status: "3"
-        });
-
-        const OrderDriverStatus = await Order.findOne({
-            where: { order_id: Order_Id },
-            attributes: ['driver_id', 'order_status', 'order_assign', 'id']
-        })
-        console.log(OrderDriverStatus);
-
-        const updateOrder = OrderDriverStatus.update({ driver_id: "0", order_status: "0", order_assign: "0" },
-        )
-
-        console.log(OrderDriverStatus.driver_id);
-        // const UpdateOrderDriverStatus = await OrderDriverStatus.update({
-        //     driver_id: null,
-        //     order_status: "0",
-        //     order_assign: "0",
-        // })
-
-
-        res.json({ msg: cancelled, order: OrderDriverStatus, update: updateOrder, data: "Order Cancelled Sucessfully" });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Server error" });
-    }
-}
 
 
 
-module.exports.GetDriverOrderCompleled = async (req, res) => {
+//Get Api for driver side
+
+module.exports.GetDriverOrderAll = async (req, res) => {
     try {
 
-        const complete = await Order.findAll({
-            where: { driver_id: req.user.id, order_status: "2" }
+        const accepted = await DriverAcceptReject.findAll({
+            where: { driver_id: req.user.id, driver_order_status: 1, driver_order_status: 2, driver_order_status: 3, driver_order_status: 4 },
+            include: [{
+                model: Order,
+                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'order_created_time', 'order_completed_time'],
+                required: true
+            }],
         })
-        res.json({ msg: complete });
+        res.json({ msg: accepted });
     }
     catch (error) {
         console.error(error);
@@ -240,6 +233,43 @@ module.exports.GetDriverOrderCompleled = async (req, res) => {
     }
 }
 
+module.exports.GetDriverOrderAccepted = async (req, res) => {
+    try {
+
+        const accepted = await DriverAcceptReject.findAll({
+            where: { driver_id: req.user.id, driver_order_status: 1 },
+            include: [{
+                model: Order,
+                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction','billing_details','order_created_time', 'order_completed_time'],
+                required: true
+            }],
+        })
+        res.json({ msg: accepted });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error" });
+    }
+}
+
+module.exports.GetDriverOrderCompleled = async (req, res) => {
+    try {
+
+        const Completed = await DriverAcceptReject.findAll({
+            where: { driver_id: req.user.id, driver_order_status: 2 },
+            include: [{
+                model: Order,
+                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction','billing_details', 'order_created_time', 'order_completed_time'],
+                required: true
+            }],
+        })
+        res.json({ msg: Completed });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error" });
+    }
+}
 
 module.exports.GetDriverOrderCancelled = async (req, res) => {
     try {
@@ -248,7 +278,7 @@ module.exports.GetDriverOrderCancelled = async (req, res) => {
             where: { driver_id: req.user.id, driver_order_status: 3 },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'order_created_time', 'order_completed_time'],
+                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction','billing_details','order_created_time', 'order_completed_time'],
                 required: true
             }],
         })
@@ -266,7 +296,7 @@ module.exports.GetDriverOrderRejected = async (req, res) => {
             where: { driver_id: req.user.id, driver_order_status: 4 },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type','billing_details', 'instruction', 'order_created_time', 'order_completed_time'],
+                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'billing_details', 'instruction', 'order_created_time', 'order_completed_time'],
                 required: true,
             }],
         })
@@ -275,6 +305,22 @@ module.exports.GetDriverOrderRejected = async (req, res) => {
     catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server error" });
+    }
+}
+
+module.exports.Userfcmtoken = async (req, res) => {
+    try {
+        const { user_id, fcmtoken } = req.body;
+        const Usertoken = await User_fcmtoken.create({
+            user_id: user_id,
+            fcmtoken: fcmtoken,
+        })
+        res.json({ msg: "Your fcmtoken saved Successfully", data: Usertoken });
+    }
+    catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
     }
 }
 // module.exports.DriverOrderGetReject = async (req, res) => {

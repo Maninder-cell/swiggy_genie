@@ -19,7 +19,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       category_item_type: {
-        type: Sequelize.STRING
+        type: Sequelize.JSON
       },
       billing_details: {
         type: Sequelize.INTEGER

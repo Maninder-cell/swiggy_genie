@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     deliver_to: DataTypes.STRING,
     billing_details: DataTypes.INTEGER,
     instruction: DataTypes.STRING,
-    category_item_type: DataTypes.STRING,
+    category_item_type: DataTypes.JSON,
     pickup_latitude: DataTypes.STRING,
     pickup_longitude: DataTypes.STRING,
     delivery_latitude: DataTypes.STRING,
