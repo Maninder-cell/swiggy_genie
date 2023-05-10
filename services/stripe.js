@@ -61,6 +61,14 @@ class StripeMain {
 
     return paymentMethods;
   }
+
+  static async getPaymentMethod(id) {
+    const paymentMethod = await stripe.paymentMethods.retrieve(
+      id
+    );
+
+    return paymentMethod
+  }
 }
 
 module.exports = StripeMain;

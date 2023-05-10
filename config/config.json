@@ -1,8 +1,8 @@
 {
   "development": {
     "username": "root",
-    "password": "123567@Mys",
-    "database": "zwigato",
+    "password": "123",
+    "database": "swiggy_genie",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "logging": false

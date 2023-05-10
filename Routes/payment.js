@@ -15,5 +15,6 @@ router.post(
 );
 router.post("/new_payment_method",verifyToken,paymentController.newPaymentMethod);
 router.get("/list_payment_methods",verifyToken,paymentController.listPaymentMethods);
+router.get("/cards",verifyToken,paymentController.listCards);
 
 module.exports = router;

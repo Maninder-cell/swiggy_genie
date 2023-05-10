@@ -2,6 +2,7 @@ const StripeMain = require("../services/stripe");
 const { validationResult } = require("express-validator");
 const db = require('../models');
 const User = db.User;
+const Card = db.Card;
 const Payment = db.Payment;
 
 // exports.createCustomer = async (req, res, next) => {
@@ -46,9 +47,9 @@ exports.pay = async (req, res, next) => {
     user.stripe_id,
     req.body.pay_id
   );
-  
+
   await Payment.create({user_id: req.user.id,order_id:2,stripe_payment_id: payment.id});
-  
+
   return res.status(200).json({
     payment: payment,
   });
@@ -68,6 +69,18 @@ exports.newPaymentMethod = async (req, res, next) => {
         cvc: req.body.cvv,
       },
     });
+
+    if(result){
+      const payment_method = await StripeMain.getPaymentMethod(result.id)
+      await Card.create({
+        user_id:req.user.id,
+        stripe_card_id: payment_method.id,
+        card_no:payment_method.card.last4,
+        name:payment_method.card.networks.available[0],
+        month:payment_method.card.exp_month,
+        year:payment_method.card.exp_year,
+      });
+    }
 
     return res.status(200).json({
       result: result,
@@ -95,8 +108,20 @@ exports.newPaymentMethod = async (req, res, next) => {
       });
     }
     else{
+      const payment_method = await StripeMain.getPaymentMethod(customer.invoice_settings.default_payment_method)
+      await Card.create({
+        user_id:req.user.id,
+        stripe_card_id: payment_method.id,
+        card_no:payment_method.card.last4,
+        name:payment_method.card.networks.available[0],
+        month:payment_method.card.exp_month,
+        year:payment_method.card.exp_year,
+        is_default:true
+      });
+
       user.stripe_id = customer.id;
       user.save();
+
       return res.status(200).json({
         customer: customer,
       });
@@ -117,3 +142,9 @@ exports.listPaymentMethods = async (req, res, next) => {
 
   return res.status(200).json({data:[]});
 };
+
+exports.listCards = async(req,res,next) => {
+  const cards = await Card.findAll({where: {user_id: req.user.id}})
+
+  return res.status(200).json({cards: cards});
+}
