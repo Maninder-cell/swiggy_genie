@@ -18,6 +18,10 @@ module.exports = {
       stripe_payment_id: {
         type: Sequelize.STRING
       },
+      paid: {
+        type: Sequelize.INTEGER,
+        comment: "0->pending\n1->paid"
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

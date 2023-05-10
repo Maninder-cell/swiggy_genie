@@ -3,6 +3,7 @@ const { validationResult } = require("express-validator");
 const db = require('../models');
 const User = db.User;
 const Card = db.Card;
+const Order = db.Order;
 const Payment = db.Payment;
 
 // exports.createCustomer = async (req, res, next) => {
@@ -147,4 +148,22 @@ exports.listCards = async(req,res,next) => {
   const cards = await Card.findAll({where: {user_id: req.user.id}})
 
   return res.status(200).json({cards: cards});
+}
+
+exports.listPayments = async(req,res,next) => {
+  const payments = await Payment.findAll({
+    attributes: ['paid','createdAt'],
+    include: [
+      {
+        model:User,
+        as:'customer',
+        attributes:['name']
+      },
+      {
+        model:Order,
+        attributes:['order_id','pickup_from']
+      }
+    ]
+  });
+  return res.status(200).json({payments: payments});
 }
