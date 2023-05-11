@@ -29,11 +29,11 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE"
       });
 
-      User.hasMany(models.Order, { foreignKey: 'driver_id' }, {
-        onDelete: "CASCADE",
-        as:"driver",
-        onUpdate: "CASCADE"
-      });
+      // // User.hasMany(models.Order, { foreignKey: 'driver_id' }, {
+      // //   onDelete: "CASCADE",
+      // //   as:"driver",
+      // //   onUpdate: "CASCADE"
+      // // });
 
       User.hasMany(models.User_fcmtoken, { foreignKey: 'user_id' }, {
         onDelete: "CASCADE",

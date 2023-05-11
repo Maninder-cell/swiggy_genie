@@ -37,13 +37,14 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
 
         const Till = moment().format("DD MMMM, YYYY");
         const orderTill = ` ${Till}`;
+        return res.json({ Till: orderTill, count: count, order: rows, reject: rejectorder })
         console.log('fdgkja');
         // assuming the driver id is available in the request
 
         // console.log(acceptedOrders);
         // const acceptedOrderIds = acceptedOrders.map(order => order.order_id);
         // const filteredRows = rows.filter(order => !acceptedOrderIds.includes(order.order_id));
-        res.json({ Till: orderTill, count: count, order: rows, reject: rejectorder })
+
     }
     catch (error) {
         res.status(400).json({
@@ -246,7 +247,7 @@ module.exports.GetDriverOrderAccepted = async (req, res) => {
                 attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'billing_details', 'order_created_time', 'order_completed_time'],
                 include: [{
                     model: User,
-    
+
                     required: true,
                 }],
                 required: true
