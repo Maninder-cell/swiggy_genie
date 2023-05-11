@@ -9,12 +9,6 @@ const { getDistance } = require('geolib');
 // const OrderStatus = models.OrderStatus;
 const moment = require('moment');
 const { validationResult } = require("express-validator");
-const mbxClient = require("@mapbox/mapbox-sdk");
-const mbxDirections = require("@mapbox/mapbox-sdk/services/directions");
-const baseClient = mbxClient({
-  accessToken:
-    "pk.eyJ1IjoibmF1c2hhZGlhIiwiYSI6ImNsZ296eXA3NDBiOWkzaG1ybWoxM3dmNWcifQ.bB-kCl0347BPsc_q-7GIOg",
-});
 // const directionsClient = mbxDirections(baseClient);
 
 const addtask = async (req, res, next) => {

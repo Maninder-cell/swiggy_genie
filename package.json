@@ -10,9 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mapbox/mapbox-sdk": "^0.15.0",
-    "@tomtom-international/web-sdk-maps": "^6.23.0",
-    "@tomtom-international/web-sdk-services": "^6.23.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "cron": "^2.3.0",
