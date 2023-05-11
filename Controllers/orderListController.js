@@ -3,7 +3,7 @@ const Order = models.Order;
 const Category = models.Category;
 const User = models.User;
 const TaskDetails = models.TaskDetails;
-const { getDistance } = require('geolib');
+// const { getDistance } = require('geolib');
 // const OrderCategory = models.OrderCategory;
 
 // const OrderStatus = models.OrderStatus;
