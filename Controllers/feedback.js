@@ -48,13 +48,12 @@ exports.driverFeedback = async (req, res, next) => {
   const order = await Order.findOne({
     where: {
       order_id: Order_id
-    },
-    include: [{
-      model: User,
-      attributes: ['name', 'photo_uri'],
-    }],
+    }
   });
-
-  console.log(order);
-  return res.json(order);
+  const driverdetail = await User.findOne({
+    where: { id: order.driver_id },
+    attributes: ['name', 'photo_uri']
+  })
+  console.log(driverdetail);
+  return res.json(driverdetail);
 }

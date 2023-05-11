@@ -11,11 +11,13 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Feedback.belongsTo(models.User, { foreignKey: 'user_id' }, {
         onDelete: "CASCADE",
+        as: "user",
         onUpdate: "CASCADE"
       });
 
       Feedback.belongsTo(models.User, { foreignKey: 'driver_id' }, {
         onDelete: "CASCADE",
+        as:"driver",
         onUpdate: "CASCADE"
       });
 

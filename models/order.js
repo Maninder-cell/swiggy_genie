@@ -16,6 +16,12 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE"
       });
 
+      Order.belongsTo(models.User, { foreignKey: 'driver_id' }, {
+        onDelete: "CASCADE",
+        as:"driver",
+        onUpdate: "CASCADE"
+      });
+
       Order.hasMany(models.DriverAcceptReject, { foreignKey: 'order_id',targetKey:'order_id' }, {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
