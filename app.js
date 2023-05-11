@@ -1,6 +1,8 @@
 const express = require("express");
 const path = require('path');
-const dotenv = require('dotenv');
+//  require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, './env') });
+
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
@@ -8,7 +10,6 @@ const cron = require("cron");
 
 const deleteUserData = require("./deleteUserData");
 
-dotenv.config('./.env');
 
 var db = require('./models');
 
@@ -45,6 +46,8 @@ app.use("/notification", notificationRoutes);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT);
+console.log('env 222is ',process.env.JWT_SECRET)
+
 
 // Setup cron job to delete user data
 const cronJob = new cron.CronJob(

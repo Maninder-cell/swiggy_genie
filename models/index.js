@@ -3,12 +3,15 @@
 const fs = require("fs");
 const path = require("path");
 const Sequelize = require("sequelize");
-const process = require("process");
+// const process = require("process");
+ require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '../env') });
+
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/config.json")[env];
 const db = {};
-
+console.log('env is ',process.env.JWT_SECRET)
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
@@ -23,7 +26,7 @@ if (config.use_env_variable) {
 sequelize
   .authenticate()
   .then(function (err) {
-    console.log("Server is live at PORT:", process.env.PORT);
+    console.log("Server is live at PORT:", process.env.PORT||3000);
   })
   .catch(function (err) {
     console.log("Unable to connect to the database:", err.message);

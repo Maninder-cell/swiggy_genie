@@ -7,10 +7,10 @@ const DriverAcceptReject = db.DriverAcceptReject;
 const Category = db.Category;
 const { Sequelize, Op } = require('sequelize');
 const moment = require('moment');
-var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-});
+// var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+// });
 
 // //When the order has been not to assign anyone and driver pick in the five kilometer
 module.exports.DriverOrderNoAssign = async (req, res) => {
@@ -88,17 +88,17 @@ module.exports.DriverOrderAccept = async (req, res) => {
             attributes: ['fcmtoken']
         });
 
-        fcm_tokens.forEach(user => {
-            let message = {
-                notification: {
-                    title: "Order Confirmed", body: "You Order has Confirmed",
-                },
-                token: user.dataValues.fcmtoken
-            };
-            admin.messaging().send(message).then(async (msg) => {
-                await Notification.create({ user_id: order.user_id, text: message.notification.body });
-            });
-        });
+        // fcm_tokens.forEach(user => {
+        //     let message = {
+        //         notification: {
+        //             title: "Order Confirmed", body: "You Order has Confirmed",
+        //         },
+        //         token: user.dataValues.fcmtoken
+        //     };
+        //     // admin.messaging().send(message).then(async (msg) => {
+        //     //     await Notification.create({ user_id: order.user_id, text: message.notification.body });
+        //     // });
+        // });
 
         res.json({ msg: "Order Confirmed Successfully" });
     }
@@ -170,16 +170,16 @@ module.exports.DriverOrderComplete = async (req, res) => {
             where: { user_id: order.user_id },
             attributes: ['fcmtoken']
         });
-        fcm_tokens.forEach(user => {
-            let message = {
-                notification: {
-                    title: "Order Complete", body: "You Ordered Completed Successfully",
-                }, token: user.dataValues.fcmtoken
-            };
-            admin.messaging().send(message).then(async (msg) => {
-                await Notification.create({ user_id: order.user_id, text: message.notification.body });
-            });;
-        })
+        // fcm_tokens.forEach(user => {
+        //     let message = {
+        //         notification: {
+        //             title: "Order Complete", body: "You Ordered Completed Successfully",
+        //         }, token: user.dataValues.fcmtoken
+        //     };
+        //     admin.messaging().send(message).then(async (msg) => {
+        //         await Notification.create({ user_id: order.user_id, text: message.notification.body });
+        //     });;
+        // })
         res.json({ msg: "Order Completed Successfully" });
 
     }

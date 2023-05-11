@@ -1,6 +1,4 @@
 const models = require("../models");
-const { validationResult } = require("express-validator");
-const moment = require("moment");
 const Order = models.Order;
 
 

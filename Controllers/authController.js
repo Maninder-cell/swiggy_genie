@@ -39,7 +39,7 @@ const register = async (req, res) => {
     //generate token
     const token = jwt.sign(
       { phoneNumber: newUser.Phone, id: newUser.id, role: newUser.account_type },
-      process.env.JWT_SECRET,
+      "dbdad61f0eab1aded7bd4b43edd7",
       {
         expiresIn: "15d",
       }
@@ -91,7 +91,7 @@ const login = async (req, res) => {
     //generate token
     const token = jwt.sign(
       { id: user.id, role: user.account_type },
-      process.env.JWT_SECRET,
+     "dbdad61f0eab1aded7bd4b43edd7",
       {
         expiresIn: "15d",
       }
