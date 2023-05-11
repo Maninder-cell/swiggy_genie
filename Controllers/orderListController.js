@@ -4,20 +4,16 @@ const Category = models.Category;
 const User = models.User;
 const TaskDetails = models.TaskDetails;
 // const { getDistance } = require('geolib');
-// const OrderCategory = models.OrderCategory;
-
-// const OrderStatus = models.OrderStatus;
 const moment = require('moment');
 const { validationResult } = require("express-validator");
-// const directionsClient = mbxDirections(baseClient);
 
 const addtask = async (req, res, next) => {
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
+
     const order_create = moment().format("DD MMMM YYYY, hh:mm A");
     const attr = { ...req.body };
     const task = await TaskDetails.create({
@@ -53,17 +49,18 @@ const getask = async (req, res, next) => {
       where: { user_id: req.user.id },
       order: [['createdAt', 'DESC']]
     })
-    console.log(task.pickup_latitude, task.pickup_longitude, task.delivery_latitude, task.delivery_longitude, task.category_item_type)
-    const pickup = { latitude: task.pickup_latitude, longitude: task.pickup_longitude };
-    const delivery = { latitude: task.delivery_latitude, longitude: task.delivery_longitude };
 
-    const distanceMeters = getDistance(pickup, delivery);
-    const distance100Meters = Math.round(distanceMeters / 100); // convert meters to 100 meters
-    const price = 2; // set the price per 100 meters
-    const basicDeliveryPrice = 30;
+    // console.log(task.pickup_latitude, task.pickup_longitude, task.delivery_latitude, task.delivery_longitude, task.category_item_type)
+    // const pickup = { latitude: task.pickup_latitude, longitude: task.pickup_longitude };
+    // const delivery = { latitude: task.delivery_latitude, longitude: task.delivery_longitude };
+
+    // const distanceMeters = getDistance(pickup, delivery);
+    // const distance100Meters = Math.round(distanceMeters / 100); // convert meters to 100 meters
+    // const price = 2; // set the price per 100 meters
+    // const basicDeliveryPrice = 30;
     let item_price = 0;
 
-    if (task.category_item_type.includes('Food Items')) {
+    if (task.category_item_type.includes('Food Item')) {
       item_price += 10;
     }
     if (task.category_item_type.includes('Medicine')) {

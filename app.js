@@ -44,9 +44,8 @@ app.use("/feedback", feedbackRoutes);
 app.use("/notification", notificationRoutes);
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT);
-console.log('env 222is ',process.env.JWT_SECRET)
+
 
 
 // Setup cron job to delete user data
