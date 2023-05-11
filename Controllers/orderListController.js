@@ -3,6 +3,7 @@ const Order = models.Order;
 const Category = models.Category;
 const User = models.User;
 const TaskDetails = models.TaskDetails;
+const { getDistance } = require('geolib');
 // const OrderCategory = models.OrderCategory;
 
 // const OrderStatus = models.OrderStatus;
@@ -58,13 +59,58 @@ const getask = async (req, res, next) => {
       where: { user_id: req.user.id },
       order: [['createdAt', 'DESC']]
     })
-    const taskupdate = await task.update({
-      billing_details: 1220,
-    })
-    res.json({ taskupdate, msg: "Order Get Successfully" });
-  }
-  catch {
+    console.log(task.pickup_latitude, task.pickup_longitude, task.delivery_latitude, task.delivery_longitude, task.category_item_type)
+    const pickup = { latitude: task.pickup_latitude, longitude: task.pickup_longitude };
+    const delivery = { latitude: task.delivery_latitude, longitude: task.delivery_longitude };
 
+    const distanceMeters = getDistance(pickup, delivery);
+    const distance100Meters = Math.round(distanceMeters / 100); // convert meters to 100 meters
+    const price = 2; // set the price per 100 meters
+    const basicDeliveryPrice = 30;
+    let item_price = 0;
+
+    if (task.category_item_type.includes('Food Items')) {
+      item_price += 10;
+    }
+    if (task.category_item_type.includes('Medicine')) {
+      item_price += 20;
+    }
+    if (task.category_item_type.includes('Documents or Books')) {
+      item_price += 30;
+    }
+    if (task.category_item_type.includes('Clothes')) {
+      item_price += 40;
+    }
+    if (task.category_item_type.includes('Electronics')) {
+      item_price += 50;
+    }
+    if (task.category_item_type.includes('Items for Repair')) {
+      item_price += 60;
+    }
+    if (task.category_item_type.includes('Business Deliveries')) {
+      item_price += 70;
+    }
+    if (task.category_item_type.includes('Others')) {
+      item_price += 100;
+    }
+    console.log(item_price);
+
+    // console.log(item_price);
+    // const totalPrice = basicDeliveryPrice + distance100Meters * price+item_price;
+    // console.log(`Distance: ${distanceMeters} meters`);
+    // console.log(`Total Price: ${totalPrice} rupees`);
+    // const taskupdate = await task.update({
+    //   billing_details: 1220,
+    // })
+    const totalPrice = item_price;
+    const taskupdate = await task.update({
+      billing_details: totalPrice,
+    });
+    res.json({ taskupdate });
+  }
+  catch (err) {
+    console.log(err);
+    return res.status(200).json({ Message: "Something Went Wrong" });
   }
 }
 
