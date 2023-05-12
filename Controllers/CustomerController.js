@@ -3,6 +3,7 @@ const use=models.User;
 const payment=models.Payment;
 
 const { Op } = require('sequelize');
+const user = require('../models/user');
 
 const order=models.Order;
 
@@ -189,6 +190,7 @@ exports.getorders = async (req, res) => {
     const offset = (page - 1) * limit;
     console.log(offset);
         const id = req.body.id;
+ 
         const searchText=req.body.searchText;
   
         if (id) {
@@ -205,13 +207,20 @@ exports.getorders = async (req, res) => {
             [Op.or]: [
               { pickup_from: { [Op.like]: `%${searchText}%` } },
               { deliver_to: { [Op.like]: `%${searchText}%` } },
-              { item_type: { [Op.like]: `%${searchText}%` } },
-              { status: { [Op.like]: `%${searchText}%` } },
-              { name: { [Op.like]: `%${searchText}%` } },
-              { contact: { [Op.like]: `%${searchText}%` } },
+              { category_item_type: { [Op.like]: `%${searchText}%` } },
+              { order_status: { [Op.like]: `%${searchText}%` } },
+             
             ],
-
-          },
+           },
+           include:[
+            {
+              model:use,
+              attributes: ['name']
+            },
+         
+  
+              ],
+              
           offset,
           limit
         });
@@ -219,11 +228,25 @@ exports.getorders = async (req, res) => {
         console.log("order data", rows);
         return res.status(200).json({ data: rows,count:count });
       } else {
-        const data = await order.findAll({
+        const data = await order.findAll(
+      
+          {
+            attributes:['user_id',"pickup_from","deliver_to","category_item_type","order_assign"],
+
+            include:[
+              {
+                model:use,
+                attributes: ['name']
+              },
+           
+    
+                ],
+           
           offset,
           limit
 
-        });
+        },
+        );
         res.status(200).json({ data: data });
       }
     } catch (error) {
@@ -292,26 +315,52 @@ exports.getorders = async (req, res) => {
        const offset=(page-1)*limit;
 
        const searchText=req.body.searchText;
-       if(searchText){
+      
+       if (searchText) {
         const {rows,count} = await payment.findAndCountAll({
+          attributes:['id','paid'],
           where: {
             [Op.or]: [
-              { paid: { [Op.like]: `%${searchText}%` } },
-              { stripe_payment_id: { [Op.like]: `%${searchText}%` } },
               { order_id: { [Op.like]: `%${searchText}%` } },
+              { stripe_payment_id: { [Op.like]: `%${searchText}%` } },
+              { paid: { [Op.like]: `%${searchText}%` } },
+            
+             
             ],
-
-          },
+           },
+           include:[{
+            model:use,
+            as:'customer',
+            attributes:['name']
+         },
+        {
+         model:order,
+         attributes:["order_id","category_item_type","pickup_from","deliver_to"]
+        }
+       
+       ],
+              
           offset,
           limit
         });
   
         console.log("order data", rows);
         return res.status(200).json({ data: rows,count:count });
-
-       }
+      } 
        else{
         const getpayment=await payment.findAll({
+          attributes:['id','paid'],
+          include:[{
+            model:use,
+            as:'customer',
+            attributes:['name']
+         },
+        {
+         model:order,
+         attributes:["order_id","category_item_type","pickup_from","deliver_to"]
+        }
+       
+       ],
           offset,
           limit
         });
