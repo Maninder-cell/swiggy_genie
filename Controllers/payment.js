@@ -1,10 +1,13 @@
 const StripeMain = require("../services/stripe");
 const { validationResult } = require("express-validator");
 const db = require('../models');
+const taskdetails = require("../models/taskdetails");
 const User = db.User;
 const Card = db.Card;
 const Order = db.Order;
 const Payment = db.Payment;
+const TaskDetails = db.TaskDetails;
+const moment = require('moment');
 
 // exports.createCustomer = async (req, res, next) => {
 //   const number = req.body.number.replace(/\s/g, '');
@@ -41,7 +44,7 @@ exports.pay = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const user = await User.findOne({where: {id: req.user.id}});
+  const user = await User.findOne({ where: { id: req.user.id } });
 
   const payment = await StripeMain.Pay(
     req.body.amount,
@@ -49,7 +52,36 @@ exports.pay = async (req, res, next) => {
     req.body.pay_id
   );
 
-  await Payment.create({user_id: req.user.id,order_id:2,stripe_payment_id: payment.id});
+  if (payment) {
+    console.log(req.body.task_id);
+    const task_detail = await TaskDetails.findOne({
+      where: { id: req.body.task_id },
+    });
+    var Order_Id = Math.random();
+    Order_Id = Order_Id * 100000000;
+    Order_Id = parseInt(Order_Id);
+    const order_create = moment().format("DD MMMM YYYY, hh:mm A");
+    const order = await Order.create({
+      user_id: req.user.id,
+      order_id: Order_Id,
+      driver_id: "0",
+      pickup_from: task_detail.pickup_from,
+      deliver_to: task_detail.deliver_to,
+      instruction: task_detail.Instruction,
+      category_item_type: task_detail.category_item_type,
+      billing_details: task_detail.billing_details,
+      order_status: "0",
+      order_assign: "0",
+      pickup_latitude: task_detail.pickup_latitude,
+      pickup_longitude: task_detail.pickup_longitude,
+      delivery_latitude: task_detail.delivery_latitude,
+      delivery_longitude: task_detail.delivery_longitude,
+      order_created_time: order_create,
+
+    });
+
+    await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id });
+  }
 
   return res.status(200).json({
     payment: payment,
@@ -57,9 +89,9 @@ exports.pay = async (req, res, next) => {
 };
 
 exports.newPaymentMethod = async (req, res, next) => {
-  const user = await User.findOne({where: {id: req.user.id}});
+  const user = await User.findOne({ where: { id: req.user.id } });
 
-  if(user.stripe_id){
+  if (user.stripe_id) {
     const number = req.body.number.replace(/\s/g, '');
     const result = await StripeMain.NewPaymentMethod(user.stripe_id, {
       type: "card",
@@ -71,15 +103,15 @@ exports.newPaymentMethod = async (req, res, next) => {
       },
     });
 
-    if(result){
+    if (result) {
       const payment_method = await StripeMain.getPaymentMethod(result.id)
       await Card.create({
-        user_id:req.user.id,
+        user_id: req.user.id,
         stripe_card_id: payment_method.id,
-        card_no:payment_method.card.last4,
-        name:payment_method.card.networks.available[0],
-        month:payment_method.card.exp_month,
-        year:payment_method.card.exp_year,
+        card_no: payment_method.card.last4,
+        name: payment_method.card.networks.available[0],
+        month: payment_method.card.exp_month,
+        year: payment_method.card.exp_year,
       });
     }
 
@@ -87,9 +119,9 @@ exports.newPaymentMethod = async (req, res, next) => {
       result: result,
     });
   }
-  else{
+  else {
     const number = req.body.number.replace(/\s/g, '');
-    const {customer,error} = await StripeMain.createCustomer({
+    const { customer, error } = await StripeMain.createCustomer({
       name: user.name,
       email: user.email,
       payment_method: {
@@ -103,21 +135,21 @@ exports.newPaymentMethod = async (req, res, next) => {
       },
     });
 
-    if (error){
+    if (error) {
       return res.status(402).json({
         error: error,
       });
     }
-    else{
+    else {
       const payment_method = await StripeMain.getPaymentMethod(customer.invoice_settings.default_payment_method)
       await Card.create({
-        user_id:req.user.id,
+        user_id: req.user.id,
         stripe_card_id: payment_method.id,
-        card_no:payment_method.card.last4,
-        name:payment_method.card.networks.available[0],
-        month:payment_method.card.exp_month,
-        year:payment_method.card.exp_year,
-        is_default:true
+        card_no: payment_method.card.last4,
+        name: payment_method.card.networks.available[0],
+        month: payment_method.card.exp_month,
+        year: payment_method.card.exp_year,
+        is_default: true
       });
 
       user.stripe_id = customer.id;
@@ -131,9 +163,9 @@ exports.newPaymentMethod = async (req, res, next) => {
 };
 
 exports.listPaymentMethods = async (req, res, next) => {
-  const user = await User.findOne({where: {id: req.user.id}});
+  const user = await User.findOne({ where: { id: req.user.id } });
 
-  if(user.stripe_id){
+  if (user.stripe_id) {
     const list = await StripeMain.ListAllPaymentMethods(user.stripe_id);
     console.log(list);
     return res.status(200).json({
@@ -141,29 +173,29 @@ exports.listPaymentMethods = async (req, res, next) => {
     });
   }
 
-  return res.status(200).json({data:[]});
+  return res.status(200).json({ data: [] });
 };
 
-exports.listCards = async(req,res,next) => {
-  const cards = await Card.findAll({where: {user_id: req.user.id}})
+exports.listCards = async (req, res, next) => {
+  const cards = await Card.findAll({ where: { user_id: req.user.id } })
 
-  return res.status(200).json({cards: cards});
+  return res.status(200).json({ cards: cards });
 }
 
-exports.listPayments = async(req,res,next) => {
+exports.listPayments = async (req, res, next) => {
   const payments = await Payment.findAll({
-    attributes: ['paid','createdAt'],
+    attributes: ['paid', 'createdAt'],
     include: [
       {
-        model:User,
-        as:'customer',
-        attributes:['name']
+        model: User,
+        as: 'customer',
+        attributes: ['name']
       },
       {
-        model:Order,
-        attributes:['order_id','pickup_from']
+        model: Order,
+        attributes: ['order_id', 'pickup_from']
       }
     ]
   });
-  return res.status(200).json({payments: payments});
+  return res.status(200).json({ payments: payments });
 }

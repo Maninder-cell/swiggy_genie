@@ -13,9 +13,8 @@ router.post(
   feedBackController.feedBack
 );
 
-router.get("/list_feedbacks",verifyToken,feedBackController.listFeedbacks);
+router.get("/list_feedbacks", verifyToken, feedBackController.listFeedbacks);
 
-// router.get("/driver_feedback/:order_id",verifyToken,feedBackController.driverFeedback);
-router.get("/driver_feedback",verifyToken,feedBackController.driverFeedback);
+router.get("/driver_feedback/:order_id", verifyToken, feedBackController.driverFeedback);
 
 module.exports = router;

@@ -11,10 +11,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Card.belongsTo(models.User,{foreignKey:"user_id"},{
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE"
-      });
     }
   }
   Card.init({
@@ -25,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     month: DataTypes.INTEGER,
     year: DataTypes.INTEGER,
     is_default: DataTypes.BOOLEAN
+
   }, {
     sequelize,
     modelName: 'Card',

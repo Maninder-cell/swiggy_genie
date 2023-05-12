@@ -31,7 +31,7 @@ const addtask = async (req, res, next) => {
     });
 
     return res.status(200).json({
-      msg: "order task sucessfully",
+      msg: "order created task sucessfully",
       order: task,
     });
   }
@@ -49,15 +49,8 @@ const getask = async (req, res, next) => {
       where: { user_id: req.user.id },
       order: [['createdAt', 'DESC']]
     })
-
-    // console.log(task.pickup_latitude, task.pickup_longitude, task.delivery_latitude, task.delivery_longitude, task.category_item_type)
-    // const pickup = { latitude: task.pickup_latitude, longitude: task.pickup_longitude };
-    // const delivery = { latitude: task.delivery_latitude, longitude: task.delivery_longitude };
-
-    // const distanceMeters = getDistance(pickup, delivery);
-    // const distance100Meters = Math.round(distanceMeters / 100); // convert meters to 100 meters
-    // const price = 2; // set the price per 100 meters
-    // const basicDeliveryPrice = 30;
+    console.log(task);
+   
     let item_price = 0;
 
     if (task.category_item_type.includes('Food Item')) {

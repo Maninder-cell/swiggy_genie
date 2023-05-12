@@ -7,10 +7,10 @@ const DriverAcceptReject = db.DriverAcceptReject;
 const Category = db.Category;
 const { Sequelize, Op } = require('sequelize');
 const moment = require('moment');
-// var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
-// admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount),
-// });
+var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
 
 // //When the order has been not to assign anyone and driver pick in the five kilometer
 module.exports.DriverOrderNoAssign = async (req, res) => {
@@ -26,12 +26,11 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
 
         const { count, rows } = await Order.findAndCountAll({
             where: { order_assign: "0", order_status: "0", order_id: { [Op.notIn]: ids } },
-            attributes: [
-                'order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'order_status', 'order_created_time', 'order_completed_time'],
             include: [{
                 model: User,
                 required: true,
             }],
+            order: [["createdAt", "DESC"]]
         });
         // console.log(order);
 
@@ -88,17 +87,17 @@ module.exports.DriverOrderAccept = async (req, res) => {
             attributes: ['fcmtoken']
         });
 
-        // fcm_tokens.forEach(user => {
-        //     let message = {
-        //         notification: {
-        //             title: "Order Confirmed", body: "You Order has Confirmed",
-        //         },
-        //         token: user.dataValues.fcmtoken
-        //     };
-        //     // admin.messaging().send(message).then(async (msg) => {
-        //     //     await Notification.create({ user_id: order.user_id, text: message.notification.body });
-        //     // });
-        // });
+        fcm_tokens.forEach(user => {
+            let message = {
+                notification: {
+                    title: "Order Confirmed", body: "You Order has Confirmed",
+                },
+                token: user.dataValues.fcmtoken
+            };
+            // admin.messaging().send(message).then(async (msg) => {
+            //     await Notification.create({ user_id: order.user_id, text: message.notification.body });
+            // });
+        });
 
         res.json({ msg: "Order Confirmed Successfully" });
     }
@@ -170,16 +169,16 @@ module.exports.DriverOrderComplete = async (req, res) => {
             where: { user_id: order.user_id },
             attributes: ['fcmtoken']
         });
-        // fcm_tokens.forEach(user => {
-        //     let message = {
-        //         notification: {
-        //             title: "Order Complete", body: "You Ordered Completed Successfully",
-        //         }, token: user.dataValues.fcmtoken
-        //     };
-        //     admin.messaging().send(message).then(async (msg) => {
-        //         await Notification.create({ user_id: order.user_id, text: message.notification.body });
-        //     });;
-        // })
+        fcm_tokens.forEach(user => {
+            let message = {
+                notification: {
+                    title: "Order Complete", body: "You Ordered Completed Successfully",
+                }, token: user.dataValues.fcmtoken
+            };
+            admin.messaging().send(message).then(async (msg) => {
+                await Notification.create({ user_id: order.user_id, text: message.notification.body });
+            });;
+        })
         res.json({ msg: "Order Completed Successfully" });
 
     }
@@ -221,13 +220,13 @@ module.exports.GetDriverOrderAll = async (req, res) => {
             where: { driver_id: req.user.id, driver_order_status: [1, 2, 3, 4] },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'billing_details', 'order_created_time', 'order_completed_time'],
                 include: [{
                     model: User,
                     required: true,
                 }],
                 required: true
             }],
+            order: [["createdAt", "DESC"]],
         })
         res.json({ msg: accepted });
     }
@@ -244,7 +243,6 @@ module.exports.GetDriverOrderAccepted = async (req, res) => {
             where: { driver_id: req.user.id, driver_order_status: 1 },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'billing_details', 'order_created_time', 'order_completed_time'],
                 include: [{
                     model: User,
 
@@ -252,6 +250,7 @@ module.exports.GetDriverOrderAccepted = async (req, res) => {
                 }],
                 required: true
             }],
+            order: [["createdAt", "DESC"]],
         })
         res.json({ msg: accepted });
     }
@@ -268,13 +267,13 @@ module.exports.GetDriverOrderCompleled = async (req, res) => {
             where: { driver_id: req.user.id, driver_order_status: 2 },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'billing_details', 'order_created_time', 'order_completed_time'],
                 include: [{
                     model: User,
                     required: true,
                 }],
                 required: true
             }],
+            order: [["createdAt", "DESC"]],
         })
         res.json({ msg: Completed });
     }
@@ -291,13 +290,13 @@ module.exports.GetDriverOrderCancelled = async (req, res) => {
             where: { driver_id: req.user.id, driver_order_status: 3 },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'billing_details', 'order_created_time', 'order_completed_time'],
                 include: [{
                     model: User,
                     required: true,
                 }],
                 required: true
             }],
+            order: [["createdAt", "DESC"]],
         })
         res.json({ msg: cancelled });
     }
@@ -313,13 +312,13 @@ module.exports.GetDriverOrderRejected = async (req, res) => {
             where: { driver_id: req.user.id, driver_order_status: 4 },
             include: [{
                 model: Order,
-                attributes: ['order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'billing_details', 'instruction', 'order_created_time', 'order_completed_time'],
                 include: [{
                     model: User,
                     required: true,
                 }],
                 required: true,
             }],
+            order: [["createdAt", "DESC"]],
         })
         res.json({ msg: reject });
     }

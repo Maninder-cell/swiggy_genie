@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
     instruction: DataTypes.STRING,
     order_created_time: DataTypes.STRING,
     order_completed_time: DataTypes.STRING,
-    category_item_type: DataTypes.STRING,
+    category_item_type: DataTypes.JSON,
     order_status: {
       type: DataTypes.STRING,
       comment: "0->Pending\n1->Accepted\n2->Completed\n3->Cancelled",

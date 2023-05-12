@@ -7,12 +7,10 @@ const {
 const verifyToken = require("../Middleware/verifyToken");
 
 const router = express.Router();
-// get order count
-// router.get("/getCount", verifyToken, getOrder);
+
 router.get("/driver/getCount", verifyToken, orderstatus.DriverOrderNoAssign);
 
-// driver Accept/Reject
-// router.post("/action", verifyToken, actionController);
+
 router.post("/driver/action/accept", verifyToken, orderstatus.DriverOrderAccept);
 router.get("/driver/action/accept", verifyToken, orderstatus.GetDriverOrderAccepted);
 

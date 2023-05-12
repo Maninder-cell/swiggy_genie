@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const stripe = require("stripe")(process.env.stripe_secret_key);
+const stripe = require("stripe")("sk_test_51MyZxPJC7o9g4pD4fSCb9OPABMrn9gRVimCDd47PLZu4gMORPd6mW9kkHNRiGNdCQQbe3paZ4GmqQiuqPBmW9TRz00QKoNk9zW");
 
 class StripeMain {
   /**
