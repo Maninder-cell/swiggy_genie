@@ -1,5 +1,6 @@
 const models = require('../models');
 const use=models.User;
+const payment=models.Payment;
 
 const { Op } = require('sequelize');
 
@@ -28,12 +29,12 @@ exports.getuser=async(req,res)=>{
             [Op.or]: [
                 { name: { [Op.like]: `%${keyword}%` } },
                 { address: { [Op.like]: `%${keyword}%` } },
-                { contact: { [Op.like]: `%${keyword}%` } }
+                { phone: { [Op.like]: `%${keyword}%` } }
             ],
             account_type: account_type,
             
         },
-        attributes:["id",'name','contact','address','account_type','image'],
+        attributes:["id",'name','phone','address','account_type'],
        offset,
        limit
        
@@ -52,7 +53,7 @@ else {
         where:{
             account_type:account_type
         },
-        attributes:['id','name','contact','address','account_type','image'],
+        attributes:['id','name','phone','address','account_type'],
        offset,
        limit
       });
@@ -175,32 +176,6 @@ exports.getdriver=async(req,res)=>{
 }
 
 
-exports.createorder=async(req,res)=>{
-    try {
-        const userid=req.body.user_id;
-        const custom=await use.findOne({where:{id:userid}});
-     
-        
-       const orde=await order.create({
-            user_id:userid,
-            pickup_from:req.body.pickup_from,
-            deliver_to:req.body.deliver_to,
-            item_type:req.body.item_type,
-            billing_details:req.body.billing_details,
-            instructions:req.body.instructions,
-            driver_id:req.body.driver_id,
-            status:req.body.status,
-            name:custom.name,
-            contact:custom.contact
-       });
-       res.status(200).json({orders:orde});
-    
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({msg:error});
-    }
-}
-
 
 exports.getorders = async (req, res) => {
     try {
@@ -257,153 +232,6 @@ exports.getorders = async (req, res) => {
     }
   };
 
-
-// exports.getorders=async(req,res)=>{
-//     try {
-//         // const page = parseInt(req.query.page) ||4;
-//         // console.log(page);
-//         // const limit = parseInt(req.query.limit) || 2;
-//         // console.log(limit);
-
-//         // const offset = (page - 1) * limit;
-//         // console.log(offset);
-//         const keyword = req.params.searchText || '';
-//         // const order_id = req.params.order_id;
-//         // if (order_id) {
-//         //     const ord = await order.findByPk(order_id);
-//         //     if (ord) {
-//         //       return res.status(200).json({ data: ord});
-//         //     } else {
-//         //       return res.status(404).json({ message: "order not found" });
-//         //     }
-//         //   }
-//            if(keyword){
-//             const userorder = await order.findAll({ 
-//               where: {
-//                   [Op.or]: [
-//                       { pickup_from: { [Op.like]: `%${keyword}%` } },
-//                       { deliver_to: { [Op.like]: `%${keyword}%` } },
-//                       { item_type: { [Op.like]: `%${keyword}%` } },
-//                       { status: { [Op.like]: `%${keyword}%` } },
-//                       { name: { [Op.like]: `%${keyword}%` } },
-//                       { contact: { [Op.like]: `%${keyword}%` } },
-
-//                   ]
-//               },
-              
-//           });
-//             console.log("order data",userorder);
-//           return res.status(200).json({data:userorder});
-            
-          
-         
-//       }
-//       else{
-//         // const data=await order.findAll({  offset,
-//         //     limit});
-//         const data=await order.findAll();
-//         res.status(200).json({data:data});
-//         return;
-        
-//     }
-
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({msg:error});
-//     }
-// }
-
-    //   exports.isblocked=async(req,res)=>{
-    //     try {
-    //  const block=req.body.block;
-    //   console.log(block);      
-     
-    //   const userid=req.userid;
-    //   console.log(userid);
-    //  const arr=[] ;
-
-
-    //  if(block ==='1'){
-    //   arr.push({ block: 1});
-    //   const usedata=await use.update(arr[0],{where:{id:userid}})
-    //   console.log("userdata",usedata);
-    //   res.status(200).json({msg:"User  Updated"})
-    //   return;
-    //  }
-    //  else if(block==='0'){
-    //   arr.push({ block:0});
-    //   const usedat=await use.update(arr[0],{where:{id:userid}})
-    //   console.log("userda",usedat);
-
-    //   res.status(200).json({msg:"User  blocked"})
-    //   return;
-    //  }
-    //  else{
-    //   res.status(500).json({msg:"User  not found"})
-    //   return;
-    //  }
-    //     } catch (error) {
-    //       console.log(error);
-    //     }
-    //   }
-
-
-
-
-
-
-    // exports.isblocked = async (req, res) => {
-    //   try {
-    //     const block = req.body.block;
-    //     console.log(block);
-
-    //    const userid=req.body.id
-
-    //     const user_id = req.userid;
-
-    //   const userda=await use.findOne({where:{id:user_id}});
-
-    //   const account_type=userda.account_type;
-      
-    //   console.log("account_type",account_type);
-
-    //   if(account_type === 2){
-        
-  
-    
-    //    if (block === '1') {
-    //     await use.update({block:block},{ where: { id: userid },returning: true});
-       
-      
-    //     res.status(200).json({ msg: "User unblocked" });
-    //       return;
-   
-    //     } else if (block === '0') {
-          
-    //       await use.update({block:block},{ where: { id: userid },returning: true});
-    
-    //       res.status(200).json({ msg: "User blocked" });
-    //       return;
-     
-    //     } else {
-    //       res.status(500).json({ msg: "User not found" });
-    //       return;
-    //     }
-    //   }
-    //   else{
-    //     res.status(500).json("dont access");
-    //   }
-   
-
-
-    //   } catch (error) {
-    //     console.log(error);
-    //     res.status(500).json({ error: "Internal server error" });
-    //   }
-    // };
-
-
-
     exports.isblocked = async (req, res) => {
       try {
     
@@ -411,29 +239,32 @@ exports.getorders = async (req, res) => {
         console.log(block);
     
         const userid = req.body.id;
+        console.log("bcnfdhnvf",userid);
 
-        const user_id = req.userid;
+        const user_id = req.user.id;
+        console.log("ngvfbgk",user_id)
 
         const user = await use.findOne({ where: { id: user_id } });
      
         const account_type = user.account_type;
         console.log('account_type', account_type);
     
-        if (account_type === 0) {
+        if (account_type === '2') {
       
-          if (block === 1) {
           
-            await use.update({ block: block }, { where: { id: userid }, returning: true });
+          if (block === 0) {
+          
+            await use.update({ block: '0'}, { where: { id: userid }, returning: true });
            
       
-            res.status(200).json({ msg: 'User block' });
+            res.status(200).json({ msg: 'User active' });
             return;
           
-          } else if (block === 0) {
+          } else if (block === 1) {
          
-            await use.update({ block: block }, { where: { id: userid }, returning: true });
+            await use.update({ block: '1' }, { where: { id: userid }, returning: true });
          
-            res.status(200).json({ msg: 'User unblocked' });
+            res.status(200).json({ msg: 'User blocked' });
             return;
           } 
          
@@ -443,10 +274,10 @@ exports.getorders = async (req, res) => {
      
           res.status(500).json({ msg: 'Unauthorized ' });
         }
+         
 
 
 
-        
       } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -454,7 +285,44 @@ exports.getorders = async (req, res) => {
     };
    
     
-    
+    exports.getpayment=async(req,res)=>{
+      try {
+       const page=req.body.page;
+       const limit=req.body.limit;
+       const offset=(page-1)*limit;
+
+       const searchText=req.body.searchText;
+       if(searchText){
+        const {rows,count} = await payment.findAndCountAll({
+          where: {
+            [Op.or]: [
+              { paid: { [Op.like]: `%${searchText}%` } },
+              { stripe_payment_id: { [Op.like]: `%${searchText}%` } },
+              { order_id: { [Op.like]: `%${searchText}%` } },
+            ],
+
+          },
+          offset,
+          limit
+        });
+  
+        console.log("order data", rows);
+        return res.status(200).json({ data: rows,count:count });
+
+       }
+       else{
+        const getpayment=await payment.findAll({
+          offset,
+          limit
+        });
+        res.status(200).json({data:getpayment});
+        return;
+      }
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({err:error})
+      }
+    }
     
     
     
