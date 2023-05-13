@@ -7,7 +7,7 @@ const Card = db.Card;
 const Order = db.Order;
 const Payment = db.Payment;
 const TaskDetails = db.TaskDetails;
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 // exports.createCustomer = async (req, res, next) => {
 //   const number = req.body.number.replace(/\s/g, '');
@@ -60,7 +60,9 @@ exports.pay = async (req, res, next) => {
     var Order_Id = Math.random();
     Order_Id = Order_Id * 100000000;
     Order_Id = parseInt(Order_Id);
-    const order_create = moment().format("DD MMMM YYYY, hh:mm A");
+    const indianTime = moment.tz(Date.now(), 'Asia/Kolkata');
+    const order_create = indianTime.format("DD MMMM YYYY, hh:mm A");
+    console.log(order_create);
     const order = await Order.create({
       user_id: req.user.id,
       order_id: Order_Id,

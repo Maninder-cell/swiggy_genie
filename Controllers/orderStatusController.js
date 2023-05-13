@@ -86,17 +86,17 @@ module.exports.DriverOrderAccept = async (req, res) => {
             where: { user_id: order.user_id },
             attributes: ['fcmtoken']
         });
-
+        console.log(fcm_tokens);
         fcm_tokens.forEach(user => {
             let message = {
                 notification: {
-                    title: "Order Confirmed", body: "You Order has Confirmed",
+                    title: "Order Confirmed", body: `You Order #${order.order_id} has Confirmed`,
                 },
                 token: user.dataValues.fcmtoken
             };
-            // admin.messaging().send(message).then(async (msg) => {
-            //     await Notification.create({ user_id: order.user_id, text: message.notification.body });
-            // });
+            admin.messaging().send(message).then(async (msg) => {
+                await Notification.create({ user_id: order.user_id, text: message.notification.body });
+            });
         });
 
         res.json({ msg: "Order Confirmed Successfully" });
@@ -172,7 +172,7 @@ module.exports.DriverOrderComplete = async (req, res) => {
         fcm_tokens.forEach(user => {
             let message = {
                 notification: {
-                    title: "Order Complete", body: "You Ordered Completed Successfully",
+                    title: "Order Complete", body: `You Order #${order.order_id} Completed Successfully`,
                 }, token: user.dataValues.fcmtoken
             };
             admin.messaging().send(message).then(async (msg) => {
