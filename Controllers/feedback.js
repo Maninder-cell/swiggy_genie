@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator");
 const db = require("../models");
+const { Op } = require("sequelize");
 const Feedback = db.Feedback;
 const Order = db.Order;
 const User = db.User;
@@ -14,7 +15,7 @@ exports.feedBack = async (req, res, next) => {
 
   const obj = {
     user_id: req.user.id,
-    driver_id: order.user_id,
+    driver_id: order.driver_id,
     order_id: order.order_id,
     stars: req.body.stars,
     comment: req.body.comment,
@@ -27,8 +28,14 @@ exports.feedBack = async (req, res, next) => {
 };
 
 exports.listFeedbacks = async (req, res, next) => {
+  console.log(req.user.id);
   const feedbacks = await Feedback.findAll({
-    where: { user_id: req.user.id },
+    where: {
+      [Op.or]: [
+        { driver_id: req.user.id },
+        { user_id: req.user.id }
+      ]
+    },
     order: [["createdAt", "DESC"]]
   });
   console.log(feedbacks);

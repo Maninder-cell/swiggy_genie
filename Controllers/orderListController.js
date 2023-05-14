@@ -50,7 +50,7 @@ const getask = async (req, res, next) => {
       order: [['createdAt', 'DESC']]
     })
     console.log(task);
-   
+
     let item_price = 0;
 
     if (task.category_item_type.includes('Food Item')) {
@@ -175,29 +175,33 @@ const getOrdersByStatus = async (req, res) => {
       case status === "0":
         orders = await Order.findAll({
           where: { user_id: user_id, order_status: "0" },
+          order: [["order_created_time", "DESC"]],
         });
         break;
 
       case status === "1":
         orders = await Order.findAll({
           where: { user_id: user_id, order_status: "1" },
+          order: [["order_created_time", "DESC"]],
         });
         break;
 
       case status === "2":
         orders = await Order.findAll({
           where: { user_id: user_id, order_status: "2" },
+          order: [["order_created_time", "DESC"]],
         });
         break;
 
       case status === "3":
         orders = await Order.findAll({
           where: { user_id: user_id, order_status: "3" },
+          order: [["order_created_time", "DESC"]],
         });
         break;
 
       default:
-        orders = await Order.findAll({ where: { user_id: user_id } });
+        orders = await Order.findAll({ where: { user_id: user_id }, order: [["order_created_time", "DESC"]], });
         // console.log(orders);
         break;
     }

@@ -226,7 +226,7 @@ module.exports.GetDriverOrderAll = async (req, res) => {
                 }],
                 required: true
             }],
-            order: [["createdAt", "DESC"]],
+            order: [["updatedAt", "DESC"]]
         })
         res.json({ msg: accepted });
     }
@@ -250,7 +250,7 @@ module.exports.GetDriverOrderAccepted = async (req, res) => {
                 }],
                 required: true
             }],
-            order: [["createdAt", "DESC"]],
+            order: [["updatedAt", "DESC"]]
         })
         res.json({ msg: accepted });
     }
@@ -273,7 +273,7 @@ module.exports.GetDriverOrderCompleled = async (req, res) => {
                 }],
                 required: true
             }],
-            order: [["createdAt", "DESC"]],
+            order: [["updatedAt", "DESC"]]
         })
         res.json({ msg: Completed });
     }
@@ -296,7 +296,7 @@ module.exports.GetDriverOrderCancelled = async (req, res) => {
                 }],
                 required: true
             }],
-            order: [["createdAt", "DESC"]],
+            order: [["updatedAt", "DESC"]]
         })
         res.json({ msg: cancelled });
     }
@@ -318,7 +318,7 @@ module.exports.GetDriverOrderRejected = async (req, res) => {
                 }],
                 required: true,
             }],
-            order: [["createdAt", "DESC"]],
+            order: [["updatedAt", "DESC"]]
         })
         res.json({ msg: reject });
     }

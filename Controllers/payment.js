@@ -51,15 +51,18 @@ exports.pay = async (req, res, next) => {
     user.stripe_id,
     req.body.pay_id
   );
-
+  const data = req.body.task_id;
+  const taskdata = data + 1;
   if (payment) {
-    console.log(req.body.task_id);
     const task_detail = await TaskDetails.findOne({
-      where: { id: req.body.task_id },
+      limit: 1,
+      where: { id: taskdata },
+      order: [['createdAt', 'DESC']]
     });
     var Order_Id = Math.random();
     Order_Id = Order_Id * 100000000;
     Order_Id = parseInt(Order_Id);
+    console.log("rhgfsdgjfhf", task_detail);
     const indianTime = moment.tz(Date.now(), 'Asia/Kolkata');
     const order_create = indianTime.format("DD MMMM YYYY, hh:mm A");
     console.log(order_create);
