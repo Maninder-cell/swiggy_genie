@@ -245,7 +245,6 @@ module.exports.GetDriverOrderAccepted = async (req, res) => {
                 model: Order,
                 include: [{
                     model: User,
-
                     required: true,
                 }],
                 required: true
