@@ -215,10 +215,9 @@ const getOrdersByStatus = async (req, res) => {
 
 // Cancel an order by ID
 const cancelOrder = async (req, res) => {
-  const user_id = req.user.id;
-  console.log(req.params.id);
+  const orderCancelData = req.body.order_id;
   const order = await Order.findOne({
-    where: { order_id: req.params.id },
+    where: { order_id: orderCancelData },
   });
   if (!order) {
     return res.status(404).json({ message: "Order not found" });
@@ -227,7 +226,7 @@ const cancelOrder = async (req, res) => {
     const orderCancel = await order.update({
       order_status: "3",
     });
-    return res.json({ msg: orderCancel });
+    return res.json({ msg: orderCancel, data: "Order cancelled" });
   };
   return res.json({ msg: "Cannot be cancelled" });
 }
