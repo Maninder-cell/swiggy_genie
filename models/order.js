@@ -47,7 +47,8 @@ module.exports = (sequelize, DataTypes) => {
     pickup_latitude: DataTypes.STRING,
     pickup_longitude: DataTypes.STRING,
     delivery_latitude: DataTypes.STRING,
-    delivery_longitude: DataTypes.STRING
+    delivery_longitude: DataTypes.STRING,
+    distance_km: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Order',

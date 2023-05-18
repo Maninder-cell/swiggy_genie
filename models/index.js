@@ -59,7 +59,7 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 
-db.sequelize.sync({alter:true});
+// db.sequelize.sync({alter:true});
 
 // db.sequelize.sync({ force: true })
 

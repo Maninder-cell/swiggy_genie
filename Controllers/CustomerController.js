@@ -7,14 +7,11 @@ const order = models.Order;
 
 exports.getuser = async (req, res) => {
     try {
-        const page = req.body.page || 4
-        console.log('sjdfaldfjaa', page);
-        const limit = req.body.limit || 5
-        console.log(limit);
+        const page = req.body.page;
+        const limit = req.body.limit;
         const offset = (page - 1) * limit;
-        console.log(offset);
-        const account_type = req.body.account_type;
-        console.log("Account type", account_type);
+        const account_type = parseInt(req.body.account_type);
+        console.log('dfadsfsadfadf',account_type);
         const keyword = req.body.searchText;
 
         if (keyword && account_type) {
@@ -27,21 +24,24 @@ exports.getuser = async (req, res) => {
                     ],
                     account_type: account_type,
                 },
-                attributes: ["id", 'name', 'phone', 'address', 'account_type']
+                attributes: ["id", 'name', 'phone', 'address', 'account_type'],
+                offset: offset,
+                limit: limit,
             });
-            console.log(rows);
             return res.status(200).json({ success: true, data: rows, count: count });
         }
         else {
-            if (account_type) {
-                const custo = await user.findAll({
-                    where: {
-                        account_type: account_type
-                    },
+            if (account_type === 2) {
+                const customer = await user.findAll({
+                    where: { account_type: account_type },
                     attributes: ['id', 'name', 'phone', 'address', 'account_type'],
+                    offset: offset,
+                    limit: limit,
                 });
-                console.log(custo);
-                res.status(200).json({ sucess: true, data: custo });
+                console.log(customer);
+                res.status(200).json({ sucess: true, data: customer });
+
+                // console.log()
             }
         }
     } catch (error) {
@@ -87,9 +87,9 @@ exports.createdriver = async (req, res, next) => {
 
 exports.getdriver = async (req, res) => {
     try {
-        const page = req.body.page || 4
+        const page = req.body.page;
         console.log(page);
-        const limit = req.body.limit || 5
+        const limit = req.body.limit;
         console.log(limit);
 
         const offset = (page - 1) * limit;
@@ -118,9 +118,8 @@ exports.getdriver = async (req, res) => {
                     ],
                     account_type: account_type,
                 },
-                offset,
-                limit
-
+                offset: offset,
+                limit: limit,
             });
             console.log("driver data", rows);
             res.status(200).json({ data: rows, count: count });
@@ -128,14 +127,13 @@ exports.getdriver = async (req, res) => {
 
         }
         else {
-            if (account_type) {
-
+            if (account_type === "1") {
                 const data = await user.findAll({
                     where: {
                         account_type: account_type
                     },
-                    offset,
-                    limit
+                    offset: offset,
+                    limit: limit,
                 });
                 return res.status(200).json({ data });
             }

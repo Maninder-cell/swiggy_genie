@@ -54,7 +54,7 @@ exports.driverFeedback = async (req, res, next) => {
   });
   const driverdetail = await User.findOne({
     where: { id: order.driver_id },
-    attributes: ['name', 'photo_uri']
+    attributes: ['name', 'photo_uri', 'phone']
   })
   console.log(driverdetail);
   return res.json(driverdetail);

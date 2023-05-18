@@ -60,6 +60,9 @@ module.exports = {
       delivery_longitude: {
         type: Sequelize.STRING
       },
+      distance_km: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

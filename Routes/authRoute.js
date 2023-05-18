@@ -1,5 +1,5 @@
 const express = require("express");
-const { login, register, logout,} = require("../Controllers/authController");
+const { login, register, logout, loginDriver } = require("../Controllers/authController");
 const { body } = require("express-validator");
 // const loginLimiter = require("../Middleware/limitMiddleware");
 const verifyToken = require("../Middleware/verifyToken");
@@ -19,6 +19,19 @@ router.post(
       .withMessage("Please enter correct phoneNumber."),
   ],
   login
+);
+router.post(
+  "/Driver/Signin",
+  [
+    body("phoneNumber")
+      .notEmpty()
+      .withMessage("Phone number is required.")
+      .isNumeric()
+      .withMessage("Phone number must be numeric.")
+      .isLength({ min: 9, max: 15 })
+      .withMessage("Please enter correct phoneNumber."),
+  ],
+  loginDriver
 );
 
 // register route

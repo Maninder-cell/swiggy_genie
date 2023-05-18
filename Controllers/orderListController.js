@@ -3,7 +3,7 @@ const Order = models.Order;
 const Category = models.Category;
 const User = models.User;
 const TaskDetails = models.TaskDetails;
-// const { getDistance } = require('geolib');
+const { getDistance } = require('geolib');
 const moment = require('moment');
 const { validationResult } = require("express-validator");
 
@@ -78,19 +78,18 @@ const getask = async (req, res, next) => {
       item_price += 100;
     }
     console.log(item_price);
-
     // console.log(item_price);
-    // const totalPrice = basicDeliveryPrice + distance100Meters * price+item_price;
-    // console.log(`Distance: ${distanceMeters} meters`);
-    // console.log(`Total Price: ${totalPrice} rupees`);
-    // const taskupdate = await task.update({
-    //   billing_details: 1220,
-    // })
+    const pickup = { latitude: task.pickup_latitude, longitude: task.pickup_longitude };
+    const delivery = { latitude: task.delivery_latitude, longitude: task.delivery_longitude };
+    const distanceInMeters = getDistance(pickup, delivery);
+    const distanceInKilometers = (distanceInMeters / 1000).toFixed(2);
     const totalPrice = item_price;
     const taskupdate = await task.update({
       billing_details: totalPrice,
+      distance_km: distanceInKilometers
     });
-    res.json({ taskupdate });
+    console.log(distanceInKilometers);
+    res.json({ taskupdate, distanceInKilometers });
   }
   catch (err) {
     console.log(err);
@@ -108,21 +107,6 @@ const addOrder = async (req, res, next) => {
     const attr = { ...req.body };
     console.log(attr);
 
-    // let distance;
-    // await directionsClient
-    //   .getDirections({
-    //     profile: "driving-traffic",
-    //     waypoints: [
-    //       { coordinates: attr.origin },
-    //       { coordinates: attr.destination },
-    //     ],
-    //     geometries: "geojson",
-    //     steps: true,
-    //   })
-    //   .send()
-    //   .then((response) => {
-    //     distance = Math.floor(response.body.routes[0].distance / 1000) * 10;
-    //   });
     var Order_Id = Math.random();
     Order_Id = Order_Id * 100000000;
     Order_Id = parseInt(Order_Id);
@@ -145,15 +129,6 @@ const addOrder = async (req, res, next) => {
       delivery_longitude: attr.delivery_longitude,
       order_created_time: order_create,
     });
-
-
-    // const ordercategory = OrderCategory.findOne({
-    //   where: { order_id },
-    //   order: [['createdAt', 'DESC']],
-    // })
-    // const data = await Task.findOne({
-    //   where: { id: task.id },
-    // });
 
     return res.status(200).json({
       msg: "order created sucessfully",

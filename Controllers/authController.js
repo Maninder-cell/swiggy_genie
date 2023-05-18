@@ -58,12 +58,7 @@ const register = async (req, res) => {
     return res.status(200).json({
       success: true,
       msg: "User Created Successfully",
-      data: {
-        user_id: newUser.id,
-        CallingCode: CallingCode,
-        Phone: newUser.phone,
-        token: token,
-      },
+      data: newUser
     });
   } catch (err) {
     console.log(err);
@@ -82,7 +77,7 @@ const login = async (req, res) => {
     }
     const { phoneNumber } = req.body;
     //find user by PhoneNumber
-    const user = await User.findOne({ where: { phone: phoneNumber } });
+    const user = await User.findOne({ where: { phone: phoneNumber, account_type: "2" } });
     if (!user) {
       return res
         .status(401)
@@ -91,7 +86,7 @@ const login = async (req, res) => {
     //generate token
     const token = jwt.sign(
       { id: user.id, role: user.account_type },
-     "dbdad61f0eab1aded7bd4b43edd7",
+      "dbdad61f0eab1aded7bd4b43edd7",
       {
         expiresIn: "15d",
       }
@@ -109,7 +104,59 @@ const login = async (req, res) => {
     });
     return res.status(200).json({
       success: true,
-      msg: "User Logged In Successfully",
+      msg: "Customer Logged In Successfully",
+      data: {
+        user_id: user.id,
+        role: user.account_type,
+        token: token,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", err: err.message });
+  }
+};
+
+
+const loginDriver = async (req, res) => {
+  try {
+    //validation error
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { phoneNumber } = req.body;
+    //find user by PhoneNumber
+    const user = await User.findOne({ where: { phone: phoneNumber, account_type: "1" } });
+    if (!user) {
+      return res
+        .status(401)
+        .json({ message: "You are not authorized" });
+    }
+    //generate token
+    const token = jwt.sign(
+      { id: user.id, role: user.account_type },
+      "dbdad61f0eab1aded7bd4b43edd7",
+      {
+        expiresIn: "15d",
+      }
+    );
+    // save token in user model
+    const last_logged_in = moment().format("DD MMMM YYYY, hh:mm A");
+    user.tokens = token;
+    user.last_logged_in = last_logged_in;
+    await user.save();
+    // Set token as cookie
+    res.cookie("auth_token", token, {
+      maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+    });
+    return res.status(200).json({
+      success: true,
+      msg: "Driver Logged In Successfully",
       data: {
         user_id: user.id,
         role: user.account_type,
@@ -165,4 +212,5 @@ module.exports = {
   login,
   register,
   logout,
+  loginDriver
 };

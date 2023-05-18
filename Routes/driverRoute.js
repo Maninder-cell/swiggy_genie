@@ -8,7 +8,6 @@ const router = express.Router();
 
 router.get("/driver/getCount", verifyToken, orderstatus.DriverOrderNoAssign);
 
-
 router.post("/driver/action/accept", verifyToken, orderstatus.DriverOrderAccept);
 router.get("/driver/action/accept", verifyToken, orderstatus.GetDriverOrderAccepted);
 
@@ -24,11 +23,10 @@ router.post("/driver/action/reject", verifyToken, orderstatus.DriverOrderReject)
 router.get("/driver/action/all", verifyToken, orderstatus.GetDriverOrderAll);
 
 // Route to get all 
-
-router.post("/Order-status/Accept", verifyToken, orderstatus.DriverOrderAccept);
-router.post("/detail", orderstatus.Userdetail);
-router.post("/Order-status/Complete", orderstatus.DriverOrderComplete);
-router.get("/Order-status/NoAssign", verifyToken, orderstatus.DriverOrderNoAssign);
+// router.post("/Order-status/Accept", verifyToken, orderstatus.DriverOrderAccept);
+router.get("/fcmtoken", orderstatus.driverfcm);
+// router.post("/Order-status/Complete", orderstatus.DriverOrderComplete);
+// router.get("/Order-status/NoAssign", verifyToken, orderstatus.DriverOrderNoAssign);
 router.post('/Userfcmtoken', orderstatus.Userfcmtoken);
 
 

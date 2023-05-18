@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
-const customerroute = require("../Controllers/CustomerController");
+const customeroute = require("../Controllers/CustomerController");
 
-// const auth = require('../Middleware/verifyToken');
+const auth = require('../Middleware/verifyToken');
 
-router.post('/getcustomer', customerroute.getuser);
-router.post('/driver', customerroute.createdriver);
-router.post('/getdriver', customerroute.getdriver);
-router.post('/getorder', customerroute.getorders);
-router.post('/block', customerroute.isblocked);
-router.post('/getpayment', customerroute.getpayment);
+router.post('/getcustomer', auth, customeroute.getuser);
+router.post('/driver', auth, customeroute.createdriver);
+router.post('/getdriver', auth, customeroute.getdriver);
+router.post('/getorder', auth, customeroute.getorders);
+router.post('/block', auth, customeroute.isblocked);
+router.post('/getpayment', auth, customeroute.getpayment);
 
 module.exports = router;
 

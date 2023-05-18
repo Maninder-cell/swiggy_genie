@@ -8,34 +8,6 @@ const Payment = db.Payment;
 const TaskDetails = db.TaskDetails;
 const moment = require('moment-timezone');
 
-// exports.createCustomer = async (req, res, next) => {
-//   const number = req.body.number.replace(/\s/g, '');
-//   const {customer,error} = await StripeMain.createCustomer({
-//     name: req.body.name,
-//     email: req.body.email,
-//     payment_method: {
-//       type: "card",
-//       card: {
-//         number: number,
-//         exp_month: req.body.expiry.split("/")[0],
-//         exp_year: req.body.expiry.split("/")[1],
-//         cvc: req.body.cvv,
-//       },
-//     },
-//   });
-
-//   if (error){
-//     return res.status(402).json({
-//       error: error,
-//     });
-//   }
-//   else{
-//     return res.status(200).json({
-//       customer: customer,
-//     });
-//   }
-// };
-
 exports.pay = async (req, res, next) => {
   const errors = validationResult(req);
 
@@ -78,6 +50,7 @@ exports.pay = async (req, res, next) => {
       pickup_longitude: task_detail.pickup_longitude,
       delivery_latitude: task_detail.delivery_latitude,
       delivery_longitude: task_detail.delivery_longitude,
+      distance_km: task_detail.distance_km,
       order_created_time: order_create,
 
     });
@@ -93,7 +66,7 @@ exports.newPaymentMethod = async (req, res, next) => {
 
   if (user.stripe_id) {
     const number = req.body.number.replace(/\s/g, '');
-    const result = await StripeMain.NewPaymentMethod(user.stripe_id, {
+    const { result, error } = await StripeMain.NewPaymentMethod(user.stripe_id, {
       type: "card",
       card: {
         number: number,
@@ -103,7 +76,13 @@ exports.newPaymentMethod = async (req, res, next) => {
       },
     });
 
-    if (result) {
+    if (error) {
+      return res.status(402).json({
+        error: error,
+      });
+    }
+
+    else {
       const payment_method = await StripeMain.getPaymentMethod(result.id)
       await Card.create({
         user_id: req.user.id,
