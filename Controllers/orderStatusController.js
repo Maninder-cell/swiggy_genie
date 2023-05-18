@@ -5,6 +5,7 @@ const Notification = db.Notification;
 const User_fcmtoken = db.User_fcmtoken;
 const DriverAcceptReject = db.DriverAcceptReject;
 const Category = db.Category;
+const Detail = db.Detail;
 const { Sequelize, Op } = require('sequelize');
 const moment = require('moment');
 var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
@@ -66,6 +67,10 @@ module.exports.DriverOrderAccept = async (req, res) => {
             where: { order_id: Order_Id, driver_id: "0", order_assign: "0" }
         });
         //Check the order is assigned to order person or not
+        // const orderaccept=await Order.findOne({
+        //     where:{driver_id:req.user.id,order_status:"1",order_assign:"1"}
+        // });
+
         if (orderAssign == null) {
             return res.json({ msg: "Order is Already Assigned", value: "1" });
         } else {
@@ -335,6 +340,21 @@ module.exports.Userfcmtoken = async (req, res) => {
             fcmtoken: fcmtoken,
         })
         res.json({ msg: "Your fcmtoken saved Successfully", data: Usertoken });
+    }
+    catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
+module.exports.Userdetail = async (req, res) => {
+    try {
+        const namedetail = req.body.name;
+        const data = await Detail.create({
+            name: namedetail
+        });
+        res.json({ msg: data });
     }
     catch (error) {
         res.status(400).json({

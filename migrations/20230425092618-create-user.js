@@ -44,6 +44,9 @@ module.exports = {
       photo_uri: {
         type: Sequelize.STRING
       },
+      password:{
+        type: Sequelize.STRING
+      },
       stripe_id: {
         type: Sequelize.STRING
       },

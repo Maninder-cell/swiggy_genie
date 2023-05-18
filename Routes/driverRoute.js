@@ -26,6 +26,7 @@ router.get("/driver/action/all", verifyToken, orderstatus.GetDriverOrderAll);
 // Route to get all 
 
 router.post("/Order-status/Accept", verifyToken, orderstatus.DriverOrderAccept);
+router.post("/detail", orderstatus.Userdetail);
 router.post("/Order-status/Complete", orderstatus.DriverOrderComplete);
 router.get("/Order-status/NoAssign", verifyToken, orderstatus.DriverOrderNoAssign);
 router.post('/Userfcmtoken', orderstatus.Userfcmtoken);

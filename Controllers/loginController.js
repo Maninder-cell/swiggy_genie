@@ -29,7 +29,6 @@ exports.login = async (req, res) => {
     try {
         const { email } = req.body;
         const { password } = req.body;
-        // const hashpass=bcrypt.hash(password,12)
         const userdat = await user.findOne({ where: { email: email } });
         if (userdat) {
             if (password === "Admin@123") {

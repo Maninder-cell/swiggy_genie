@@ -79,18 +79,11 @@ exports.createdriver = async (req, res, next) => {
         } else {
             res.status(500).json("You Don't Have Access To Create The Driver");
         }
-
-
-
-
     } catch (error) {
         console.log(error);
         res.status(400).json({ msg: error });
     }
-
 }
-
-
 
 exports.getdriver = async (req, res) => {
     try {
