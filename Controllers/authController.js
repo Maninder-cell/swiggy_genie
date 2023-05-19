@@ -78,6 +78,7 @@ const login = async (req, res) => {
     const { phoneNumber } = req.body;
     //find user by PhoneNumber
     const user = await User.findOne({ where: { phone: phoneNumber, account_type: "2" } });
+    
     if (!user) {
       return res
         .status(401)

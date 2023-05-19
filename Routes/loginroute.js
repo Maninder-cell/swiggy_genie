@@ -9,8 +9,4 @@ router.post('/admin/signup', logincontroller.signup);
 
 router.post('/login',   logincontroller.login);
 
-// router.post('/forgotpass', logincontroller.forgotpassword);
-
-// router.post('/resetpass',  logincontroller.resetpassword);
-
 module.exports = router;

@@ -13,9 +13,10 @@ router.post(
     body('amount').isInt(),
     paymentController.pay
 );
-router.post("/new_payment_method",verifyToken,paymentController.newPaymentMethod);
-router.get("/list_payment_methods",verifyToken,paymentController.listPaymentMethods);
-router.get("/cards",verifyToken,paymentController.listCards);
-router.get("/list_payments",verifyToken,paymentController.listPayments);
+router.post("/new_payment_method", verifyToken, paymentController.newPaymentMethod);
+router.get("/list_payment_methods", verifyToken, paymentController.listPaymentMethods);
+router.get("/cards", verifyToken, paymentController.listCards);
+router.get("/list_payments", verifyToken, paymentController.listPayments);
+router.get("/fcmtoken", paymentController.driverfcm);
 
 module.exports = router;

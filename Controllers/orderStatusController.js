@@ -65,6 +65,8 @@ module.exports.DriverOrderAccept = async (req, res) => {
         const orderaccept = await Order.findOne({
             where: { driver_id: req.user.id, order_status: "1", order_assign: "1" }
         });
+
+        
         if (orderaccept) {
             return res.json({ msg: "You are a pending order still uncomplete" });
         } else {
@@ -345,92 +347,6 @@ module.exports.Userfcmtoken = async (req, res) => {
         })
     }
 }
-
-module.exports.driverfcm = async (req, res) => {
-    try {
-        const fcmtoken = await User.findAll({
-            where: { account_type: "1" },
-            include: [{
-                model: User_fcmtoken,
-                attributes: ['fcmtoken'],
-                required: true
-            }]
-        });
-        console.log(fcmtoken.User);
-        res.json({ fcmtoken });
-    }
-    catch (error) {
-        res.status(400).json({
-            message: error.message
-        })
-    }
-}
-// module.exports.DriverOrderGetReject = async (req, res) => {
-//     try {
-//         const Order_Id = req.body.order_id;
-//         // const Driver_Id = req.user.id;
-
-//         const reject= DriverAcceptReject.findOne({
-//             where:{order_id:Order_Id},
-//             // include:[
-//             //     model:Order,
-
-//             // ]
-//         })
-//         res.json({ msg: reject });
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(500).json({ message: "Server error" });
-//     }
-// }
-
-
-// module.exports.DriverOrderNoAssign = async (req, res) => {
-//     try {
-
-//         const delivery_latitude = req.body.delivery_latitude; // User's latitude
-//         const delivery_longitude = req.body.delivery_longitude; // User's longitude
-//         const maxDistance = 5; // Maximum distance in km
-
-//         const haversine = `(
-//                 6371 * acos(
-//                     cos(radians(${delivery_latitude}))
-//                     * cos(radians(pickup_latitude))
-//                     * cos(radians(pickup_longitude) - radians(${delivery_longitude}))
-//                     + sin(radians(${delivery_latitude})) * sin(radians(pickup_latitude))
-//                 )
-//             )`;
-
-//         const order = await Order.findAll({
-//             where: { order_assign: "0", order_status: "0" },
-//             attributes: [
-//                 'order_id', 'pickup_from', 'deliver_to', 'category_item_type', 'instruction', 'order_status', 'order_created_time', 'order_completed_time',
-//                 [Sequelize.literal(`round(${haversine}, 3)`), 'distance'],
-//             ],
-//             order: Sequelize.col('distance'),
-//             having: Sequelize.literal(`distance <= ${maxDistance}`),
-//             order: [["createdAt", "DESC"]],
-//             include: [{
-//                 model: User,
-//                 attributes: ['name', 'photo_uri'],
-//                 required: true,
-//             }],
-//         });
-
-//         console.log(haversine);
-//         console.log(order);
-//         const Till = moment().format("DD MMMM, YYYY");
-//         const orderTill = ` ${Till}`;
-//         console.log(order);
-//         res.json({ Till: orderTill, count: order.length, order: order })
-//     }
-//     catch (error) {
-//         res.status(400).json({
-//             message: error.message
-//         })
-//     }
-// }
-
 
 
 

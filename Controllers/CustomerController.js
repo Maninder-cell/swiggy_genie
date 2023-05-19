@@ -8,10 +8,10 @@ const order = models.Order;
 exports.getuser = async (req, res) => {
     try {
         const page = req.body.page;
-        const limit = req.body.limit;
+        const limit = parseInt(req.body.limit);
         const offset = (page - 1) * limit;
-        const account_type = parseInt(req.body.account_type);
-        console.log('dfadsfsadfadf',account_type);
+        const account_type = req.body.account_type;
+        console.log('dfadsfsadfadf', account_type);
         const keyword = req.body.searchText;
 
         if (keyword && account_type) {
@@ -31,7 +31,7 @@ exports.getuser = async (req, res) => {
             return res.status(200).json({ success: true, data: rows, count: count });
         }
         else {
-            if (account_type === 2) {
+            if (account_type == 2) {
                 const customer = await user.findAll({
                     where: { account_type: account_type },
                     attributes: ['id', 'name', 'phone', 'address', 'account_type'],
@@ -89,13 +89,12 @@ exports.getdriver = async (req, res) => {
     try {
         const page = req.body.page;
         console.log(page);
-        const limit = req.body.limit;
+        const limit = parseInt(req.body.limit);
         console.log(limit);
 
         const offset = (page - 1) * limit;
         console.log(offset);
         const id = req.body.id;
-
 
         const keyword = req.body.searchText;
         const account_type = req.body.account_type;
@@ -124,10 +123,9 @@ exports.getdriver = async (req, res) => {
             console.log("driver data", rows);
             res.status(200).json({ data: rows, count: count });
             return;
-
         }
         else {
-            if (account_type === "1") {
+            if (account_type == 1) {
                 const data = await user.findAll({
                     where: {
                         account_type: account_type
@@ -144,19 +142,17 @@ exports.getdriver = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(400).json({ msg: error });
-
     }
 }
-
 
 
 exports.getorders = async (req, res) => {
     try {
 
 
-        const page = req.body.page || 4
+        const page = req.body.page;
         console.log(page);
-        const limit = req.body.limit || 5
+        const limit = parseInt(req.body.limit);
         console.log(limit);
 
         const offset = (page - 1) * limit;

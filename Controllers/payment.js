@@ -6,6 +6,7 @@ const Order = db.Order;
 const User = db.User;
 const Payment = db.Payment;
 const TaskDetails = db.TaskDetails;
+const User_fcmtoken = db.User_fcmtoken;
 const moment = require('moment-timezone');
 
 exports.pay = async (req, res, next) => {
@@ -66,7 +67,7 @@ exports.newPaymentMethod = async (req, res, next) => {
 
   if (user.stripe_id) {
     const number = req.body.number.replace(/\s/g, '');
-    const { result, error } = await StripeMain.NewPaymentMethod(user.stripe_id, {
+    const { attach, error } = await StripeMain.NewPaymentMethod(user.stripe_id, {
       type: "card",
       card: {
         number: number,
@@ -81,9 +82,8 @@ exports.newPaymentMethod = async (req, res, next) => {
         error: error,
       });
     }
-
     else {
-      const payment_method = await StripeMain.getPaymentMethod(result.id)
+      const payment_method = await StripeMain.getPaymentMethod(attach.id)
       await Card.create({
         user_id: req.user.id,
         stripe_card_id: payment_method.id,
@@ -95,7 +95,7 @@ exports.newPaymentMethod = async (req, res, next) => {
     }
 
     return res.status(200).json({
-      result: result,
+      result: attach,
     });
   }
   else {
@@ -177,4 +177,33 @@ exports.listPayments = async (req, res, next) => {
     ]
   });
   return res.status(200).json({ payments: payments });
+}
+
+
+module.exports.driverfcm = async (req, res) => {
+  try {
+    const fcmtoken = await User.findAll({
+      where: { account_type: "1" },
+      include: [{
+        model: User_fcmtoken,
+        attributes: ['fcmtoken'],
+        required: true
+      }]
+    });
+    console.log(fcmtoken);
+    fcmtoken.forEach(user => {
+      console.log('dhjfg', user.dataValues.User_fcmtokens);
+    })
+
+
+
+    const length = fcmtoken.length;
+    console.log(length);
+    res.json({ fcmtoken, length: length });
+  }
+  catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
 }
