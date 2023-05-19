@@ -6,11 +6,11 @@ const verifyToken = require("../Middleware/verifyToken");
 const router = express.Router();
 
 router.post(
-  "/save",
+  "/notification/save", verifyToken,
   body("text").isString(),
   notificationController.saveNotification
 );
 
-router.get("/list_notifications", verifyToken, notificationController.listNotifications);
+router.get("/notification/list_notifications", verifyToken, notificationController.listNotifications);
 
 module.exports = router;

@@ -4,10 +4,10 @@ const Order = db.Order;
 const Notification = db.Notification;
 const User_fcmtoken = db.User_fcmtoken;
 const DriverAcceptReject = db.DriverAcceptReject;
-// const Category = db.Category;
-// const Detail = db.Detail;
 const { Sequelize, Op } = require('sequelize');
 const moment = require('moment');
+
+//Use the firebase admin initialize 
 var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -38,10 +38,7 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
         const Till = moment().format("DD MMMM, YYYY");
         const orderTill = ` ${Till}`;
         return res.json({ Till: orderTill, count: count, order: rows, reject: rejectorder })
-        console.log('fdgkja');
-
-    }
-    catch (error) {
+    } catch (error) {
         res.status(400).json({
             message: error.message
         })
@@ -51,7 +48,6 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
 //Driver Accept the Order 
 module.exports.DriverOrderAccept = async (req, res) => {
     try {
-        console.log('bjb');
         console.log(req.body.status);
         const Order_Id = req.body.order_id;
         // const Driver_Id = req.user.id;
@@ -66,7 +62,6 @@ module.exports.DriverOrderAccept = async (req, res) => {
             where: { driver_id: req.user.id, order_status: "1", order_assign: "1" }
         });
 
-        
         if (orderaccept) {
             return res.json({ msg: "You are a pending order still uncomplete" });
         } else {

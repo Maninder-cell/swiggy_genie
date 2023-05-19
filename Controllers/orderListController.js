@@ -1,18 +1,18 @@
 const models = require("../models");
-const Order = models.Order;
 const Category = models.Category;
+const Order = models.Order;
 const User = models.User;
 const TaskDetails = models.TaskDetails;
 const { getDistance } = require('geolib');
 const moment = require('moment');
 const { validationResult } = require("express-validator");
 
-const addtask = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+module.exports.addtask = async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
     const order_create = moment().format("DD MMMM YYYY, hh:mm A");
     const attr = { ...req.body };
@@ -31,7 +31,7 @@ const addtask = async (req, res, next) => {
     });
 
     return res.status(200).json({
-      msg: "order created task sucessfully",
+      msg: "Order Task Created Sucessfully",
       order: task,
     });
   }
@@ -39,17 +39,15 @@ const addtask = async (req, res, next) => {
     console.log(err);
     return res.status(200).json({ Message: "Something Went Wrong" });
   }
-
 };
 
-const getask = async (req, res, next) => {
+module.exports.getask = async (req, res, next) => {
   try {
     const task = await TaskDetails.findOne({
       limit: 1,
       where: { user_id: req.user.id },
       order: [['createdAt', 'DESC']]
     })
-    console.log(task);
 
     let item_price = 0;
 
@@ -77,70 +75,28 @@ const getask = async (req, res, next) => {
     if (task.category_item_type.includes('Others')) {
       item_price += 100;
     }
-    console.log(item_price);
-    // console.log(item_price);
+
+    //Distance between the task pickup,deliver latitude and longitude
     const pickup = { latitude: task.pickup_latitude, longitude: task.pickup_longitude };
     const delivery = { latitude: task.delivery_latitude, longitude: task.delivery_longitude };
     const distanceInMeters = getDistance(pickup, delivery);
     const distanceInKilometers = (distanceInMeters / 1000).toFixed(2);
+
     const totalPrice = item_price;
     const taskupdate = await task.update({
       billing_details: totalPrice,
       distance_km: distanceInKilometers
     });
-    console.log(distanceInKilometers);
     res.json({ taskupdate, distanceInKilometers });
   }
   catch (err) {
     console.log(err);
-    return res.status(200).json({ Message: "Something Went Wrong" });
+    return res.status(400).json({ Message: "Something Went Wrong" });
   }
 }
 
-const addOrder = async (req, res, next) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  try {
-    const attr = { ...req.body };
-    console.log(attr);
-
-    var Order_Id = Math.random();
-    Order_Id = Order_Id * 100000000;
-    Order_Id = parseInt(Order_Id);
-
-    const order_create = moment().format("DD MMMM YYYY, hh:mm A");
-    const order = await Order.create({
-      user_id: req.user.id,
-      order_id: Order_Id,
-      driver_id: "0",
-      pickup_from: attr.pickup_from,
-      deliver_to: attr.deliver_to,
-      instruction: attr.Instruction,
-      category_item_type: "Food Item",
-      billing_details: attr.billing_details,
-      order_status: "0",
-      order_assign: "0",
-      pickup_latitude: attr.pickup_latitude,
-      pickup_longitude: attr.pickup_longitude,
-      delivery_latitude: attr.delivery_latitude,
-      delivery_longitude: attr.delivery_longitude,
-      order_created_time: order_create,
-    });
-
-    return res.status(200).json({
-      msg: "order created sucessfully",
-      order: order,
-    });
-  } catch (err) {
-    console.log(err);
-    return res.status(200).json({ Message: "Something Went Wrong" });
-  }
-};
-
-const getOrdersByStatus = async (req, res) => {
+//User show the Order history
+module.exports.getOrdersByStatus = async (req, res) => {
   try {
     const user_id = req.user.id;
     let orders;
@@ -177,11 +133,9 @@ const getOrdersByStatus = async (req, res) => {
 
       default:
         orders = await Order.findAll({ where: { user_id: user_id }, order: [["order_created_time", "DESC"]], });
-        // console.log(orders);
         break;
     }
-
-    res.json({ user_id, orders });
+    res.status(200).json({ user_id, orders });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
@@ -189,33 +143,37 @@ const getOrdersByStatus = async (req, res) => {
 };
 
 // Cancel an order by ID
-const cancelOrder = async (req, res) => {
-  const orderCancelData = req.body.order_id;
-  const order = await Order.findOne({
-    where: { order_id: orderCancelData },
-  });
-  if (!order) {
-    return res.status(404).json({ message: "Order not found" });
-  }
-  if (order.order_status == "1" || order.order_status == "0") {
-    const orderCancel = await order.update({
-      order_status: "3",
+module.exports.cancelOrder = async (req, res) => {
+  try {
+    const orderCancelData = req.body.order_id;
+    const order = await Order.findOne({
+      where: { order_id: orderCancelData },
     });
-    return res.json({ msg: orderCancel, data: "Order cancelled" });
-  };
-  return res.json({ msg: "Cannot be cancelled" });
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    if (order.order_status == "1" || order.order_status == "0") {
+      const orderCancel = await order.update({
+        order_status: "3",
+      });
+      return res.status(200).json({ msg: orderCancel, data: "User Cancelled Order" });
+    };
+    return res.json({ msg: "Order Can't Cancelled" });
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
 }
 
-const getCategory = async (req, res) => {
+module.exports.getCategory = async (req, res) => {
   try {
     const category = await Category.findAll({
       attributes: ['id', 'name', 'path', 'icon_name']
     });
     res.json({ data: category });
-    // console.log(category[0].path);
-
-  }
-  catch (error) {
+  } catch (error) {
     res.status(400).json({
       message: error.message
     })
@@ -223,7 +181,7 @@ const getCategory = async (req, res) => {
 }
 
 
-const AddCategory = async (req, res) => {
+module.exports.AddCategory = async (req, res) => {
   try {
     const user = req.user.id;
     const Admin = await User.findOne({
@@ -249,13 +207,3 @@ const AddCategory = async (req, res) => {
 }
 
 
-module.exports = {
-  AddCategory,
-  getCategory,
-  // CategoryOrder,
-  cancelOrder,
-  getask,
-  getOrdersByStatus,
-  addOrder,
-  addtask
-};

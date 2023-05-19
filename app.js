@@ -41,9 +41,9 @@ app.use("/auth", authRoutes);
 app.use(orderRoutes);
 app.use(driverRoutes);
 app.use(profileROute);
-app.use("/payment", paymentRoutes);
-app.use("/feedback", feedbackRoutes);
-app.use("/notification", notificationRoutes);
+app.use(paymentRoutes);
+app.use(feedbackRoutes);
+app.use(notificationRoutes);
 app.use(loginr);
 app.use(customroute);
 

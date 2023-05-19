@@ -5,18 +5,15 @@ const verifyToken = require("../Middleware/verifyToken");
 
 const router = express.Router();
 
-// router.post("/create_customer",verifyToken,paymentController.createCustomer);
 
-router.post(
-    "/pay",
-    verifyToken,
-    body('amount').isInt(),
-    paymentController.pay
-);
-router.post("/new_payment_method", verifyToken, paymentController.newPaymentMethod);
-router.get("/list_payment_methods", verifyToken, paymentController.listPaymentMethods);
-router.get("/cards", verifyToken, paymentController.listCards);
-router.get("/list_payments", verifyToken, paymentController.listPayments);
-router.get("/fcmtoken", paymentController.driverfcm);
+router.get("/payment/list_payment_methods", verifyToken, paymentController.listPaymentMethods);
+router.get("/payment/cards", verifyToken, paymentController.listCards);
+router.get("/payment/list_payments", verifyToken, paymentController.listPayments);
+router.get("/payment/fcmtoken", paymentController.driverfcm);
+
+
+router.post("/payment/pay", verifyToken, body('amount').isInt(), paymentController.pay);
+router.post("/payment/new_payment_method", verifyToken, paymentController.newPaymentMethod);
+
 
 module.exports = router;
