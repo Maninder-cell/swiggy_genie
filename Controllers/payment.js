@@ -9,6 +9,16 @@ const TaskDetails = db.TaskDetails;
 const User_fcmtoken = db.User_fcmtoken;
 const moment = require('moment-timezone');
 
+var admin = require("firebase-admin");
+var serviceAccount = require("../serviceAccountKey.json");
+
+// Check if the default app is already initialized
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
+
 exports.pay = async (req, res, next) => {
   const errors = validationResult(req);
 
@@ -56,6 +66,32 @@ exports.pay = async (req, res, next) => {
 
     });
     await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id });
+    const fcmtoken = await User.findAll({
+      where: { account_type: "1" },
+      include: [{
+        model: User_fcmtoken,
+        as: 'token',
+        attributes: ['fcmtoken'],
+        required: true
+      }]
+    });
+
+    const fcmlength = fcmtoken.length;
+    for (var i = 0; i < fcmlength; i++) {
+      var storetoken = [];
+      storetoken = fcmtoken[i].token;
+      const storelength = storetoken.length;
+      for (var j = 0; j < storelength; j++) {
+        // console.log('ffffffffffffffffffffffffffffffffffffffffffffffffff', storetoken[j].dataValues.fcmtoken);
+        let message = {
+          notification: {
+            title: "New Order Arrived", body: `New order will arrive  #${order.order_id}`,
+          },
+          token: storetoken[j].dataValues.fcmtoken
+        };
+        admin.messaging().send(message);
+      }
+    }
   }
   return res.status(200).json({
     payment: payment,
@@ -186,20 +222,30 @@ module.exports.driverfcm = async (req, res) => {
       where: { account_type: "1" },
       include: [{
         model: User_fcmtoken,
+        as: 'token',
         attributes: ['fcmtoken'],
         required: true
       }]
     });
+
+    const fcmlength = fcmtoken.length;
+    for (var i = 0; i < fcmlength; i++) {
+      var storetoken = [];
+      storetoken = fcmtoken[i].token;
+      const storelength = storetoken.length;
+      for (var j = 0; j < storelength; j++) {
+        console.log('ffffffffffffffffffffffffffffffffffffffffffffffffff', storetoken[j].dataValues.fcmtoken);
+        let message = {
+          notification: {
+            title: "Order Confirmed", body: `A new Order will arrived`,
+          },
+          token: storetoken[j].dataValues.fcmtoken
+        };
+        admin.messaging().send(message);
+      }
+    }
     console.log(fcmtoken);
-    fcmtoken.forEach(user => {
-      console.log('dhjfg', user.dataValues.User_fcmtokens);
-    })
-
-
-
-    const length = fcmtoken.length;
-    console.log(length);
-    res.json({ fcmtoken, length: length });
+    res.json({ fcmtoken, length: fcmlength });
   }
   catch (error) {
     res.status(400).json({

@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE"
       });
 
-      User.hasMany(models.User_fcmtoken, { foreignKey: 'user_id' }, {
+      User.hasMany(models.User_fcmtoken, { foreignKey: 'user_id' ,as:'token' }, {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
       });
@@ -87,7 +87,6 @@ module.exports = (sequelize, DataTypes) => {
       commnet: "0->Off\n1->On",
     },
     photo_uri: DataTypes.STRING,
-    password: DataTypes.STRING,
     last_logged_in: {
       type: DataTypes.DATE,
       allowNull: true,
