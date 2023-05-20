@@ -21,6 +21,7 @@ module.exports.Checkuser = async (req, res) => {
   }
 }
 
+//Register for User 
 module.exports.register = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -67,6 +68,7 @@ module.exports.register = async (req, res) => {
   }
 };
 
+//Login for User
 module.exports.login = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -118,7 +120,7 @@ module.exports.login = async (req, res) => {
   }
 };
 
-
+//Login Driver
 module.exports.loginDriver = async (req, res) => {
   try {
     //validation error
@@ -163,6 +165,7 @@ module.exports.loginDriver = async (req, res) => {
   }
 };
 
+//Log out both for driver and user
 module.exports.logout = async (req, res) => {
   try {
     const user_id = req.user.id;

@@ -19,7 +19,7 @@ module.exports.editprofileController = async (req, res) => {
       name: req.body.name,
       address: req.body.address,
       email: req.body.email,
-      photo_uri: req.file.filename
+      photo_uri: req.file.filename,
     });
     return res.status(201).json({ user, Message: "User Updated Sucessfully" });
   } catch (error) {
@@ -38,8 +38,7 @@ module.exports.getProfileController = async (req, res) => {
     const find = await User.findOne({ where: { id: req.user.id }, attributes: ['name', 'photo_uri', 'address', 'email', 'phone', 'status', 'id'] });
     return res.status(200).json({ Message: "User", find });
 
-  } catch (error) 
-  {
+  } catch (error) {
     console.error(error);
     return res.status(400).json({ Message: "Something Went Wrong" });
   }

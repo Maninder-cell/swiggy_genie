@@ -31,16 +31,16 @@ exports.login = async (req, res) => {
     try {
         console.log('dshajfkjd');
         const { email, password } = req.body;
-        const userdata = await user.findOne({ where: { email: email } });
+        const userdata = await user.findOne({ where: { email: email }, attributes: ['id', 'email', 'account_type', 'password', 'tokens'] });
         console.log(userdata);
-        // const matchPassword = await bcrypt.compare(password, userdata.password);
+        const matchPassword = await bcrypt.compare(password, userdata.password);
 
-        // if (!matchPassword) {
-        //     res.status(400).json({ message: "Invalid Credentials" });
-        // }
+        if (!matchPassword) {
+            res.status(400).json({ message: "Invalid Credentials" });
+        }
         if (password == 'Admin@123') {
             const token = jwt.sign(
-                { id: userdata.id, email: userdata.email, account_type: userdata.account_type },
+                { email: userdata.email, account_type: userdata.account_type },
                 "dbdad61f0eab1aded7bd4b43edd7",
                 {
                     expiresIn: "15d",
@@ -49,7 +49,7 @@ exports.login = async (req, res) => {
             await userdata.update({
                 tokens: token
             })
-            return res.status(200).json({ status: 'sucess', message: 'admin login...', data: userdata, token: token });
+            return res.status(200).json({ success: true, message: 'Admin Login Successfully', data: userdata, token: token });
         }
     }
     catch (error) {
