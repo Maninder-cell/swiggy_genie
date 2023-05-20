@@ -11,7 +11,6 @@ exports.getuser = async (req, res) => {
         const limit = parseInt(req.body.limit);
         const offset = (page - 1) * limit;
         const account_type = req.body.account_type;
-        console.log('dfadsfsadfadf', account_type);
         const keyword = req.body.searchText;
 
         if (keyword && account_type) {
@@ -29,8 +28,7 @@ exports.getuser = async (req, res) => {
                 limit: limit,
             });
             return res.status(200).json({ success: true, data: rows, count: count });
-        }
-        else {
+        } else {
             if (account_type == 2) {
                 const customer = await user.findAll({
                     where: { account_type: account_type },
@@ -40,47 +38,50 @@ exports.getuser = async (req, res) => {
                 });
                 console.log(customer);
                 res.status(200).json({ sucess: true, data: customer });
-
-                // console.log()
             }
         }
     } catch (error) {
-        console.log(error);
         res.status(500).json({ msg: error });
     }
 }
 
-
-
-exports.createdriver = async (req, res, next) => {
+module.exports.block = async (req, res) => {
     try {
-
-
-        //  const filename=req.file.filename
-        //  console.log(filename);
-        const userid = req.userid;
-        const accountt = await user.findOne({ where: { id: userid } });
-        const account = accountt.account_type;
-        if (account === 0) {
-            console.log("ddriverdata", req.body.driverdata);
-            const drive = await user.create({
-                name: req.body.driverdata.name,
-                address: req.body.driverdata.address,
-                contact: req.body.driverdata.contact,
-                // image:filename,
-                email: req.body.driverdata.email,
-                account_type: req.body.account_type
-
-
-
-            });
-            console.log(drive);
-            res.status(200).json({ data: drive });
+        const UserId = req.body.id;
+        const Usermatch = await user.findByPk(UserId);
+        console.log(Usermatch.block);
+        if (Usermatch.block == 0) {
+            await Usermatch.update({
+                block: '1'
+            })
+            return res.status(200).json({ success: true, msg: "User block Successfully" });
         } else {
-            res.status(500).json("You Don't Have Access To Create The Driver");
+            await Usermatch.update({
+                block: '0'
+            })
+            return res.status(200).json({ success: true, msg: "User Unblock Successfully" });
         }
-    } catch (error) {
-        console.log(error);
+    }
+    catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
+module.exports.createdriver = async (req, res, next) => {
+    try {
+        const drive = await user.create({
+            name: req.body.name,
+            address: req.body.address,
+            phone: req.body.contact,
+            photo_uri: req.file.filename,
+            calling_code: 91,
+            account_type: '1'
+        });
+        res.status(200).json({ success: true, msg: "Driver Created Successfully", data: drive });
+    }
+    catch (error) {
         res.status(400).json({ msg: error });
     }
 }
