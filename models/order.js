@@ -20,6 +20,9 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
       });
+
+      Order.hasOne(models.Payment, { foreignKey: 'order_id', targetKey: 'order_id' });
+      Order.belongsTo(models.Payment, { foreignKey: 'order_id', targetKey: 'order_id' })
     }
   }
   Order.init({

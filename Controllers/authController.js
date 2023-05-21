@@ -158,7 +158,7 @@ module.exports.loginDriver = async (req, res) => {
     return res.status(200).json({
       success: true,
       msg: "Driver Logged In Successfully",
-      data: { user_id: user.id, role: user.account_type }
+      data: { user_id: user.id, role: user.account_type, token: user.tokens }
     });
   } catch (err) {
     return res.status(500).json({ message: "Internal server error", err: err.message });

@@ -31,6 +31,7 @@ router.post('/block', customeroute.block);
 router.post('/driver/signup', upload.single('photo_uri'), customeroute.createdriver);
 router.post('/getdriver', customeroute.getdriver);
 router.post('/getorder', customeroute.getorders);
+router.post('/order/detail', customeroute.getoneorder);
 router.post('/getpayment', customeroute.getpayment);
 
 module.exports = router;

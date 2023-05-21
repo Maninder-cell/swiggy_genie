@@ -26,23 +26,22 @@ exports.feedBack = async (req, res, next) => {
     feedback: feedback,
   });
 };
-
-exports.listFeedbacks = async (req, res, next) => {
+//It show the driver user rating $ review photo and name
+exports.DriverlistFeedbacks = async (req, res, next) => {
   console.log(req.user.id);
   const feedbacks = await Feedback.findAll({
-    where: {
-      [Op.or]: [
-        { driver_id: req.user.id },
-        { user_id: req.user.id }
-      ]
-    },
+    where: { driver_id: req.user.id },
+    include: [{
+      model: User,
+      attributes: ['name', 'photo_uri']
+    }],
     order: [["createdAt", "DESC"]]
   });
-  console.log(feedbacks);
   return res.status(200).json({
     feedbacks: feedbacks,
   });
 };
+
 
 exports.driverFeedback = async (req, res, next) => {
   console.log('amsdm');
@@ -59,3 +58,20 @@ exports.driverFeedback = async (req, res, next) => {
   console.log(driverdetail);
   return res.json(driverdetail);
 }
+
+//It show the user driver photo and name
+exports.UserlistFeedbacks = async (req, res, next) => {
+  console.log(req.user.id);
+  const feedbacks = await Feedback.findAll({
+    where: { user_id: req.user.id },
+    include: [{
+      model: User,
+      where: { account_type: '1' },
+      attributes: ['name', 'photo_uri']
+    }],
+    order: [["createdAt", "DESC"]]
+  });
+  return res.status(200).json({
+    feedbacks: feedbacks,
+  });
+};
