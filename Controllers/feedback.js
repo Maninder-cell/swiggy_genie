@@ -33,6 +33,7 @@ exports.DriverlistFeedbacks = async (req, res, next) => {
     where: { driver_id: req.user.id },
     include: [{
       model: User,
+      as:"customer",
       attributes: ['name', 'photo_uri']
     }],
     order: [["createdAt", "DESC"]]
@@ -66,7 +67,7 @@ exports.UserlistFeedbacks = async (req, res, next) => {
     where: { user_id: req.user.id },
     include: [{
       model: User,
-      where: { account_type: '1' },
+      as: "driver",
       attributes: ['name', 'photo_uri']
     }],
     order: [["createdAt", "DESC"]]

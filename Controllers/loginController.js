@@ -32,15 +32,16 @@ exports.login = async (req, res) => {
         console.log('dshajfkjd');
         const { email, password } = req.body;
         const userdata = await user.findOne({ where: { email: email }, attributes: ['id', 'email', 'account_type', 'password', 'tokens'] });
+        // const userdata = await user.findOne({ where: { email: email }, attributes: ['id', 'email', 'account_type', 'tokens'] });
         console.log(userdata);
         const matchPassword = await bcrypt.compare(password, userdata.password);
 
         if (!matchPassword) {
             res.status(400).json({ message: "Invalid Credentials" });
         }
-        if (password == 'Admin@123') {
+        if (matchPassword) {
             const token = jwt.sign(
-                { email: userdata.email, account_type: userdata.account_type },
+                { id: userdata.id, email: userdata.email, account_type: userdata.account_type },
                 "dbdad61f0eab1aded7bd4b43edd7",
                 {
                     expiresIn: "15d",

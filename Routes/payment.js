@@ -9,7 +9,6 @@ const router = express.Router();
 router.get("/payment/list_payment_methods", verifyToken, paymentController.listPaymentMethods);
 router.get("/payment/cards", verifyToken, paymentController.listCards);
 router.get("/payment/list_payments", verifyToken, paymentController.listPayments);
-router.get("/payment/fcmtoken", paymentController.driverfcm);
 
 
 router.post("/payment/pay", verifyToken, body('amount').isInt(), paymentController.pay);

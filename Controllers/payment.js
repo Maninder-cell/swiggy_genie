@@ -18,7 +18,7 @@ if (!admin.apps.length) {
   });
 }
 
-exports.pay = async (req, res, next) => {
+exports.pay = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -64,7 +64,7 @@ exports.pay = async (req, res, next) => {
         order_created_time: order_create,
 
       });
-      await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id });
+      await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id ,paid:1});
       const fcmtoken = await User.findAll({
         where: { account_type: "1" },
         include: [{
@@ -81,7 +81,6 @@ exports.pay = async (req, res, next) => {
         storetoken = fcmtoken[i].token;
         const storelength = storetoken.length;
         for (var j = 0; j < storelength; j++) {
-          // console.log('ffffffffffffffffffffffffffffffffffffffffffffffffff', storetoken[j].dataValues.fcmtoken);
           let message = {
             notification: {
               title: "New Order Arrived", body: `New order will arrive  #${order.order_id}`,
@@ -102,7 +101,7 @@ exports.pay = async (req, res, next) => {
   }
 };
 
-exports.newPaymentMethod = async (req, res, next) => {
+exports.newPaymentMethod = async (req, res) => {
   const user = await User.findOne({ where: { id: req.user.id } });
 
   if (user.stripe_id) {
@@ -181,7 +180,7 @@ exports.newPaymentMethod = async (req, res, next) => {
   }
 };
 
-exports.listPaymentMethods = async (req, res, next) => {
+exports.listPaymentMethods = async (req, res) => {
   const user = await User.findOne({ where: { id: req.user.id } });
 
   if (user.stripe_id) {
@@ -201,7 +200,7 @@ exports.listCards = async (req, res, next) => {
   return res.status(200).json({ cards: cards });
 }
 
-exports.listPayments = async (req, res, next) => {
+exports.listPayments = async (req, res) => {
   const payments = await Payment.findAll({
     attributes: ['paid', 'createdAt'],
     include: [
@@ -217,43 +216,4 @@ exports.listPayments = async (req, res, next) => {
     ]
   });
   return res.status(200).json({ payments: payments });
-}
-
-
-module.exports.driverfcm = async (req, res) => {
-  try {
-    const fcmtoken = await User.findAll({
-      where: { account_type: "1" },
-      include: [{
-        model: User_fcmtoken,
-        as: 'token',
-        attributes: ['fcmtoken'],
-        required: true
-      }]
-    });
-
-    const fcmlength = fcmtoken.length;
-    for (var i = 0; i < fcmlength; i++) {
-      var storetoken = [];
-      storetoken = fcmtoken[i].token;
-      const storelength = storetoken.length;
-      for (var j = 0; j < storelength; j++) {
-        console.log('ffffffffffffffffffffffffffffffffffffffffffffffffff', storetoken[j].dataValues.fcmtoken);
-        let message = {
-          notification: {
-            title: "Order Confirmed", body: `A new Order will arrived`,
-          },
-          token: storetoken[j].dataValues.fcmtoken
-        };
-        admin.messaging().send(message);
-      }
-    }
-    console.log(fcmtoken);
-    res.json({ fcmtoken, length: fcmlength });
-  }
-  catch (error) {
-    res.status(400).json({
-      message: error.message
-    })
-  }
 }

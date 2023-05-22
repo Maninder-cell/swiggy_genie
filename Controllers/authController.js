@@ -28,40 +28,47 @@ module.exports.register = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     const { phoneNumber, CallingCode } = req.body;
-    //missing fields
-    if (!phoneNumber) {
-      return res.status(400).json({ success: false, msg: "Please enter all fields" });
+    const userExists = await User.findOne({ where: { Phone: phoneNumber } });
+    if (userExists) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Number already exists" });
+    } else {
+      //missing fields
+      if (!phoneNumber) {
+        return res.status(400).json({ success: false, msg: "Please enter all fields" });
+      }
+      else {
+        const newUser = await User.create({
+          calling_code: CallingCode ,
+          phone: phoneNumber,
+          account_type: "2"
+        });
+
+        //generate token
+        const token = jwt.sign(
+          { phoneNumber: newUser.Phone, id: newUser.id, role: newUser.account_type },
+          "dbdad61f0eab1aded7bd4b43edd7", { expiresIn: "15d", });
+
+        // save token in user model
+        newUser.tokens = token;
+        newUser.last_logged_in = moment().format("DD MMMM YYYY, hh:mm A");
+        await newUser.save();
+
+        // Set token as cookie
+        res.cookie("auth_token", token, {
+          maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+          httpOnly: true,
+        });
+
+        return res.status(200).json({
+          success: true,
+          msg: "User Created Successfully",
+          data: newUser
+        });
+      }
     }
-
-    const newUser = await User.create({
-      calling_code: CallingCode,
-      phone: phoneNumber,
-      account_type: "2"
-    });
-
-    //generate token
-    const token = jwt.sign(
-      { phoneNumber: newUser.Phone, id: newUser.id, role: newUser.account_type },
-      "dbdad61f0eab1aded7bd4b43edd7", { expiresIn: "15d", });
-
-    // save token in user model
-    newUser.tokens = token;
-    newUser.last_logged_in = moment().format("DD MMMM YYYY, hh:mm A");
-    await newUser.save();
-
-    // Set token as cookie
-    res.cookie("auth_token", token, {
-      maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-      httpOnly: true,
-    });
-
-    return res.status(200).json({
-      success: true,
-      msg: "User Created Successfully",
-      data: newUser
-    });
   }
   catch (err) {
     return res.status(500).json({ message: "Internal server error" });

@@ -48,6 +48,27 @@ exports.getuser = async (req, res) => {
         res.status(500).json({ msg: error });
     }
 }
+module.exports.getoneuser = async (req, res) => {
+    try {
+        const data = req.body.id
+        const Userdata = await user.findOne({
+            where: { id: data, account_type: '2' },
+        })
+        if (Userdata != null) {
+            return res.status(200).json({
+                success: true, msg: "User Detail Get Successfully",
+                data: Userdata
+            })
+        } else {
+            return res.status(400).json({
+                success: false, msg: "Invalid argument"
+            })
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: error });
+    }
+}
 
 module.exports.block = async (req, res) => {
     try {
@@ -80,7 +101,7 @@ module.exports.createdriver = async (req, res) => {
             address: req.body.address,
             phone: req.body.contact,
             photo_uri: req.file.filename,
-            calling_code: 91,
+            calling_code: 91 || req.body.calling_code,
             account_type: '1'
         });
         res.status(200).json({ success: true, msg: "Driver Created Successfully", data: drive });
@@ -130,6 +151,28 @@ exports.getdriver = async (req, res) => {
             }
         }
     } catch (error) {
+        res.status(500).json({ msg: error });
+    }
+}
+
+module.exports.getonedriver = async (req, res) => {
+    try {
+        const data = req.body.id
+        const Driverdata = await user.findOne({
+            where: { id: data, account_type: '1' },
+        })
+        if (Driverdata != null) {
+            return res.status(200).json({
+                success: true, msg: "Driver Detail Get Successfully",
+                data: Driverdata
+            })
+        } else {
+            return res.status(400).json({
+                success: false, msg: "Invalid argument"
+            })
+        }
+    } catch (error) {
+        console.log(error);
         res.status(500).json({ msg: error });
     }
 }
@@ -257,6 +300,37 @@ exports.getpayment = async (req, res) => {
             return res.status(200).json({ sucess: true, msg: "Payment Data Successfully", data: getpayment });
         };
     } catch (error) {
+        return res.status(500).json({ success: false, err: error })
+    }
+}
+
+module.exports.paymentstatus = async (req, res) => {
+    try {
+        const orderdata = req.body.order_id;
+        const status = req.body.status;
+        console.log(orderdata);
+        const paymentdata = await payment.findOne({
+            where: { order_id: orderdata }
+        })
+        if (paymentdata.paid == 1 && status == 0) {
+            const pending = await paymentdata.update({
+                paid: status
+            });
+            return res.status(200).json({ success: true, msg: "Payment status changed to Pending Successfully", data: pending });
+        }
+        else if (paymentdata.paid == 1 && status == 1) {
+            return res.status(200).json({ success: true, msg: "Payment status Already paid", data: paymentdata });
+        }
+        else if (paymentdata.paid == 0 && status == 1) {
+            const paid = await paymentdata.update({
+                paid: status
+            });
+            return res.status(200).json({ success: true, msg: "Payment status changed to Paid Successfully", data: paid });
+        } else {
+            return res.status(200).json({ success: true, msg: "Payment status Already Pending", data: paymentdata });
+        }
+    }
+    catch (error) {
         return res.status(500).json({ success: false, err: error })
     }
 }

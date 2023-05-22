@@ -39,7 +39,12 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE"
       });
 
-      User.hasMany(models.Feedback, { foreignKey: "user_id" }, {
+      User.hasMany(models.Feedback, { foreignKey: "user_id",as:"customer" }, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      });
+
+      User.hasMany(models.Feedback, { foreignKey: "driver_id",as:"driver" }, {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
       });

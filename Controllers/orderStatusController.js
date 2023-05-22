@@ -33,11 +33,9 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
             }],
             order: [["createdAt", "DESC"]]
         });
-        // console.log(order);
-
         const Till = moment().format("DD MMMM, YYYY");
         const orderTill = ` ${Till}`;
-        return res.json({ Till: orderTill, count: count, order: rows, reject: rejectorder })
+        return res.json({ success: true, Till: orderTill, count: count, order: rows, reject: rejectorder })
     } catch (error) {
         res.status(400).json({
             message: error.message
@@ -99,7 +97,7 @@ module.exports.DriverOrderAccept = async (req, res) => {
             });
         });
 
-        res.json({ msg: "Order Confirmed Successfully" });
+        res.json({ success: true, msg: "Order Confirmed Successfully" });
     }
     catch (error) {
         return res.status(400).json({
@@ -131,13 +129,12 @@ module.exports.DriverOrderCancell = async (req, res) => {
         const updateOrder = OrderDriverStatus.update({ driver_id: "0", order_status: "0", order_assign: "0" })
 
 
-        res.json({ msg: cancelled, order: OrderDriverStatus, update: updateOrder, data: "Order Cancelled Sucessfully" });
+        res.json({ success: true, msg: cancelled, order: OrderDriverStatus, update: updateOrder, data: "Order Cancelled Sucessfully" });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server error" });
     }
 }
-
 
 //When the driver complete the orders
 module.exports.DriverOrderComplete = async (req, res) => {
@@ -179,7 +176,7 @@ module.exports.DriverOrderComplete = async (req, res) => {
                 await Notification.create({ user_id: order.user_id, text: message.notification.body });
             });;
         })
-        res.json({ msg: "Order Completed Successfully" });
+        res.json({ success: true, msg: "Order Completed Successfully" });
 
     }
     catch (error) {
@@ -208,11 +205,7 @@ module.exports.DriverOrderReject = async (req, res) => {
     }
 }
 
-
-
-
 //Get Api for driver side
-
 module.exports.GetDriverOrderAll = async (req, res) => {
     try {
 
@@ -228,7 +221,7 @@ module.exports.GetDriverOrderAll = async (req, res) => {
             }],
             order: [["updatedAt", "DESC"]]
         })
-        res.json({ msg: accepted });
+        res.json({ success: true, msg: accepted });
     }
     catch (error) {
         console.error(error);
@@ -251,7 +244,7 @@ module.exports.GetDriverOrderAccepted = async (req, res) => {
             }],
             order: [["updatedAt", "DESC"]]
         })
-        res.json({ msg: accepted });
+        res.json({ success: true, msg: accepted });
     }
     catch (error) {
         console.error(error);
@@ -274,7 +267,7 @@ module.exports.GetDriverOrderCompleled = async (req, res) => {
             }],
             order: [["updatedAt", "DESC"]]
         })
-        res.json({ msg: Completed });
+        res.json({ success: true, msg: Completed });
     }
     catch (error) {
         console.error(error);
@@ -297,7 +290,7 @@ module.exports.GetDriverOrderCancelled = async (req, res) => {
             }],
             order: [["updatedAt", "DESC"]]
         })
-        res.json({ msg: cancelled });
+        res.json({ success: true, msg: cancelled });
     }
     catch (error) {
         console.error(error);
@@ -319,7 +312,7 @@ module.exports.GetDriverOrderRejected = async (req, res) => {
             }],
             order: [["updatedAt", "DESC"]]
         })
-        res.json({ msg: reject });
+        return res.json({ success: true, msg: reject });
     }
     catch (error) {
         console.error(error);
@@ -334,7 +327,7 @@ module.exports.Userfcmtoken = async (req, res) => {
             user_id: user_id,
             fcmtoken: fcmtoken,
         })
-        res.json({ msg: "Your fcmtoken saved Successfully", data: Usertoken });
+        return res.json({ success: true, msg: "Your fcmtoken saved Successfully", data: Usertoken });
     }
     catch (error) {
         res.status(400).json({
@@ -342,6 +335,5 @@ module.exports.Userfcmtoken = async (req, res) => {
         })
     }
 }
-
 
 

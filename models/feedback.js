@@ -9,16 +9,15 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Feedback.belongsTo(models.User, { foreignKey: 'user_id', }, {
+      Feedback.belongsTo(models.User, { foreignKey: 'user_id',as:"customer"}, {
         onDelete: "CASCADE",
         onUpdate: "CASCADE"
       });
 
-      // Feedback.belongsTo(models.User, { foreignKey: 'driver_id' }, {
-      //   onDelete: "CASCADE",
-      //   as:"driver",
-      //   onUpdate: "CASCADE"
-      // });
+      Feedback.belongsTo(models.User, { foreignKey: 'driver_id',as:"driver"}, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+      });
 
       // Feedback.belongsTo(models.Order, { foreignKey: 'order_id' }, {
       //   onDelete: "CASCADE",
