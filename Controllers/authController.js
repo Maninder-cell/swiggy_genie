@@ -41,7 +41,7 @@ module.exports.register = async (req, res) => {
       }
       else {
         const newUser = await User.create({
-          calling_code: CallingCode ,
+          calling_code: CallingCode,
           phone: phoneNumber,
           account_type: "2"
         });
@@ -62,7 +62,7 @@ module.exports.register = async (req, res) => {
           httpOnly: true,
         });
 
-        return res.status(200).json({
+        return res.status(201).json({
           success: true,
           msg: "User Created Successfully",
           data: newUser
@@ -87,11 +87,16 @@ module.exports.login = async (req, res) => {
     //find user by PhoneNumber
     const user = await User.findOne({ where: { phone: phoneNumber, account_type: "2" } });
     //if user not found
+    const driver = await User.findOne({ where: { phone: phoneNumber, account_type: "1" } })
+    if (driver) {
+      return res.status(403).json({ msg: "You are Unauthorized for Customer App" })
+    }
     if (!user) {
       return res
         .status(401)
         .json({ message: "User doesn't exist please Signup" });
     }
+
     //generate token
     const token = jwt.sign(
       { id: user.id, role: user.account_type },

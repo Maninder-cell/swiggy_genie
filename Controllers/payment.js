@@ -42,7 +42,6 @@ exports.pay = async (req, res) => {
       var Order_Id = Math.random();
       Order_Id = Order_Id * 100000000;
       Order_Id = parseInt(Order_Id);
-      console.log("rhgfsdgjfhf", task_detail.pickup_from);
       const indianTime = moment.tz(Date.now(), 'Asia/Kolkata');
       const order_create = indianTime.format("DD MMMM YYYY, hh:mm A");
       const order = await Order.create({
@@ -64,9 +63,16 @@ exports.pay = async (req, res) => {
         order_created_time: order_create,
 
       });
-      await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id ,paid:1});
+      await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id, paid: 1 });
+
+      res.status(200).json({
+        success: true, msg: "Order Placed Successfully",
+        orderdetail: order,
+        payment: payment,
+      });
+
       const fcmtoken = await User.findAll({
-        where: { account_type: "1" },
+        where: { account_type: "1", status: '1' },
         include: [{
           model: User_fcmtoken,
           as: 'token',
@@ -91,9 +97,7 @@ exports.pay = async (req, res) => {
         }
       }
     }
-    return res.status(200).json({
-      payment: payment,
-    });
+
   } catch (error) {
     return res.status(400).json({
       message: error.message
@@ -197,7 +201,7 @@ exports.listPaymentMethods = async (req, res) => {
 exports.listCards = async (req, res, next) => {
   const cards = await Card.findAll({ where: { user_id: req.user.id } })
 
-  return res.status(200).json({ cards: cards });
+  return res.status(200).json({ success: true, msg: "User Card detail get Successfully ", cards: cards });
 }
 
 exports.listPayments = async (req, res) => {

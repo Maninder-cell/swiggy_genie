@@ -74,8 +74,9 @@ module.exports.block = async (req, res) => {
     try {
         const UserId = req.body.id;
         const Usermatch = await user.findByPk(UserId);
-        console.log(Usermatch.block);
-        if (Usermatch.block == 0) {
+        const block = req.body.block;
+        console.log(block);
+        if (block == 1) {
             await Usermatch.update({
                 block: '1'
             })
@@ -102,6 +103,7 @@ module.exports.createdriver = async (req, res) => {
             phone: req.body.contact,
             photo_uri: req.file.filename,
             calling_code: 91 || req.body.calling_code,
+            email: req.body.email,
             account_type: '1'
         });
         res.status(200).json({ success: true, msg: "Driver Created Successfully", data: drive });
@@ -160,6 +162,7 @@ module.exports.getonedriver = async (req, res) => {
         const data = req.body.id
         const Driverdata = await user.findOne({
             where: { id: data, account_type: '1' },
+            attributes: ['id', 'calling_code', 'phone', 'name', 'email', 'address', 'block', 'account_type', 'latitude', 'longitude', 'photo_uri', 'last_logged_in']
         })
         if (Driverdata != null) {
             return res.status(200).json({
@@ -188,6 +191,7 @@ exports.getorders = async (req, res) => {
             const { rows, count } = await order.findAndCountAll({
                 where: {
                     [Op.or]: [
+                        { order_id: { [Op.like]: `%${searchText}%` } },
                         { pickup_from: { [Op.like]: `%${searchText}%` } },
                         { deliver_to: { [Op.like]: `%${searchText}%` } },
                         { category_item_type: { [Op.like]: `%${searchText}%` } },
@@ -229,6 +233,7 @@ exports.getorders = async (req, res) => {
 module.exports.getoneorder = async (req, res) => {
     try {
         const data = req.body.order_id
+        console.log('ddddddddddddddddddddddddddd', data);
         const Orderdata = await order.findOne({
             where: { order_id: data },
             include: [{
@@ -308,7 +313,6 @@ module.exports.paymentstatus = async (req, res) => {
     try {
         const orderdata = req.body.order_id;
         const status = req.body.status;
-        console.log(orderdata);
         const paymentdata = await payment.findOne({
             where: { order_id: orderdata }
         })
@@ -316,18 +320,13 @@ module.exports.paymentstatus = async (req, res) => {
             const pending = await paymentdata.update({
                 paid: status
             });
-            return res.status(200).json({ success: true, msg: "Payment status changed to Pending Successfully", data: pending });
-        }
-        else if (paymentdata.paid == 1 && status == 1) {
-            return res.status(200).json({ success: true, msg: "Payment status Already paid", data: paymentdata });
+            return res.status(200).json({ success: true, msg: "Payment status changed to Unpaid Successfully", data: pending });
         }
         else if (paymentdata.paid == 0 && status == 1) {
             const paid = await paymentdata.update({
                 paid: status
             });
             return res.status(200).json({ success: true, msg: "Payment status changed to Paid Successfully", data: paid });
-        } else {
-            return res.status(200).json({ success: true, msg: "Payment status Already Pending", data: paymentdata });
         }
     }
     catch (error) {

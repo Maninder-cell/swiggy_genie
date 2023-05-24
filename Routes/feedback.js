@@ -2,7 +2,6 @@ const express = require("express");
 const feedBackController = require("../Controllers/feedback.js");
 const { body } = require("express-validator");
 const verifyToken = require("../Middleware/verifyToken");
-const { route } = require("./customerroute.js");
 
 const router = express.Router();
 

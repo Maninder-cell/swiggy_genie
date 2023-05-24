@@ -30,7 +30,8 @@ module.exports.addtask = async (req, res, next) => {
       order_created_time: order_create,
     });
 
-    return res.status(200).json({
+    return res.status(201).json({
+      success: true,
       msg: "Order Task Created Sucessfully",
       order: task,
     });
@@ -87,7 +88,7 @@ module.exports.getask = async (req, res, next) => {
       billing_details: totalPrice,
       distance_km: distanceInKilometers
     });
-    res.json({ taskupdate, distanceInKilometers });
+    return res.status(200).json({ success: true, msg: "Order Task details get Successfully", taskupdate });
   }
   catch (err) {
     console.log(err);
@@ -135,7 +136,7 @@ module.exports.getOrdersByStatus = async (req, res) => {
         orders = await Order.findAll({ where: { user_id: user_id }, order: [["order_created_time", "DESC"]], });
         break;
     }
-    res.status(200).json({ user_id, orders });
+    res.status(200).json({ success: true, msg: "Order Detail Get Successfully", orders });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
@@ -157,7 +158,7 @@ module.exports.cancelOrder = async (req, res) => {
       const orderCancel = await order.update({
         order_status: "3",
       });
-      return res.status(200).json({ msg: orderCancel, data: "User Cancelled Order" });
+      return res.status(200).json({ success: true, msg: "User Cancelled Order", data: orderCancel});
     };
     return res.json({ msg: "Order Can't Cancelled" });
   } catch (error) {
@@ -172,7 +173,7 @@ module.exports.getCategory = async (req, res) => {
     const category = await Category.findAll({
       attributes: ['id', 'name', 'path', 'icon_name']
     });
-    res.json({ data: category });
+    return res.status(200).json({ success: true, msg: "Category data get Successfully", data: category });
   } catch (error) {
     res.status(400).json({
       message: error.message

@@ -25,31 +25,17 @@ module.exports.editprofileController = async (req, res) => {
       photo_uri: req.file.filename,
     }, { where: { id: req.user.id } });
 
-    const find = await User.findByPk(req.user.id);
+    const find = await User.findByPk(req.user.id, {
+      attributes: ['name', 'address', 'email', 'phone', 'photo_uri']
+    });
 
-    return res.status(201).json({ user: find, Message: "User Updated Sucessfully", is_update: user });
+    return res.status(201).json({ success: true, msg: "User Updated Sucessfully", data: find });
   } catch (error) {
     console.error(error);
     return res.status(400).json({ Message: "Something Went Wrong" });
   }
 };
 
-
-module.exports.getonlyphoto = async (req, res) => {
-  try {
-    const data = req.file.filename;
-    const user = await User.findByPk(req.user.id);
-
-    const update = await user.update({
-      photo_uri: data
-    })
-    return res.status(200).json({ msg: "User photo updated Successfully", update });
-
-  } catch (error) {
-    console.error(error);
-    return res.status(400).json({ Message: "Something Went Wrong" });
-  }
-}
 
 module.exports.getProfileController = async (req, res) => {
   try {
@@ -57,26 +43,59 @@ module.exports.getProfileController = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const find = await User.findOne({ where: { id: req.user.id }, attributes: ['name', 'photo_uri', 'address', 'email', 'phone', 'status', 'id'] });
-    return res.status(200).json({ Message: "User", find });
-
+    const find = await User.findOne({ where: { id: req.user.id }, attributes: ['id', 'name', 'photo_uri', 'address', 'email', 'calling_code', 'phone'] });
+    return res.status(200).json({ success: true, msg: "User Updated Sucessfully", find });
   } catch (error) {
-    console.error(error);
     return res.status(400).json({ Message: "Something Went Wrong" });
   }
 };
 
-exports.saveFcmTokenController = async (req, res, next) => {
-  const fcmtoken = req.body.fcmtoken;
-  if (fcmtoken) {
-    const check = await User_fcmtoken.findOne({ where: { fcmtoken: fcmtoken, user_id: req.user.id } })
-    if (!check) {
-      await User_fcmtoken.create({
-        user_id: req.user.id,
-        fcmtoken: fcmtoken,
-      })
+module.exports.togglestatus = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
+
+    const Userdata = req.user.id;
+    const statusdata = req.body.status;
+    const user = await User.findOne({
+      where: { id: Userdata }
+    });
+    if (user.status == 1 && statusdata == 0) {
+      const off = await user.update({
+        status: '0'
+      });
+      return res.status(200).json({ success: true, msg: "Driver go to Off-Line", });
+    }
+    else if (user.status == 0 && statusdata == 1) {
+      const on = await user.update({
+        status: '1'
+      });
+      return res.status(200).json({ success: true, msg: "Driver go to On-Line" });
+    }
+  } catch (error) {
+    return res.status(400).json({ Message: "Something Went Wrong" });
   }
-  return true;
-}
+};
+
+
+exports.saveFcmTokenController = async (req, res, next) => {
+  try {
+    const fcmtoken = req.body.fcmtoken;
+    if (fcmtoken) {
+      const check = await User_fcmtoken.findOne({ where: { fcmtoken: fcmtoken, user_id: req.user.id } })
+      if (!check) {
+        const token = await User_fcmtoken.create({
+          user_id: req.user.id,
+          fcmtoken: fcmtoken,
+        })
+        return res.status(201).json({ success: true, msg: "User Fcmtoken Store Successfully", data: token });
+      }
+    }
+  } catch (error) {
+    return res.status(400).json({ Message: "Something Went Wrong" });
+  }
+};
+
 

@@ -30,12 +30,13 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
             include: [{
                 model: User,
                 required: true,
+                attributes: ['phone', 'name', 'photo_uri']
             }],
             order: [["createdAt", "DESC"]]
         });
         const Till = moment().format("DD MMMM, YYYY");
         const orderTill = ` ${Till}`;
-        return res.json({ success: true, Till: orderTill, count: count, order: rows, reject: rejectorder })
+        return res.json({ success: true, msg: "Order still not assign other driver", Till: orderTill, count: count, order: rows, reject: rejectorder })
     } catch (error) {
         res.status(400).json({
             message: error.message
@@ -97,7 +98,7 @@ module.exports.DriverOrderAccept = async (req, res) => {
             });
         });
 
-        res.json({ success: true, msg: "Order Confirmed Successfully" });
+        return res.status(200).json({ success: true, msg: "Order Confirmed Successfully", data: order });
     }
     catch (error) {
         return res.status(400).json({
@@ -129,7 +130,7 @@ module.exports.DriverOrderCancell = async (req, res) => {
         const updateOrder = OrderDriverStatus.update({ driver_id: "0", order_status: "0", order_assign: "0" })
 
 
-        res.json({ success: true, msg: cancelled, order: OrderDriverStatus, update: updateOrder, data: "Order Cancelled Sucessfully" });
+        return res.json({ success: true, msg: "Order Cancelled Sucessfully", data: cancelled });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server error" });
@@ -176,7 +177,7 @@ module.exports.DriverOrderComplete = async (req, res) => {
                 await Notification.create({ user_id: order.user_id, text: message.notification.body });
             });;
         })
-        res.json({ success: true, msg: "Order Completed Successfully" });
+        res.json({ success: true, msg: "Order Completed Successfully", data: OrderComplete });
 
     }
     catch (error) {
@@ -198,7 +199,7 @@ module.exports.DriverOrderReject = async (req, res) => {
             driver_id: req.user.id,
             driver_order_status: "4"
         })
-        res.json({ msg: reject, data: "Order rejected Successfully" });
+        res.json({ msg: reject, msg: "Order rejected Successfully", data: reject });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server error" });
@@ -216,12 +217,13 @@ module.exports.GetDriverOrderAll = async (req, res) => {
                 include: [{
                     model: User,
                     required: true,
+                    attributes: ['name', 'phone', 'photo_uri']
                 }],
                 required: true
             }],
             order: [["updatedAt", "DESC"]]
         })
-        res.json({ success: true, msg: accepted });
+        res.status(200).json({ success: true, msg: "Driver Get All Type Order Data", data: accepted });
     }
     catch (error) {
         console.error(error);
@@ -239,12 +241,13 @@ module.exports.GetDriverOrderAccepted = async (req, res) => {
                 include: [{
                     model: User,
                     required: true,
+                    attributes: ['name', 'photo_uri', 'phone']
                 }],
                 required: true
             }],
             order: [["updatedAt", "DESC"]]
         })
-        res.json({ success: true, msg: accepted });
+        res.json({ success: true, msg: "Order Accepted By Driver Data", data: accepted });
     }
     catch (error) {
         console.error(error);
@@ -262,12 +265,13 @@ module.exports.GetDriverOrderCompleled = async (req, res) => {
                 include: [{
                     model: User,
                     required: true,
+                    attributes: ['name', 'phone', 'photo_uri']
                 }],
                 required: true
             }],
             order: [["updatedAt", "DESC"]]
         })
-        res.json({ success: true, msg: Completed });
+        res.json({ success: true, msg: "Driver Order Completed Get Successfully", data: Completed });
     }
     catch (error) {
         console.error(error);
@@ -285,12 +289,13 @@ module.exports.GetDriverOrderCancelled = async (req, res) => {
                 include: [{
                     model: User,
                     required: true,
+                    attributes: ['name', 'phone', 'photo_uri']
                 }],
                 required: true
             }],
             order: [["updatedAt", "DESC"]]
         })
-        res.json({ success: true, msg: cancelled });
+        return res.json({ success: true, msg: "Driver Order Cancelled get Successfully", data: cancelled });
     }
     catch (error) {
         console.error(error);
@@ -307,12 +312,13 @@ module.exports.GetDriverOrderRejected = async (req, res) => {
                 include: [{
                     model: User,
                     required: true,
+                    attributes: ['name', 'photo_uri', 'phone']
                 }],
                 required: true,
             }],
             order: [["updatedAt", "DESC"]]
         })
-        return res.json({ success: true, msg: reject });
+        return res.json({ success: true, msg: "Order rejected data", data: reject });
     }
     catch (error) {
         console.error(error);

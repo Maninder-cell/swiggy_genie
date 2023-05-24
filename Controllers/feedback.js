@@ -22,7 +22,9 @@ exports.feedBack = async (req, res, next) => {
   }
   const feedback = await Feedback.create(obj);
 
-  return res.status(200).json({
+  return res.status(201).json({
+    success: true,
+    msg: "Feedback Given Successfully",
     feedback: feedback,
   });
 };
@@ -33,7 +35,7 @@ exports.DriverlistFeedbacks = async (req, res, next) => {
     where: { driver_id: req.user.id },
     include: [{
       model: User,
-      as:"customer",
+      as: "customer",
       attributes: ['name', 'photo_uri']
     }],
     order: [["createdAt", "DESC"]]
@@ -45,7 +47,6 @@ exports.DriverlistFeedbacks = async (req, res, next) => {
 
 
 exports.driverFeedback = async (req, res, next) => {
-  console.log('amsdm');
   const Order_id = req.params.order_id;
   const order = await Order.findOne({
     where: {
@@ -56,8 +57,7 @@ exports.driverFeedback = async (req, res, next) => {
     where: { id: order.driver_id },
     attributes: ['name', 'photo_uri', 'phone']
   })
-  console.log(driverdetail);
-  return res.json(driverdetail);
+  return res.status(200).json({ success: true, msg: "Driver Detail Get Successfully", data: driverdetail });
 }
 
 //It show the user driver photo and name
@@ -73,6 +73,8 @@ exports.UserlistFeedbacks = async (req, res, next) => {
     order: [["createdAt", "DESC"]]
   });
   return res.status(200).json({
+    success:true,
+    msg:"Driver Detail Get Successfully",
     feedbacks: feedbacks,
   });
 };
