@@ -1,10 +1,18 @@
 const models = require('../models');
 const user = models.User;
 const payment = models.Payment;
-
+const nodemailer = require('nodemailer');
 const { Op } = require('sequelize');
 const order = models.Order;
 
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'zwigato09@gmail.com',
+        pass: 'mpjmgvwgklryvnze'
+    }
+});
+//Get all the User details 
 exports.getuser = async (req, res) => {
     try {
         const page = req.body.page;
@@ -48,6 +56,8 @@ exports.getuser = async (req, res) => {
         res.status(500).json({ msg: error });
     }
 }
+
+//Get  the one User detail
 module.exports.getoneuser = async (req, res) => {
     try {
         const data = req.body.id
@@ -70,6 +80,7 @@ module.exports.getoneuser = async (req, res) => {
     }
 }
 
+//Changed the block or unblock status for user and driver
 module.exports.block = async (req, res) => {
     try {
         const UserId = req.body.id;
@@ -97,22 +108,52 @@ module.exports.block = async (req, res) => {
 
 module.exports.createdriver = async (req, res) => {
     try {
-        const drive = await user.create({
-            name: req.body.name,
-            address: req.body.address,
-            phone: req.body.contact,
-            photo_uri: req.file.filename,
-            calling_code: 91 || req.body.calling_code,
-            email: req.body.email,
-            account_type: '1'
-        });
-        res.status(200).json({ success: true, msg: "Driver Created Successfully", data: drive });
+        const driverfind = await user.findOne({
+            where: { phone: req.body.contact }
+        })
+        if (driverfind) {
+            return res.status(401).json({ success: false, msg: "Number is Already Registered" });
+        } else {
+            const drive = await user.create({
+                name: req.body.name,
+                address: req.body.address,
+                phone: req.body.contact,
+                photo_uri: req.file.filename,
+                calling_code: 91 || req.body.calling_code,
+                email: req.body.email,
+                account_type: '1'
+            });
+            if (drive) {
+                await transporter.sendMail({
+                    to: req.body.email,
+                    from: 'zwigato09@gmail.com',
+                    subject: 'Welcome to Zwigato',
+                    html: `
+     <html>
+      <body>
+        <p>
+          Hi ${req.body.name},
+          <br><br>
+          You have successfully registered with Zwigato App. You can now log in using the provided number.
+          <br><br>
+          We hope you have a great journey with us.
+          <br><br>
+          Good luck!
+        </p>
+      </body>
+    </html>
+  `
+                })
+            }
+            return res.status(201).json({ success: true, msg: "Driver Created Successfully", data: drive });
+        }
     }
     catch (error) {
-        res.status(400).json({ msg: error });
+        return res.status(400).json({ msg: error });
     }
 }
 
+//Get all driver details 
 exports.getdriver = async (req, res) => {
     try {
         const page = req.body.page;
@@ -125,6 +166,7 @@ exports.getdriver = async (req, res) => {
             const { rows, count } = await user.findAndCountAll({
                 where: {
                     [Op.or]: [
+                        { id: { [Op.like]: `%${keyword}%` } },
                         { name: { [Op.like]: `%${keyword}%` } },
                         { address: { [Op.like]: `%${keyword}%` } },
                         { phone: { [Op.like]: `%${keyword}%` } }
@@ -157,6 +199,7 @@ exports.getdriver = async (req, res) => {
     }
 }
 
+//Get one driver detail
 module.exports.getonedriver = async (req, res) => {
     try {
         const data = req.body.id
@@ -179,6 +222,8 @@ module.exports.getonedriver = async (req, res) => {
         res.status(500).json({ msg: error });
     }
 }
+
+//Get all the order details
 exports.getorders = async (req, res) => {
     try {
         const page = req.body.page;
@@ -195,11 +240,16 @@ exports.getorders = async (req, res) => {
                         { pickup_from: { [Op.like]: `%${searchText}%` } },
                         { deliver_to: { [Op.like]: `%${searchText}%` } },
                         { category_item_type: { [Op.like]: `%${searchText}%` } },
-                        { order_status: { [Op.like]: `%${searchText}%` } }
                     ]
                 },
                 include: [
                     {
+                        // where: {
+                        //     [Op.or]: [
+                        //         { name: { [Op.like]: `%${searchText}%` } },
+                        //         { phone: { [Op.like]: `%${searchText}%` } },
+                        //     ]
+                        // },
                         model: user,
                         attributes: ['name', 'phone', 'address', 'photo_uri'],
                         required: true
@@ -230,6 +280,7 @@ exports.getorders = async (req, res) => {
     }
 };
 
+//Get one order detail
 module.exports.getoneorder = async (req, res) => {
     try {
         const data = req.body.order_id
@@ -238,7 +289,12 @@ module.exports.getoneorder = async (req, res) => {
             where: { order_id: data },
             include: [{
                 model: payment,
-            }]
+            }],
+            include: [{
+                model: user,
+                attributes: ['name', 'photo_uri'],
+                required: true,
+            }],
         })
         if (Orderdata != null) {
             return res.status(200).json({
@@ -256,6 +312,7 @@ module.exports.getoneorder = async (req, res) => {
     }
 }
 
+//Get all the payment  details
 exports.getpayment = async (req, res) => {
     try {
         const page = req.body.page;
@@ -266,10 +323,12 @@ exports.getpayment = async (req, res) => {
             const { rows, count } = await payment.findAndCountAll({
                 where: {
                     [Op.or]: [
-                        { user_id: { [Op.like]: `%${searchText}%` } },
                         { order_id: { [Op.like]: `%${searchText}%` } },
-                        { stripe_payment_id: { [Op.like]: `%${searchText}%` } },
-                        { paid: { [Op.like]: `%${searchText}%` } },
+                        { billing_details: { [Op.like]: `%${searchText}%` } },
+                        { pickup_from: { [Op.like]: `%${searchText}%` } },
+                        { deliver_to: { [Op.like]: `%${searchText}%` } },
+                        { order_created_time: { [Op.like]: `%${searchText}%` } },
+                        { category_item_type: { [Op.like]: `%${searchText}%` } },
                     ],
                 },
                 include: [{
@@ -309,6 +368,7 @@ exports.getpayment = async (req, res) => {
     }
 }
 
+//Get one payment detail
 module.exports.paymentstatus = async (req, res) => {
     try {
         const orderdata = req.body.order_id;

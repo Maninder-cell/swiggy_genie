@@ -49,18 +49,12 @@ module.exports.register = async (req, res) => {
         //generate token
         const token = jwt.sign(
           { phoneNumber: newUser.Phone, id: newUser.id, role: newUser.account_type },
-          "dbdad61f0eab1aded7bd4b43edd7", { expiresIn: "15d", });
-
+          process.env.JWT_SECRET || "dbdad61f0eab1aded7bd4b43edd7", { expiresIn: "15d", });
+        // "dbdad61f0eab1aded7bd4b43edd7"
         // save token in user model
         newUser.tokens = token;
         newUser.last_logged_in = moment().format("DD MMMM YYYY, hh:mm A");
         await newUser.save();
-
-        // Set token as cookie
-        res.cookie("auth_token", token, {
-          maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-          httpOnly: true,
-        });
 
         return res.status(201).json({
           success: true,
@@ -98,9 +92,10 @@ module.exports.login = async (req, res) => {
     }
 
     //generate token
+    console.log('bhbbbbbbbbbbbb', process.env.JWT_SECRET);
     const token = jwt.sign(
       { id: user.id, role: user.account_type },
-      "dbdad61f0eab1aded7bd4b43edd7",
+      process.env.JWT_SECRET || "dbdad61f0eab1aded7bd4b43edd7",
       {
         expiresIn: "15d",
       }
@@ -110,11 +105,7 @@ module.exports.login = async (req, res) => {
     user.tokens = token;
     user.last_logged_in = last_logged_in;
     await user.save();
-    // Set token as cookie
-    res.cookie("auth_token", token, {
-      maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-      httpOnly: true,
-    });
+
     return res.status(200).json({
       success: true,
       msg: "Customer Logged In Successfully",
@@ -151,7 +142,7 @@ module.exports.loginDriver = async (req, res) => {
     //generate token
     const token = jwt.sign(
       { id: user.id, role: user.account_type },
-      "dbdad61f0eab1aded7bd4b43edd7",
+      process.env.JWT_SECRET || "dbdad61f0eab1aded7bd4b43edd7",
       {
         expiresIn: "15d",
       }
@@ -161,11 +152,6 @@ module.exports.loginDriver = async (req, res) => {
     user.tokens = token;
     user.last_logged_in = last_logged_in;
     await user.save();
-    // Set token as cookie
-    res.cookie("auth_token", token, {
-      maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-      httpOnly: true,
-    });
 
     return res.status(200).json({
       success: true,

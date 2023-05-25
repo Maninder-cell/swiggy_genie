@@ -24,7 +24,8 @@ module.exports = (sequelize, DataTypes) => {
     pickup_longitude: DataTypes.STRING,
     delivery_latitude: DataTypes.STRING,
     delivery_longitude: DataTypes.STRING,
-    distance_km: DataTypes.STRING
+    distance_km: DataTypes.STRING,
+    additional_charge: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'TaskDetails',

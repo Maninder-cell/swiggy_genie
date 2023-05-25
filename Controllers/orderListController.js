@@ -82,13 +82,17 @@ module.exports.getask = async (req, res, next) => {
     const delivery = { latitude: task.delivery_latitude, longitude: task.delivery_longitude };
     const distanceInMeters = getDistance(pickup, delivery);
     const distanceInKilometers = (distanceInMeters / 1000).toFixed(2);
+    const pricePerKilometer = 1;
+    const additionalCharge = pricePerKilometer * distanceInKilometers;
 
-    const totalPrice = item_price;
+    const totalPrice = item_price + additionalCharge;
+
     const taskupdate = await task.update({
       billing_details: totalPrice,
-      distance_km: distanceInKilometers
+      distance_km: totalPrice,
+      additional_charge: additionalCharge
     });
-    return res.status(200).json({ success: true, msg: "Order Task details get Successfully", taskupdate });
+    return res.status(200).json({ success: true, msg: "Order Task details get Successfully", taskupdate, });
   }
   catch (err) {
     console.log(err);
@@ -158,7 +162,7 @@ module.exports.cancelOrder = async (req, res) => {
       const orderCancel = await order.update({
         order_status: "3",
       });
-      return res.status(200).json({ success: true, msg: "User Cancelled Order", data: orderCancel});
+      return res.status(200).json({ success: true, msg: "User Cancelled Order", data: orderCancel });
     };
     return res.json({ msg: "Order Can't Cancelled" });
   } catch (error) {

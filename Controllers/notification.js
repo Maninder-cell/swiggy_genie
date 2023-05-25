@@ -17,7 +17,7 @@ exports.saveNotification = async (req, res, next) => {
   return res.status(201).json({
     success: true,
     msg: "Notification Created Successfully",
-    notification: notification,
+    data: notification,
   });
 };
 
@@ -30,6 +30,6 @@ exports.listNotifications = async (req, res, next) => {
   return res.status(200).json({
     success: true,
     msg: "Notification Get Successfully",
-    notifications: notifications,
+    data: notifications,
   });
 };

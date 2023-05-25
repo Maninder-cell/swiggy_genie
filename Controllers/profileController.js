@@ -11,8 +11,6 @@ module.exports.editprofileController = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    console.log(req.body);
-    console.log('nameeeeeeeee', req.file);
     // return res.json(req.user.id)
     if (!req.file) {
       return res.status(400).json({ message: 'file is required' })
@@ -44,7 +42,7 @@ module.exports.getProfileController = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
     const find = await User.findOne({ where: { id: req.user.id }, attributes: ['id', 'name', 'photo_uri', 'address', 'email', 'calling_code', 'phone'] });
-    return res.status(200).json({ success: true, msg: "User Updated Sucessfully", find });
+    return res.status(200).json({ success: true, msg: "User Data Get Sucessfully", data: find });
   } catch (error) {
     return res.status(400).json({ Message: "Something Went Wrong" });
   }

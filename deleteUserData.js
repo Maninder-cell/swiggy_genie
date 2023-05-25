@@ -6,6 +6,7 @@ const job = async () => {
   // Find users who signed up but didn't log in for 2 days
 
   const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+  console.log(twoDaysAgo);
   const usersToDelete = await User.findAll({
     where: {
       tokens: null,
@@ -15,8 +16,8 @@ const job = async () => {
       },
     },
   });
-
   // Delete the user's data
+  console.log(usersToDelete);
   usersToDelete.forEach(async (user) => {
     await user.destroy();
   });
@@ -24,4 +25,3 @@ const job = async () => {
 
 module.exports = job;
 
-  

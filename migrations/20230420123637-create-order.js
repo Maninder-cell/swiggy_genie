@@ -63,6 +63,9 @@ module.exports = {
       distance_km: {
         type: Sequelize.STRING
       },
+      additional_charge: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

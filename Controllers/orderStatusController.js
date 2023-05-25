@@ -16,14 +16,15 @@ admin.initializeApp({
 // //When the order has been not to assign anyone and driver pick in the five kilometer
 module.exports.DriverOrderNoAssign = async (req, res) => {
     try {
-        const rejectorder = await DriverAcceptReject.findAll({
-            where: { driver_id: req.user.id, driver_order_status: 4 },
+        const rejectorderandcancel = await DriverAcceptReject.findAll({
+            where: { driver_id: req.user.id, driver_order_status: [3, 4] },
             attributes: ['order_id']
         });
 
-        ids = rejectorder.map((obj) => {
+        ids = rejectorderandcancel.map((obj) => {
             return obj.order_id;
         });
+
 
         const { count, rows } = await Order.findAndCountAll({
             where: { order_assign: "0", order_status: "0", order_id: { [Op.notIn]: ids } },
@@ -36,7 +37,7 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
         });
         const Till = moment().format("DD MMMM, YYYY");
         const orderTill = ` ${Till}`;
-        return res.json({ success: true, msg: "Order still not assign other driver", Till: orderTill, count: count, order: rows, reject: rejectorder })
+        return res.json({ success: true, msg: "Order still not assign other driver", Till: orderTill, count: count, data: rows })
     } catch (error) {
         res.status(400).json({
             message: error.message
@@ -163,6 +164,8 @@ module.exports.DriverOrderComplete = async (req, res) => {
         const order = await Order.findOne({
             where: { order_id: Order_Id }
         })
+        //User side notification
+
         const fcm_tokens = await User_fcmtoken.findAll({
             where: { user_id: order.user_id },
             attributes: ['fcmtoken']
@@ -177,6 +180,23 @@ module.exports.DriverOrderComplete = async (req, res) => {
                 await Notification.create({ user_id: order.user_id, text: message.notification.body });
             });;
         })
+        //Driver side send notification
+        const fcm_token = await User_fcmtoken.findAll({
+            where: { user_id: req.user.id },
+            attributes: ['fcmtoken']
+        });
+        console.log(fcm_tokens);
+        fcm_token.forEach(user => {
+            let message = {
+                notification: {
+                    title: "Order Completed", body: `You have Completed Order ${Order_Id} Successfully`,
+                },
+                token: user.dataValues.fcmtoken
+            };
+            admin.messaging().send(message).then(async (msg) => {
+                await Notification.create({ user_id: order.user_id, text: message.notification.body });
+            });
+        });
         res.json({ success: true, msg: "Order Completed Successfully", data: OrderComplete });
 
     }
@@ -271,7 +291,7 @@ module.exports.GetDriverOrderCompleled = async (req, res) => {
             }],
             order: [["updatedAt", "DESC"]]
         })
-        res.json({ success: true, msg: "Driver Order Completed Get Successfully", data: Completed });
+        res.status(200).json({ success: true, msg: "Driver Order Completed Get Successfully", data: Completed });
     }
     catch (error) {
         console.error(error);

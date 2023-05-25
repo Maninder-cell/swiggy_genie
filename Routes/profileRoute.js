@@ -22,10 +22,14 @@ const fileFilter = (req, file, cb) => {
         cb(null, false);
     }
 }
-const upload = multer({ storage: fileStorage, fileFilter: fileFilter });
+const upload = multer({
+    storage: fileStorage,
+    fileFilter: fileFilter
+});
+router.post("/update", verifyToken, upload.single('photo_uri'), profileController.editprofileController);
 
 router.get("/get", verifyToken, profileController.getProfileController);
-router.post("/update", verifyToken, upload.single('photo_uri'), profileController.editprofileController);
+
 
 router.post("/fcmtoken", verifyToken, profileController.saveFcmTokenController);
 

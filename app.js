@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require('path');
-//  require('dotenv').config();
-require('dotenv').config({ path: path.join(__dirname, './env') });
+require('dotenv').config();
+// require('dotenv').config({ path: path.join(__dirname, './env') });
 
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -12,15 +12,15 @@ const deleteUserData = require("./deleteUserData");
 
 var db = require('./models');
 
-const authRoutes = require("./Routes/authRoute");
-const orderRoutes = require("./Routes/orderListRoute");
-const driverRoutes = require("./Routes/driverRoute");
-const profileROute = require('./Routes/profileRoute');
-const paymentRoutes = require("./Routes/payment");
-const feedbackRoutes = require("./Routes/feedback");
-const notificationRoutes = require("./Routes/notification");
-const loginr = require('./Routes/loginroute');
-const customroute = require('./Routes/customerroute');
+const authRoute = require("./Routes/authRoute");
+const orderRoute = require("./Routes/orderListRoute");
+const driverRoute = require("./Routes/driverRoute");
+const profileRoute = require('./Routes/profileRoute');
+const paymentRoute = require("./Routes/payment");
+const feedbackRoute = require("./Routes/feedback");
+const notificationRoute = require("./Routes/notification");
+const loginroute = require('./Routes/loginroute');
+const customeroute = require('./Routes/customerroute');
 
 
 const app = express();
@@ -37,15 +37,15 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
-app.use("/auth", authRoutes);
-app.use(orderRoutes);
-app.use(driverRoutes);
-app.use(profileROute);
-app.use(paymentRoutes);
-app.use(feedbackRoutes);
-app.use(notificationRoutes);
-app.use(loginr);
-app.use(customroute);
+app.use("/auth", authRoute);
+app.use(orderRoute);
+app.use(driverRoute);
+app.use(profileRoute);
+app.use(paymentRoute);
+app.use(feedbackRoute);
+app.use(notificationRoute);
+app.use(loginroute);
+app.use(customeroute);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT);
@@ -62,7 +62,6 @@ const cronJob = new cron.CronJob(
   true,
   "Asia/Kolkata" // Set timezone to India Standard Time
 );
-
 // Start the cron job
 cronJob.start();
 

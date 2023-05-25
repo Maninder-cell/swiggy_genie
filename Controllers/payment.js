@@ -32,6 +32,7 @@ exports.pay = async (req, res) => {
       user.stripe_id,
       req.body.pay_id
     );
+    console.log('pppppppppppppppppppppppppppppppppppp', payment);
     const data = req.body.task_id;
     if (payment) {
       const task_detail = await TaskDetails.findOne({
@@ -39,6 +40,7 @@ exports.pay = async (req, res) => {
         where: { id: data },
         order: [['createdAt', 'DESC']]
       });
+
       var Order_Id = Math.random();
       Order_Id = Order_Id * 100000000;
       Order_Id = parseInt(Order_Id);
@@ -60,15 +62,36 @@ exports.pay = async (req, res) => {
         delivery_latitude: task_detail.delivery_latitude,
         delivery_longitude: task_detail.delivery_longitude,
         distance_km: task_detail.distance_km,
+        additional_charge: task_detail.additional_charge,
         order_created_time: order_create,
 
       });
-      await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id, paid: 1 });
+      console.log('ooooooooooooooooooooooooooooooooooooooooooo', order);
+      const paymentdone = await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id, paid: 1 });
 
-      res.status(200).json({
+      console.log('ppppppppppppppppppppppppppppppppppppppppppppppppp', paymentdone);
+
+      res.status(201).json({
         success: true, msg: "Order Placed Successfully",
         orderdetail: order,
-        payment: payment,
+        payment: paymentdone,
+      });
+
+      const fcm_tokens = await User_fcmtoken.findAll({
+        where: { user_id: order.user_id },
+        attributes: ['fcmtoken']
+      });
+      console.log(fcm_tokens);
+      fcm_tokens.forEach(user => {
+        let message = {
+          notification: {
+            title: "Order Placed", body: `You Order #${order.order_id} has Placed`,
+          },
+          token: user.dataValues.fcmtoken
+        };
+        admin.messaging().send(message).then(async (msg) => {
+          await Notification.create({ user_id: order.user_id, text: message.notification.body });
+        });
       });
 
       const fcmtoken = await User.findAll({

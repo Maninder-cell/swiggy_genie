@@ -25,7 +25,7 @@ exports.feedBack = async (req, res, next) => {
   return res.status(201).json({
     success: true,
     msg: "Feedback Given Successfully",
-    feedback: feedback,
+    data: feedback,
   });
 };
 //It show the driver user rating $ review photo and name
@@ -41,10 +41,9 @@ exports.DriverlistFeedbacks = async (req, res, next) => {
     order: [["createdAt", "DESC"]]
   });
   return res.status(200).json({
-    feedbacks: feedbacks,
+    data: feedbacks,
   });
 };
-
 
 exports.driverFeedback = async (req, res, next) => {
   const Order_id = req.params.order_id;
@@ -73,8 +72,8 @@ exports.UserlistFeedbacks = async (req, res, next) => {
     order: [["createdAt", "DESC"]]
   });
   return res.status(200).json({
-    success:true,
-    msg:"Driver Detail Get Successfully",
-    feedbacks: feedbacks,
+    success: true,
+    msg: "Driver Detail Get Successfully",
+    data: feedbacks,
   });
 };
