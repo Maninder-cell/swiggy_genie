@@ -32,7 +32,7 @@ exports.login = async (req, res) => {
     try {
         console.log('dshajfkjd');
         const { email, password } = req.body;
-        const userdata = await user.findOne({ where: { email: email }, attributes: ['id', 'name', 'email', 'account_type', 'password', 'tokens', 'photo'] });
+        const userdata = await user.findOne({ where: { email: email }, attributes: ['id', 'name', 'email', 'account_type', 'password', 'tokens'] });
         // const userdata = await user.findOne({ where: { email: email }, attributes: ['id', 'email', 'account_type', 'tokens'] });
         console.log(userdata);
         const matchPassword = await bcrypt.compare(password, userdata.password);

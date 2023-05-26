@@ -194,7 +194,7 @@ module.exports.DriverOrderComplete = async (req, res) => {
                 token: user.dataValues.fcmtoken
             };
             admin.messaging().send(message).then(async (msg) => {
-                await Notification.create({ user_id: order.user_id, text: message.notification.body });
+                await Notification.create({ user_id: req.user.id, text: message.notification.body });
             });
         });
         res.json({ success: true, msg: "Order Completed Successfully", data: OrderComplete });

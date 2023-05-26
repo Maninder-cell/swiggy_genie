@@ -7,6 +7,7 @@ const User = db.User;
 const Payment = db.Payment;
 const TaskDetails = db.TaskDetails;
 const User_fcmtoken = db.User_fcmtoken;
+const Notification = db.Notification;
 const moment = require('moment-timezone');
 
 var admin = require("firebase-admin");
@@ -52,7 +53,7 @@ exports.pay = async (req, res) => {
         driver_id: "0",
         pickup_from: task_detail.pickup_from,
         deliver_to: task_detail.deliver_to,
-        instruction: task_detail.Instruction,
+        instruction: task_detail.instruction,
         category_item_type: task_detail.category_item_type,
         billing_details: task_detail.billing_details,
         order_status: "0",
@@ -71,7 +72,7 @@ exports.pay = async (req, res) => {
 
       console.log('ppppppppppppppppppppppppppppppppppppppppppppppppp', paymentdone);
 
-      res.status(201).json({
+      res.status(200).json({
         success: true, msg: "Order Placed Successfully",
         orderdetail: order,
         payment: paymentdone,

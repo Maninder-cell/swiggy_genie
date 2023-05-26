@@ -3,6 +3,7 @@ const Category = models.Category;
 const Order = models.Order;
 const User = models.User;
 const TaskDetails = models.TaskDetails;
+
 const { getDistance } = require('geolib');
 const moment = require('moment');
 const { validationResult } = require("express-validator");
@@ -81,15 +82,15 @@ module.exports.getask = async (req, res, next) => {
     const pickup = { latitude: task.pickup_latitude, longitude: task.pickup_longitude };
     const delivery = { latitude: task.delivery_latitude, longitude: task.delivery_longitude };
     const distanceInMeters = getDistance(pickup, delivery);
-    const distanceInKilometers = (distanceInMeters / 1000).toFixed(2);
+    const distanceInKilometers = Math.floor(distanceInMeters / 1000).toFixed(2);
     const pricePerKilometer = 1;
-    const additionalCharge = pricePerKilometer * distanceInKilometers;
+    const additionalCharge = Math.floor(pricePerKilometer * distanceInKilometers);
 
-    const totalPrice = item_price + additionalCharge;
+    const totalPrice = Math.floor(item_price + additionalCharge);
 
     const taskupdate = await task.update({
       billing_details: totalPrice,
-      distance_km: totalPrice,
+      distance_km: distanceInKilometers,
       additional_charge: additionalCharge
     });
     return res.status(200).json({ success: true, msg: "Order Task details get Successfully", taskupdate, });
