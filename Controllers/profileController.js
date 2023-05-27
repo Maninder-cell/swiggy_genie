@@ -42,7 +42,6 @@ module.exports.editprofileController = async (req, res) => {
   }
 };
 
-
 module.exports.getProfileController = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -84,7 +83,6 @@ module.exports.togglestatus = async (req, res) => {
     return res.status(400).json({ Message: "Something Went Wrong" });
   }
 };
-
 
 exports.saveFcmTokenController = async (req, res, next) => {
   try {

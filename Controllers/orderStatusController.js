@@ -4,7 +4,6 @@ const Order = db.Order;
 const Notification = db.Notification;
 const User_fcmtoken = db.User_fcmtoken;
 const DriverAcceptReject = db.DriverAcceptReject;
-const Order_pin = db.Order_pin;
 const { Sequelize, Op } = require('sequelize');
 const moment = require('moment');
 
