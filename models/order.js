@@ -52,7 +52,10 @@ module.exports = (sequelize, DataTypes) => {
     delivery_latitude: DataTypes.STRING,
     delivery_longitude: DataTypes.STRING,
     distance_km: DataTypes.STRING,
-    additional_charge: DataTypes.STRING
+    additional_charge: DataTypes.STRING,
+    driver_feedback: DataTypes.INTEGER,
+    order_pin: DataTypes.INTEGER,
+    pickup_status: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Order',

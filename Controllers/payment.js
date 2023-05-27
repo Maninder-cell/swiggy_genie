@@ -41,10 +41,10 @@ exports.pay = async (req, res) => {
         where: { id: data },
         order: [['createdAt', 'DESC']]
       });
+      //pin generate for verification 
+      var digit = Math.floor(Math.random() * 9000) + 1000; // Generate a random 4-digit code
+      var Order_Id = Math.floor(Math.random() * 90000000) + 10000000; // Generate a random 8-digit code
 
-      var Order_Id = Math.random();
-      Order_Id = Order_Id * 100000000;
-      Order_Id = parseInt(Order_Id);
       const indianTime = moment.tz(Date.now(), 'Asia/Kolkata');
       const order_create = indianTime.format("DD MMMM YYYY, hh:mm A");
       const order = await Order.create({
@@ -65,6 +65,8 @@ exports.pay = async (req, res) => {
         distance_km: task_detail.distance_km,
         additional_charge: task_detail.additional_charge,
         order_created_time: order_create,
+        order_pin: digit,
+        driver_feedback: 0
 
       });
       console.log('ooooooooooooooooooooooooooooooooooooooooooo', order);
@@ -77,24 +79,6 @@ exports.pay = async (req, res) => {
         orderdetail: order,
         payment: paymentdone,
       });
-
-      const fcm_tokens = await User_fcmtoken.findAll({
-        where: { user_id: order.user_id },
-        attributes: ['fcmtoken']
-      });
-      console.log(fcm_tokens);
-      fcm_tokens.forEach(user => {
-        let message = {
-          notification: {
-            title: "Order Placed", body: `You Order #${order.order_id} has Placed`,
-          },
-          token: user.dataValues.fcmtoken
-        };
-        admin.messaging().send(message).then(async (msg) => {
-          await Notification.create({ user_id: order.user_id, text: message.notification.body });
-        });
-      });
-
       const fcmtoken = await User.findAll({
         where: { account_type: "1", status: '1' },
         include: [{
@@ -120,6 +104,25 @@ exports.pay = async (req, res) => {
           admin.messaging().send(message);
         }
       }
+
+      const fcm_tokens = await User_fcmtoken.findAll({
+        where: { user_id: order.user_id },
+        attributes: ['fcmtoken']
+      });
+      console.log(fcm_tokens);
+      fcm_tokens.forEach(user => {
+        let message = {
+          notification: {
+            title: "Order Placed", body: `You Order #${order.order_id} has Placed`,
+          },
+          token: user.dataValues.fcmtoken
+        };
+        admin.messaging().send(message).then(async (msg) => {
+          await Notification.create({ user_id: order.user_id, text: message.notification.body });
+        });
+      });
+
+
     }
 
   } catch (error) {

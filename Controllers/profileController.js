@@ -13,21 +13,29 @@ module.exports.editprofileController = async (req, res) => {
     }
     // return res.json(req.user.id)
     if (!req.file) {
-      return res.status(400).json({ message: 'file is required' })
+      const user = await User.update({
+        name: req.body.name,
+        address: req.body.address,
+        email: req.body.email,
+      }, { where: { id: req.user.id } });
+      const find = await User.findByPk(req.user.id, {
+        attributes: ['name', 'address', 'email', 'phone', 'photo_uri']
+      });
+      return res.status(400).json({ message: 'Updae with profile photo is required', data: find })
+    } else {
+      const user = await User.update({
+        name: req.body.name,
+        address: req.body.address,
+        email: req.body.email,
+        photo_uri: req.file.filename,
+      }, { where: { id: req.user.id } });
+      const find = await User.findByPk(req.user.id, {
+        attributes: ['name', 'address', 'email', 'phone', 'photo_uri']
+      });
+      return res.status(201).json({ success: true, msg: "User Updated with photo Sucessfully", data: find });
     }
 
-    const user = await User.update({
-      name: req.body.name,
-      address: req.body.address,
-      email: req.body.email,
-      photo_uri: req.file.filename,
-    }, { where: { id: req.user.id } });
 
-    const find = await User.findByPk(req.user.id, {
-      attributes: ['name', 'address', 'email', 'phone', 'photo_uri']
-    });
-
-    return res.status(201).json({ success: true, msg: "User Updated Sucessfully", data: find });
   } catch (error) {
     console.error(error);
     return res.status(400).json({ Message: "Something Went Wrong" });

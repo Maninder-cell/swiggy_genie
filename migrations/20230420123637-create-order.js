@@ -66,6 +66,17 @@ module.exports = {
       additional_charge: {
         type: Sequelize.STRING
       },
+      driver_feedback: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+      },
+      pickup_status: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+      },
+      order_pin: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

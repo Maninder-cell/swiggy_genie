@@ -4,6 +4,7 @@ const Order = db.Order;
 const Notification = db.Notification;
 const User_fcmtoken = db.User_fcmtoken;
 const DriverAcceptReject = db.DriverAcceptReject;
+const Order_pin = db.Order_pin;
 const { Sequelize, Op } = require('sequelize');
 const moment = require('moment');
 
@@ -49,7 +50,10 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
 module.exports.DriverOrderAccept = async (req, res) => {
     try {
         console.log(req.body.status);
-        const Order_Id = req.body.order_id;
+        const Order_Id = req.body.Order_Id || req.body.order_id;
+        if (!Order_Id) {
+            return res.status(400).json({ msg: "order not be null" });
+        }
         // const Driver_Id = req.user.id;
         const order = await Order.findOne({
             where: { order_id: Order_Id }
@@ -61,6 +65,10 @@ module.exports.DriverOrderAccept = async (req, res) => {
         const orderaccept = await Order.findOne({
             where: { driver_id: req.user.id, order_status: "1", order_assign: "1" }
         });
+
+        //pin generate for verification 
+
+
 
         if (orderaccept) {
             return res.json({ msg: "You are a pending order still uncomplete" });
@@ -80,7 +88,6 @@ module.exports.DriverOrderAccept = async (req, res) => {
                 })
             }
         }
-
         //Find the fcmtoken and send the order confirmed message Successfully
         const fcm_tokens = await User_fcmtoken.findAll({
             where: { user_id: order.user_id },
@@ -107,44 +114,87 @@ module.exports.DriverOrderAccept = async (req, res) => {
         })
     }
 }
-
-//Order if driver accept then the cancell order option
-module.exports.DriverOrderCancell = async (req, res) => {
+//Driver pick up status update then user side the driver location start from the pick_from to deliver_to show
+module.exports.DriverOrderPickup = async (req, res) => {
     try {
-        const Order_Id = req.body.order_id;
-        // const Driver_Id = req.user.id;
+        const Order_Id = req.body.Order_Id || req.body.order_id;
+        if (!Order_Id) {
+            return res.status(400).json({ msg: "order not be null" });
+        }
+        //order pickup status changes from 0 to 1 successfully
+        const pickup = await Order.update({
+            pickup_status: 1,
+        }, { where: { order_id: Order_Id, pickup_status: 0, driver_id: req.user.id } });
 
-        const accept = await DriverAcceptReject.findOne({
-            where: { order_id: Order_Id, driver_order_status: 1 }
+        //find the order details
+        const order = await Order.findOne({
+            where: { order_id: Order_Id }
         });
-
-        const cancelled = await accept.update({
-            driver_order_status: 3
-        });
-
-        const OrderDriverStatus = await Order.findOne({
-            where: { order_id: Order_Id },
-            attributes: ['driver_id', 'order_status', 'order_assign', 'id']
-        })
-        console.log(OrderDriverStatus);
-
-        const updateOrder = OrderDriverStatus.update({ driver_id: "0", order_status: "0", order_assign: "0" })
-
-
-        return res.json({ success: true, msg: "Order Cancelled Sucessfully", data: cancelled });
+        if (pickup) {
+            //Find the fcmtoken and send the order confirmed message Successfully
+            const fcm_tokens = await User_fcmtoken.findAll({
+                where: { user_id: order.user_id },
+                attributes: ['fcmtoken']
+            });
+            fcm_tokens.forEach(user => {
+                let message = {
+                    notification: {
+                        title: "Order Pickup", body: `You Order #${order.order_id} has pick-up Successfully`,
+                    },
+                    token: user.dataValues.fcmtoken
+                };
+                admin.messaging().send(message).then(async (msg) => {
+                    await Notification.create({ user_id: order.user_id, text: message.notification.body });
+                });
+            });
+            return res.status(200).json({ success: true, msg: "Order pickup Successfully" });
+        } else {
+            return res.status(400).json({ success: false, msg: "Invalid Credentials" });
+        }
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Server error" });
+        return res.status(400).json({
+            message: error.message
+        })
     }
 }
 
+//Order verify pin after that the driver show the complete button it request for the user for pin to call him 
+module.exports.DriverOrderVerify = async (req, res) => {
+    try {
+        const Order_Id = req.body.Order_Id || req.body.order_id;
+        const pin = req.body.pin;
+
+        //find the order details
+        const order = await Order.findOne({
+            where: { order_id: Order_Id, driver_id: req.user.id }
+        })
+        if (order) {
+            if (order.order_pin == pin) {
+                return res.status(200).json({ success: true, msg: "Verify pin successfully you can complete order" });
+            } else {
+                return res.status(400).json({ success: false, msg: "Invalid Pin" });
+            }
+        } else {
+            return res.status(400).json({ success: false, msg: "Wrong order_id or driver_id" });
+        }
+
+
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+}
 //When the driver complete the orders
 module.exports.DriverOrderComplete = async (req, res) => {
     try {
-        const Order_Id = req.body.Order_Id;
+        const Order_Id = req.body.Order_Id || req.body.order_id;
 
+        if (!Order_Id) {
+            return res.status(400).json({ msg: "order not be null" });
+        }
         const OrderComplete = await Order.findOne({
-            where: { order_id: Order_Id }
+            where: { order_id: Order_Id, pickup_status: 1 }
         });
 
         const complete_time = moment().format("DD MMMM YYYY, hh:mm A");;
@@ -207,12 +257,47 @@ module.exports.DriverOrderComplete = async (req, res) => {
     }
 }
 
+//Order if driver accept then the cancell order option
+module.exports.DriverOrderCancell = async (req, res) => {
+    try {
+        const Order_Id = req.body.Order_Id || req.body.order_id;
+        if (!Order_Id) {
+            return res.status(400).json({ msg: "order not be null" });
+        }
+        // const Driver_Id = req.user.id;
+
+        const accept = await DriverAcceptReject.findOne({
+            where: { order_id: Order_Id, driver_order_status: 1 }
+        });
+
+        const cancelled = await accept.update({
+            driver_order_status: 3
+        });
+
+        const OrderDriverStatus = await Order.findOne({
+            where: { order_id: Order_Id },
+            attributes: ['driver_id', 'order_status', 'order_assign', 'id']
+        })
+        console.log(OrderDriverStatus);
+
+        const updateOrder = OrderDriverStatus.update({ driver_id: "0", order_status: "0", order_assign: "0" })
+
+
+        return res.json({ success: true, msg: "Order Cancelled Sucessfully", data: cancelled });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error" });
+    }
+}
+
 //Driver reject the order
 module.exports.DriverOrderReject = async (req, res) => {
     try {
-        const Order_Id = req.body.order_id;
+        const Order_Id = req.body.Order_Id || req.body.order_id
         // const Driver_Id = req.user.id;
-
+        if (!Order_Id) {
+            return res.status(400).json({ msg: "order not be null" });
+        }
 
         const reject = await DriverAcceptReject.create({
             order_id: Order_Id,
@@ -361,5 +446,7 @@ module.exports.Userfcmtoken = async (req, res) => {
         })
     }
 }
+
+
 
 

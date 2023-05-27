@@ -11,22 +11,27 @@ exports.feedBack = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const order = await Order.findOne({ where: { order_id: req.body.order_id } });
+  const order = await Order.findOne({ where: { order_id: req.body.order_id, driver_feedback: 0 } });
 
-  const obj = {
-    user_id: req.user.id,
-    driver_id: order.driver_id,
-    order_id: order.order_id,
-    stars: req.body.stars,
-    comment: req.body.comment,
+  if (order) {
+    const obj = {
+      user_id: req.user.id,
+      driver_id: order.driver_id,
+      order_id: order.order_id,
+      stars: req.body.stars,
+      comment: req.body.comment,
+    }
+    const feedback = await Feedback.create(obj);
+    if (feedback) {
+      await order.update({
+        driver_feedback: 1
+      });
+    }
+    return res.status(201).json({ success: true, msg: "Feedback Given Successfully" });
+  } else {
+    return res.status(400).json({ success: false, msg: "Feedback Already Given" });
   }
-  const feedback = await Feedback.create(obj);
 
-  return res.status(201).json({
-    success: true,
-    msg: "Feedback Given Successfully",
-    data: feedback,
-  });
 };
 //It show the driver user rating $ review photo and name
 exports.DriverlistFeedbacks = async (req, res, next) => {

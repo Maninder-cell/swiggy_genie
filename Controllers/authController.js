@@ -43,7 +43,8 @@ module.exports.register = async (req, res) => {
         const newUser = await User.create({
           calling_code: CallingCode,
           phone: phoneNumber,
-          account_type: "2"
+          account_type: "2",
+          block: '0'
         });
 
         //generate token

@@ -1,19 +1,19 @@
 const models = require('../models');
-const user = models.User;
+const User = models.User;
 const payment = models.Payment;
 const nodemailer = require('nodemailer');
 const { Op } = require('sequelize');
-const order = models.Order;
+const Order = models.Order;
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'zwigato09@gmail.com',
+        User: 'zwigato09@gmail.com',
         pass: 'mpjmgvwgklryvnze'
     }
 });
 //Get all the User details 
-exports.getuser = async (req, res) => {
+module.exports.getuser = async (req, res) => {
     try {
         const page = req.body.page;
         const limit = parseInt(req.body.limit);
@@ -22,7 +22,7 @@ exports.getuser = async (req, res) => {
         const keyword = req.body.searchText;
 
         if (keyword && account_type == '2') {
-            const { rows, count } = await user.findAndCountAll({
+            const { rows, count } = await User.findAndCountAll({
                 where: {
                     [Op.or]: [
                         { name: { [Op.like]: `%${keyword}%` } },
@@ -39,9 +39,9 @@ exports.getuser = async (req, res) => {
             return res.status(200).json({ success: true, msg: "Customer Data Successfully", data: rows, count: count });
         } else {
             if (account_type == '2') {
-                const customer = await user.findAll({
+                const customer = await User.findAll({
                     where: { account_type: '2' },
-                    attributes: ['id', 'name', 'phone', 'address', 'photo_uri'],
+                    attributes: ['id', 'name', 'phone', 'address', 'photo_uri', 'block'],
                     offset: offset,
                     limit: limit,
                     order: [["createdAt", "DESC"]]
@@ -61,7 +61,7 @@ exports.getuser = async (req, res) => {
 module.exports.getoneuser = async (req, res) => {
     try {
         const data = req.body.id
-        const Userdata = await user.findOne({
+        const Userdata = await User.findOne({
             where: { id: data, account_type: '2' },
         })
         if (Userdata != null) {
@@ -80,11 +80,11 @@ module.exports.getoneuser = async (req, res) => {
     }
 }
 
-//Changed the block or unblock status for user and driver
+//Changed the block or unblock status for User and driver
 module.exports.block = async (req, res) => {
     try {
         const UserId = req.body.id;
-        const Usermatch = await user.findByPk(UserId);
+        const Usermatch = await User.findByPk(UserId);
         const block = req.body.block;
         console.log(block);
         if (block == 1) {
@@ -108,20 +108,21 @@ module.exports.block = async (req, res) => {
 
 module.exports.createdriver = async (req, res) => {
     try {
-        const driverfind = await user.findOne({
+        const driverfind = await User.findOne({
             where: { phone: req.body.contact }
         })
         if (driverfind) {
             return res.status(401).json({ success: false, msg: "Number is Already Registered" });
         } else {
-            const drive = await user.create({
+            const drive = await User.create({
                 name: req.body.name,
                 address: req.body.address,
                 phone: req.body.contact,
                 photo_uri: req.file.filename,
                 calling_code: 91 || req.body.calling_code,
                 email: req.body.email,
-                account_type: '1'
+                account_type: '1',
+                block: '0'
             });
             if (drive) {
                 await transporter.sendMail({
@@ -154,7 +155,7 @@ module.exports.createdriver = async (req, res) => {
 }
 
 //Get all driver details 
-exports.getdriver = async (req, res) => {
+module.exports.getdriver = async (req, res) => {
     try {
         const page = req.body.page;
         const limit = parseInt(req.body.limit);
@@ -163,7 +164,7 @@ exports.getdriver = async (req, res) => {
         const keyword = req.body.searchText;
 
         if (keyword && account_type == '1') {
-            const { rows, count } = await user.findAndCountAll({
+            const { rows, count } = await User.findAndCountAll({
                 where: {
                     [Op.or]: [
                         { id: { [Op.like]: `%${keyword}%` } },
@@ -181,9 +182,9 @@ exports.getdriver = async (req, res) => {
             return res.status(200).json({ success: true, msg: "Driver Data Successfully", data: rows, count: count });
         } else {
             if (account_type == '1') {
-                const customer = await user.findAll({
+                const customer = await User.findAll({
                     where: { account_type: '1' },
-                    attributes: ['id', 'name', 'phone', 'address', 'account_type', 'photo_uri'],
+                    attributes: ['id', 'name', 'phone', 'address', 'account_type', 'photo_uri', 'block'],
                     offset: offset,
                     limit: limit,
                     order: [["createdAt", "DESC"]]
@@ -203,7 +204,7 @@ exports.getdriver = async (req, res) => {
 module.exports.getonedriver = async (req, res) => {
     try {
         const data = req.body.id
-        const Driverdata = await user.findOne({
+        const Driverdata = await User.findOne({
             where: { id: data, account_type: '1' },
             attributes: ['id', 'calling_code', 'phone', 'name', 'email', 'address', 'block', 'account_type', 'latitude', 'longitude', 'photo_uri', 'last_logged_in']
         })
@@ -224,7 +225,7 @@ module.exports.getonedriver = async (req, res) => {
 }
 
 //Get all the order details
-exports.getorders = async (req, res) => {
+module.exports.getorders = async (req, res) => {
     try {
         const page = req.body.page;
         const limit = parseInt(req.body.limit);
@@ -233,24 +234,20 @@ exports.getorders = async (req, res) => {
 
         if (searchText) {
             console.log(searchText)
-            const { rows, count } = await order.findAndCountAll({
+            const { rows, count } = await Order.findAndCountAll({
                 where: {
                     [Op.or]: [
                         { order_id: { [Op.like]: `%${searchText}%` } },
                         { pickup_from: { [Op.like]: `%${searchText}%` } },
                         { deliver_to: { [Op.like]: `%${searchText}%` } },
                         { category_item_type: { [Op.like]: `%${searchText}%` } },
+                        { '$User.name$': { [Op.like]: `%${searchText}%` } },
+                        { '$User.phone$': { [Op.like]: `%${searchText}%` } }
                     ]
                 },
                 include: [
                     {
-                        // where: {
-                        //     [Op.or]: [
-                        //         { name: { [Op.like]: `%${searchText}%` } },
-                        //         { phone: { [Op.like]: `%${searchText}%` } },
-                        //     ]
-                        // },
-                        model: user,
+                        model: User,
                         attributes: ['name', 'phone', 'address', 'photo_uri'],
                         required: true
                     }],
@@ -260,11 +257,11 @@ exports.getorders = async (req, res) => {
             });
             return res.status(200).json({ sucess: true, msg: "Order Data Successfully", data: rows, count: count });
         } else {
-            const data = await order.findAll(
+            const data = await Order.findAll(
                 {
                     include: [
                         {
-                            model: user,
+                            model: User,
                             attributes: ['name', 'phone', 'address', 'photo_uri'],
                             required: true
                         }],
@@ -285,13 +282,13 @@ module.exports.getoneorder = async (req, res) => {
     try {
         const data = req.body.order_id
         console.log('ddddddddddddddddddddddddddd', data);
-        const Orderdata = await order.findOne({
+        const Orderdata = await Order.findOne({
             where: { order_id: data },
             include: [{
                 model: payment,
             }],
             include: [{
-                model: user,
+                model: User,
                 attributes: ['name', 'photo_uri'],
                 required: true,
             }],
@@ -313,7 +310,7 @@ module.exports.getoneorder = async (req, res) => {
 }
 
 //Get all the payment  details
-exports.getpayment = async (req, res) => {
+module.exports.getpayment = async (req, res) => {
     try {
         const page = req.body.page;
         const limit = parseInt(req.body.limit);
@@ -323,18 +320,19 @@ exports.getpayment = async (req, res) => {
             const { rows, count } = await payment.findAndCountAll({
                 where: {
                     [Op.or]: [
-                        { order_id: { [Op.like]: `%${searchText}%` } },
-                        { billing_details: { [Op.like]: `%${searchText}%` } },
-                        { pickup_from: { [Op.like]: `%${searchText}%` } },
-                        { deliver_to: { [Op.like]: `%${searchText}%` } },
-                        { order_created_time: { [Op.like]: `%${searchText}%` } },
-                        { category_item_type: { [Op.like]: `%${searchText}%` } },
+                        { '$Order.order_id$': { [Op.like]: `%${searchText}%` } },
+                        { '$Order.pickup_from$': { [Op.like]: `%${searchText}%` } },
+                        { '$Order.deliver_to$': { [Op.like]: `%${searchText}%` } },
+                        { '$Order.category_item_type$': { [Op.like]: `%${searchText}%` } },
+                        { '$Order.User.name$': { [Op.like]: `%${searchText}%` } },
+                        { '$Order.User.phone$': { [Op.like]: `%${searchText}%` } }
                     ],
                 },
                 include: [{
-                    model: order,
+                    model: Order,
+                    attributes: ['order_id', 'category_item_type', 'pickup_from', 'deliver_to', 'order_completed_time', 'billing_details'],
                     include: [{
-                        model: user,
+                        model: User,
                         attributes: ['name', 'photo_uri'],
                         required: true,
                     }],
@@ -349,9 +347,9 @@ exports.getpayment = async (req, res) => {
         else {
             const getpayment = await payment.findAll({
                 include: [{
-                    model: order,
+                    model: Order,
                     include: [{
-                        model: user,
+                        model: User,
                         attributes: ['name', 'photo_uri'],
                         required: true,
                     }],
