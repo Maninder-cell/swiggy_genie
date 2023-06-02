@@ -14,7 +14,7 @@ router.get('/taskdetails', verifyToken, orderListController.getask);
 
 // Route to get all orders
 router.get("/orders/:status", verifyToken, orderListController.getOrdersByStatus);
-
+router.get("/orders/pickup/:order_id", verifyToken, orderListController.getPickstatus);
 // Route to cancel an order by ID
 router.post("/orders/cancel", verifyToken, orderListController.cancelOrder);
 

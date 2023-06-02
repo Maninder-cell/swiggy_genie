@@ -29,7 +29,7 @@ const upload = multer({ storage: fileStorage, fileFilter: fileFilter });
 router.post('/getcustomer', auth, customeroute.getuser);
 router.post('/user/detail', auth, customeroute.getoneuser);
 router.post('/block', auth, customeroute.block);
-router.post('/driver/signup', auth, upload.single('photo_uri'), customeroute.createdriver);
+router.post('/driver/signup', auth, upload.single('photo_uri'), customeroute.createDriver);
 router.post('/getdriver', auth, customeroute.getdriver);
 router.post('/driver/detail', auth, customeroute.getonedriver);
 router.post('/getorder', auth, customeroute.getorders);

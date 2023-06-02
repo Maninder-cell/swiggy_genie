@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         User: 'zwigato09@gmail.com',
-        pass: 'mpjmgvwgklryvnze'
+        pass: 'rkqdldtwuprnmptz'
     }
 });
 //Get all the User details 
@@ -31,7 +31,7 @@ module.exports.getuser = async (req, res) => {
                     ],
                     account_type: '2',
                 },
-                attributes: ["id", 'name', 'phone', 'address', 'photo_uri'],
+                attributes: ["id", 'name', 'phone', 'address', 'photo_uri', 'block'],
                 offset: offset,
                 limit: limit,
                 order: [["createdAt", "DESC"]]
@@ -39,14 +39,14 @@ module.exports.getuser = async (req, res) => {
             return res.status(200).json({ success: true, msg: "Customer Data Successfully", data: rows, count: count });
         } else {
             if (account_type == '2') {
-                const customer = await User.findAll({
+                const { rows, count } = await User.findAndCountAll({
                     where: { account_type: '2' },
                     attributes: ['id', 'name', 'phone', 'address', 'photo_uri', 'block'],
                     offset: offset,
                     limit: limit,
                     order: [["createdAt", "DESC"]]
                 });
-                return res.status(200).json({ sucess: true, msg: "Customer Data Successfully", data: customer });
+                return res.status(200).json({ sucess: true, msg: "Customer Data Successfully", data: rows, count: count });
             }
             else {
                 return res.status(400).json({ success: false, msg: "Invalid argument" })
@@ -105,14 +105,11 @@ module.exports.block = async (req, res) => {
         })
     }
 }
-
-module.exports.createdriver = async (req, res) => {
+module.exports.createDriver = async (req, res) => {
     try {
-        const driverfind = await User.findOne({
-            where: { phone: req.body.contact }
-        })
+        const driverfind = await User.findOne({ where: { phone: req.body.contact } });
         if (driverfind) {
-            return res.status(401).json({ success: false, msg: "Number is Already Registered" });
+            return res.status(403).json({ success: false, msg: "Number is Already Registered" });
         } else {
             const drive = await User.create({
                 name: req.body.name,
@@ -124,34 +121,32 @@ module.exports.createdriver = async (req, res) => {
                 account_type: '1',
                 block: '0'
             });
-            if (drive) {
-                await transporter.sendMail({
-                    to: req.body.email,
-                    from: 'zwigato09@gmail.com',
-                    subject: 'Welcome to Zwigato',
-                    html: `
-     <html>
-      <body>
-        <p>
-          Hi ${req.body.name},
-          <br><br>
-          You have successfully registered with Zwigato App. You can now log in using the provided number.
-          <br><br>
-          We hope you have a great journey with us.
-          <br><br>
-          Good luck!
-        </p>
-      </body>
-    </html>
-  `
-                })
-            }
+            await transporter.sendMail({
+                to: req.body.email,
+                from: 'zwigato09@gmail.com',
+                subject: 'Welcome to Zwigato',
+                html: `
+                                 <html>
+                                  <body>
+                                    <p>
+                                      Hi ${req.body.name},
+                                      <br><br>
+                                      You have successfully registered with Zwigato App. You can now log in using the provided number.
+                                      <br><br>
+                                      We hope you have a great journey with us.
+                                      <br><br>
+                                      Good luck!
+                                    </p>
+                                  </body>
+                                </html>
+                              `
+            })
             return res.status(201).json({ success: true, msg: "Driver Created Successfully", data: drive });
         }
+    } catch (error) {
+        return res.status(500).json({ msg: error });
     }
-    catch (error) {
-        return res.status(400).json({ msg: error });
-    }
+
 }
 
 //Get all driver details 
@@ -174,7 +169,7 @@ module.exports.getdriver = async (req, res) => {
                     ],
                     account_type: '1',
                 },
-                attributes: ["id", 'name', 'phone', 'address', 'account_type', 'photo_uri'],
+                attributes: ["id", 'name', 'phone', 'address', 'account_type', 'photo_uri', 'block'],
                 offset: offset,
                 limit: limit,
                 order: [["createdAt", "DESC"]]
@@ -182,14 +177,14 @@ module.exports.getdriver = async (req, res) => {
             return res.status(200).json({ success: true, msg: "Driver Data Successfully", data: rows, count: count });
         } else {
             if (account_type == '1') {
-                const customer = await User.findAll({
+                const { rows, count } = await User.findAndCountAll({
                     where: { account_type: '1' },
                     attributes: ['id', 'name', 'phone', 'address', 'account_type', 'photo_uri', 'block'],
                     offset: offset,
                     limit: limit,
                     order: [["createdAt", "DESC"]]
                 });
-                return res.status(200).json({ sucess: true, msg: "Driver Data Successfully", data: customer });
+                return res.status(200).json({ sucess: true, msg: "Driver Data Successfully", data: rows, count: count });
             }
             else {
                 return res.status(400).json({ success: false, msg: "Invalid argument" })
@@ -257,7 +252,7 @@ module.exports.getorders = async (req, res) => {
             });
             return res.status(200).json({ sucess: true, msg: "Order Data Successfully", data: rows, count: count });
         } else {
-            const data = await Order.findAll(
+            const { rows, count } = await Order.findAndCountAll(
                 {
                     include: [
                         {
@@ -270,7 +265,7 @@ module.exports.getorders = async (req, res) => {
                     order: [["createdAt", "DESC"]]
                 },
             );
-            return res.status(200).json({ sucess: true, msg: "Orders Data Successfully", data: data });
+            return res.status(200).json({ sucess: true, msg: "Orders Data Successfully", data: rows, count: count });
         }
     } catch (error) {
         res.status(500).json({ sucess: false, msg: error });
@@ -285,18 +280,19 @@ module.exports.getoneorder = async (req, res) => {
         const Orderdata = await Order.findOne({
             where: { order_id: data },
             include: [{
-                model: payment,
-            }],
-            include: [{
                 model: User,
                 attributes: ['name', 'photo_uri'],
                 required: true,
             }],
-        })
+        });
+        const paymentdata = await payment.findOne({
+            where: { order_id: data }
+        });
         if (Orderdata != null) {
             return res.status(200).json({
                 success: true, msg: "Order Detail Get Successfully",
-                data: Orderdata
+                data: Orderdata,
+                payment: paymentdata
             })
         } else {
             return res.status(400).json({
@@ -345,7 +341,7 @@ module.exports.getpayment = async (req, res) => {
             return res.status(200).json({ sucess: true, msg: "Payment Data Successfully", data: rows, count: count });
         }
         else {
-            const getpayment = await payment.findAll({
+            const { rows, count } = await payment.findAndCountAll({
                 include: [{
                     model: Order,
                     include: [{
@@ -359,7 +355,7 @@ module.exports.getpayment = async (req, res) => {
                 limit,
                 order: [["createdAt", "DESC"]]
             });
-            return res.status(200).json({ sucess: true, msg: "Payment Data Successfully", data: getpayment });
+            return res.status(200).json({ sucess: true, msg: "Payment Data Successfully", data: rows, count: count });
         };
     } catch (error) {
         return res.status(500).json({ success: false, err: error })

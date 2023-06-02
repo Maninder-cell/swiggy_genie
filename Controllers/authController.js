@@ -80,7 +80,8 @@ module.exports.login = async (req, res) => {
 
     const { phoneNumber } = req.body;
     //find user by PhoneNumber
-    const user = await User.findOne({ where: { phone: phoneNumber, account_type: "2" } });
+    const user = await User.findOne({ where: { phone: phoneNumber, account_type: "2", } });
+    const userdata = await User.findOne({ where: { phone: phoneNumber, account_type: "2", block: '1' } });
     //if user not found
     const driver = await User.findOne({ where: { phone: phoneNumber, account_type: "1" } })
     if (driver) {
@@ -90,6 +91,9 @@ module.exports.login = async (req, res) => {
       return res
         .status(401)
         .json({ message: "User doesn't exist please Signup" });
+    }
+    if (userdata) {
+      return res.status(400).json({ msg: "You are Blocked!" });
     }
 
     //generate token
@@ -135,7 +139,10 @@ module.exports.loginDriver = async (req, res) => {
     const { phoneNumber } = req.body;
     //find user by PhoneNumber
     const user = await User.findOne({ where: { phone: phoneNumber, account_type: "1" } });
-
+    const userdata = await User.findOne({ where: { phone: phoneNumber, account_type: "1", block: '1' } });
+    if (userdata) {
+      return res.status(400).json({ msg: "You are Blocked!" });
+    }
     //if Driver not found
     if (!user) {
       return res.status(401).json({ message: "You are not authorized" });

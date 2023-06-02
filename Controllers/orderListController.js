@@ -214,3 +214,20 @@ module.exports.AddCategory = async (req, res) => {
 }
 
 
+module.exports.getPickstatus = async (req, res) => {
+  try {
+    const Order_id = req.params.order_id;
+
+    const pickupstatus = await Order.findOne({
+      where: { order_id: Order_id },
+      attributes: ['order_id', 'pickup_status']
+    });
+    return res.status(200).json({ success: true, msg: 'Pickup status get successfully', data: pickupstatus });
+  }
+  catch (error) {
+    return res.status(400).json({
+      message: error.message
+    })
+  }
+}
+

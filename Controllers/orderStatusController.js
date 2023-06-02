@@ -129,7 +129,7 @@ module.exports.DriverOrderPickup = async (req, res) => {
         const order = await Order.findOne({
             where: { order_id: Order_Id }
         });
-        if (pickup) {
+        if (order) {
             //Find the fcmtoken and send the order confirmed message Successfully
             const fcm_tokens = await User_fcmtoken.findAll({
                 where: { user_id: order.user_id },
@@ -157,6 +157,7 @@ module.exports.DriverOrderPickup = async (req, res) => {
     }
 }
 
+
 //Order verify pin after that the driver show the complete button it request for the user for pin to call him 
 module.exports.DriverOrderVerify = async (req, res) => {
     try {
@@ -171,7 +172,7 @@ module.exports.DriverOrderVerify = async (req, res) => {
             if (order.order_pin == pin) {
                 return res.status(200).json({ success: true, msg: "Verify pin successfully you can complete order" });
             } else {
-                return res.status(400).json({ success: false, msg: "Invalid Pin" });
+                return res.status(200).json({ success: false, msg: "Invalid Pin" });
             }
         } else {
             return res.status(400).json({ success: false, msg: "Wrong order_id or driver_id" });
@@ -279,7 +280,25 @@ module.exports.DriverOrderCancell = async (req, res) => {
         })
         console.log(OrderDriverStatus);
 
-        const updateOrder = OrderDriverStatus.update({ driver_id: "0", order_status: "0", order_assign: "0" })
+        const updateOrder = await OrderDriverStatus.update({ driver_id: "0", order_status: "0", order_assign: "0" });
+        //Find the fcmtoken regarding the order 
+        const order = await Order.findOne({
+            where: { order_id: Order_Id }
+        })
+        const fcm_tokens = await User_fcmtoken.findAll({
+            where: { user_id: order.user_id },
+            attributes: ['fcmtoken']
+        });
+        fcm_tokens.forEach(user => {
+            let message = {
+                notification: {
+                    title: "Order Cancel", body: `You Order #${order.order_id} Cancelled `,
+                }, token: user.dataValues.fcmtoken
+            };
+            admin.messaging().send(message).then(async (msg) => {
+                await Notification.create({ user_id: order.user_id, text: message.notification.body });
+            });;
+        })
 
 
         return res.json({ success: true, msg: "Order Cancelled Sucessfully", data: cancelled });
