@@ -8,8 +8,8 @@ const Order = models.Order;
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        User: 'zwigato09@gmail.com',
-        pass: 'rkqdldtwuprnmptz'
+        user: 'zwigato09@gmail.com',
+        pass: 'htezsmllibzaorke'
     }
 });
 //Get all the User details 
@@ -105,6 +105,7 @@ module.exports.block = async (req, res) => {
         })
     }
 }
+//create driver api
 module.exports.createDriver = async (req, res) => {
     try {
         const driverfind = await User.findOne({ where: { phone: req.body.contact } });
@@ -123,7 +124,7 @@ module.exports.createDriver = async (req, res) => {
             });
             await transporter.sendMail({
                 to: req.body.email,
-                from: 'zwigato09@gmail.com',
+                from: 'Zwigato <zwigato09@gmail.com>',
                 subject: 'Welcome to Zwigato',
                 html: `
                                  <html>
@@ -141,12 +142,11 @@ module.exports.createDriver = async (req, res) => {
                                 </html>
                               `
             })
-            return res.status(201).json({ success: true, msg: "Driver Created Successfully", data: drive });
+            return res.status(201).json({ success: true, msg: "Driver Added Successfully", data: drive });
         }
     } catch (error) {
         return res.status(500).json({ msg: error });
     }
-
 }
 
 //Get all driver details 

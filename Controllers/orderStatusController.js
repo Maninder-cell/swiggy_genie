@@ -113,6 +113,7 @@ module.exports.DriverOrderAccept = async (req, res) => {
         })
     }
 }
+
 //Driver pick up status update then user side the driver location start from the pick_from to deliver_to show
 module.exports.DriverOrderPickup = async (req, res) => {
     try {
@@ -157,7 +158,6 @@ module.exports.DriverOrderPickup = async (req, res) => {
     }
 }
 
-
 //Order verify pin after that the driver show the complete button it request for the user for pin to call him 
 module.exports.DriverOrderVerify = async (req, res) => {
     try {
@@ -185,6 +185,7 @@ module.exports.DriverOrderVerify = async (req, res) => {
         })
     }
 }
+
 //When the driver complete the orders
 module.exports.DriverOrderComplete = async (req, res) => {
     try {
@@ -354,6 +355,7 @@ module.exports.GetDriverOrderAll = async (req, res) => {
     }
 }
 
+//Driver get all rejected order api
 module.exports.GetDriverOrderAccepted = async (req, res) => {
     try {
 
@@ -378,6 +380,7 @@ module.exports.GetDriverOrderAccepted = async (req, res) => {
     }
 }
 
+//Driver get all Complete  order  api
 module.exports.GetDriverOrderCompleled = async (req, res) => {
     try {
 
@@ -402,6 +405,7 @@ module.exports.GetDriverOrderCompleled = async (req, res) => {
     }
 }
 
+//Driver get all cancelled  order by him api
 module.exports.GetDriverOrderCancelled = async (req, res) => {
     try {
 
@@ -426,6 +430,7 @@ module.exports.GetDriverOrderCancelled = async (req, res) => {
     }
 }
 
+//Driver get all rejected order by him api
 module.exports.GetDriverOrderRejected = async (req, res) => {
     try {
         const reject = await DriverAcceptReject.findAll({

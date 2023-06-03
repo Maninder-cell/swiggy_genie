@@ -51,7 +51,6 @@ module.exports.register = async (req, res) => {
         const token = jwt.sign(
           { phoneNumber: newUser.Phone, id: newUser.id, role: newUser.account_type },
           process.env.JWT_SECRET || "dbdad61f0eab1aded7bd4b43edd7", { expiresIn: "15d", });
-        // "dbdad61f0eab1aded7bd4b43edd7"
         // save token in user model
         newUser.tokens = token;
         newUser.last_logged_in = moment().format("DD MMMM YYYY, hh:mm A");

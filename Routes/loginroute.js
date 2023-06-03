@@ -7,6 +7,11 @@ const validresult = require('../Middleware/validationresult');
 
 router.post('/admin/signup', logincontroller.signup);
 
-router.post('/login',   logincontroller.login);
+router.post('/login', logincontroller.login);
 
+router.post('/admin/forgot', logincontroller.forgotAdmin);
+
+router.get('/reset-password/:token', logincontroller.ResetPassword);
+
+router.post('/reset-password/:token', logincontroller.resetPassword);
 module.exports = router;

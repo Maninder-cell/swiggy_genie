@@ -2,6 +2,8 @@ const { validationResult } = require("express-validator");
 const db = require("../models");
 const Notification = db.Notification;
 
+
+//Save notification for driver and customer side
 exports.saveNotification = async (req, res, next) => {
   const errors = validationResult(req);
 
@@ -21,6 +23,7 @@ exports.saveNotification = async (req, res, next) => {
   });
 };
 
+//Show all the notification for both driver and customer 
 exports.listNotifications = async (req, res, next) => {
   const notifications = await Notification.findAll({
     where: { user_id: req.user.id },

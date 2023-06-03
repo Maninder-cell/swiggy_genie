@@ -9,6 +9,8 @@ const { getDistance } = require('geolib');
 const moment = require('moment');
 const { validationResult } = require("express-validator");
 
+
+//Add task api store all the information regarding the order
 module.exports.addtask = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -44,6 +46,7 @@ module.exports.addtask = async (req, res, next) => {
   }
 };
 
+//Get all the details for make the order and payment
 module.exports.getask = async (req, res, next) => {
   try {
     const task = await TaskDetails.findOne({
@@ -149,7 +152,7 @@ module.exports.getOrdersByStatus = async (req, res) => {
   }
 };
 
-// Cancel an order by ID
+// Cancel an order by ID by user
 module.exports.cancelOrder = async (req, res) => {
   try {
     const orderCancelData = req.body.order_id;
@@ -174,6 +177,25 @@ module.exports.cancelOrder = async (req, res) => {
   }
 }
 
+//Pickup status api for user send the order information 
+module.exports.getPickstatus = async (req, res) => {
+  try {
+    const Order_id = req.params.order_id;
+
+    const pickupstatus = await Order.findOne({
+      where: { order_id: Order_id },
+      attributes: ['order_id', 'pickup_status']
+    });
+    return res.status(200).json({ success: true, msg: 'Pickup status get successfully', data: pickupstatus });
+  }
+  catch (error) {
+    return res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
+//All the catergory show api
 module.exports.getCategory = async (req, res) => {
   try {
     const category = await Category.findAll({
@@ -186,7 +208,6 @@ module.exports.getCategory = async (req, res) => {
     })
   }
 }
-
 
 module.exports.AddCategory = async (req, res) => {
   try {
@@ -212,22 +233,3 @@ module.exports.AddCategory = async (req, res) => {
     })
   }
 }
-
-
-module.exports.getPickstatus = async (req, res) => {
-  try {
-    const Order_id = req.params.order_id;
-
-    const pickupstatus = await Order.findOne({
-      where: { order_id: Order_id },
-      attributes: ['order_id', 'pickup_status']
-    });
-    return res.status(200).json({ success: true, msg: 'Pickup status get successfully', data: pickupstatus });
-  }
-  catch (error) {
-    return res.status(400).json({
-      message: error.message
-    })
-  }
-}
-

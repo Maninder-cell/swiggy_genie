@@ -5,6 +5,7 @@ const Feedback = db.Feedback;
 const Order = db.Order;
 const User = db.User;
 
+//Save feedback api
 exports.feedBack = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -33,6 +34,7 @@ exports.feedBack = async (req, res, next) => {
   }
 
 };
+
 //It show the driver user rating $ review photo and name
 exports.DriverlistFeedbacks = async (req, res, next) => {
   console.log(req.user.id);
@@ -50,6 +52,7 @@ exports.DriverlistFeedbacks = async (req, res, next) => {
   });
 };
 
+//Driver feedback api show all the feedback given to him 
 exports.driverFeedback = async (req, res, next) => {
   const Order_id = req.params.order_id;
   const order = await Order.findOne({
@@ -62,7 +65,7 @@ exports.driverFeedback = async (req, res, next) => {
     attributes: ['name', 'photo_uri', 'phone']
   })
   return res.status(200).json({ success: true, msg: "Driver Detail Get Successfully", data: driverdetail });
-}
+};
 
 //It show the user driver photo and name
 exports.UserlistFeedbacks = async (req, res, next) => {

@@ -19,6 +19,7 @@ if (!admin.apps.length) {
   });
 }
 
+//make the order after payment successfully api
 exports.pay = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -132,6 +133,8 @@ exports.pay = async (req, res) => {
   }
 };
 
+
+//Add new card api
 exports.newPaymentMethod = async (req, res) => {
   const user = await User.findOne({ where: { id: req.user.id } });
 
@@ -211,6 +214,14 @@ exports.newPaymentMethod = async (req, res) => {
   }
 };
 
+
+//Show all the cards api
+exports.listCards = async (req, res, next) => {
+  const cards = await Card.findAll({ where: { user_id: req.user.id } })
+
+  return res.status(200).json({ success: true, msg: "User Card detail get Successfully ", cards: cards });
+}
+
 exports.listPaymentMethods = async (req, res) => {
   const user = await User.findOne({ where: { id: req.user.id } });
 
@@ -224,12 +235,6 @@ exports.listPaymentMethods = async (req, res) => {
 
   return res.status(200).json({ data: [] });
 };
-
-exports.listCards = async (req, res, next) => {
-  const cards = await Card.findAll({ where: { user_id: req.user.id } })
-
-  return res.status(200).json({ success: true, msg: "User Card detail get Successfully ", cards: cards });
-}
 
 exports.listPayments = async (req, res) => {
   const payments = await Payment.findAll({

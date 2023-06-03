@@ -5,6 +5,7 @@ const User = models.User;
 
 const { validationResult } = require("express-validator");
 
+//Edit profile api for driver and customer side
 module.exports.editprofileController = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -42,6 +43,7 @@ module.exports.editprofileController = async (req, res) => {
   }
 };
 
+//Get api for profile information 
 module.exports.getProfileController = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -55,6 +57,7 @@ module.exports.getProfileController = async (req, res) => {
   }
 };
 
+//Driver status api on and off for receive order notification
 module.exports.togglestatus = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -84,7 +87,8 @@ module.exports.togglestatus = async (req, res) => {
   }
 };
 
-exports.saveFcmTokenController = async (req, res, next) => {
+//Save the fcmtoken api for driver and customer 
+module.exports.saveFcmTokenController = async (req, res, next) => {
   try {
     const fcmtoken = req.body.fcmtoken;
     if (fcmtoken) {

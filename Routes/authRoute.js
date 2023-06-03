@@ -34,6 +34,7 @@ router.post(
 
 // logout route
 router.post("/checkuser", authController.Checkuser);
+
 router.post("/logout", verifyToken, authController.logout);
 
 module.exports = router;
