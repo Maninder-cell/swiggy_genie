@@ -21,13 +21,22 @@ module.exports.getuser = async (req, res) => {
         const account_type = req.body.account_type;
         const keyword = req.body.searchText;
 
+        let blockvalue;
+        if (keyword === "block" || keyword === "bloc" || keyword === "blo" || keyword === "bl" || keyword === "b" || keyword === "Block" || keyword === "Bloc" || keyword === "Blo" || keyword === "Bl" || keyword === "B") {
+            blockvalue = '0';
+        };
+        if (keyword === "unblock" || keyword === "unbloc" || keyword === "unbloc" || keyword === "unblo" || keyword === "unbl" || keyword === "unb" || keyword === "un" || keyword === "u" || keyword === "Unblock" || keyword === "Unbloc" || keyword === "Unbloc" || keyword === "Unblo" || keyword === "Unbl" || keyword === "Unb" || keyword === "Un" || keyword === "U") {
+            blockvalue = '1';
+        };
+
         if (keyword && account_type == '2') {
             const { rows, count } = await User.findAndCountAll({
                 where: {
                     [Op.or]: [
                         { name: { [Op.like]: `%${keyword}%` } },
                         { address: { [Op.like]: `%${keyword}%` } },
-                        { phone: { [Op.like]: `%${keyword}%` } }
+                        { phone: { [Op.like]: `%${keyword}%` } },
+                        { block: { [Op.like]: `%${blockvalue}%` } }
                     ],
                     account_type: '2',
                 },
@@ -158,6 +167,14 @@ module.exports.getdriver = async (req, res) => {
         const account_type = req.body.account_type;
         const keyword = req.body.searchText;
 
+        let blockvalue;
+        if (keyword === "block" || keyword === "bloc" || keyword === "blo" || keyword === "bl" || keyword === "b" || keyword === "Block" || keyword === "Bloc" || keyword === "Blo" || keyword === "Bl" || keyword === "B") {
+            blockvalue = '0';
+        };
+        if (keyword === "unblock" || keyword === "unbloc" || keyword === "unbloc" || keyword === "unblo" || keyword === "unbl" || keyword === "unb" || keyword === "un" || keyword === "u" || keyword === "Unblock" || keyword === "Unbloc" || keyword === "Unbloc" || keyword === "Unblo" || keyword === "Unbl" || keyword === "Unb" || keyword === "Un" || keyword === "U") {
+            blockvalue = '1';
+        };
+
         if (keyword && account_type == '1') {
             const { rows, count } = await User.findAndCountAll({
                 where: {
@@ -165,7 +182,8 @@ module.exports.getdriver = async (req, res) => {
                         { id: { [Op.like]: `%${keyword}%` } },
                         { name: { [Op.like]: `%${keyword}%` } },
                         { address: { [Op.like]: `%${keyword}%` } },
-                        { phone: { [Op.like]: `%${keyword}%` } }
+                        { phone: { [Op.like]: `%${keyword}%` } },
+                        { block: { [Op.like]: `%${blockvalue}%` } }
                     ],
                     account_type: '1',
                 },
@@ -312,6 +330,16 @@ module.exports.getpayment = async (req, res) => {
         const limit = parseInt(req.body.limit);
         const offset = (page - 1) * limit;
         const searchText = req.body.searchText;
+
+        let paidvalue;
+        if (searchText === "paid" || searchText === "pai" || searchText === "pa" || searchText === "p" || searchText === "Paid" || searchText === "Pai" || searchText === "Pa" || searchText === "P") {
+            paidvalue = '1';
+        };
+        if (searchText === "unpaid" || searchText === "unpai" || searchText === "unpa" || searchText === "unp" || searchText === "un" || searchText === "u" ||
+            searchText === "Unpaid" || searchText === "Unpai" || searchText === "Unpa" || searchText === "Unp" || searchText === "Un" || searchText === "U") {
+            paidvalue = '0';
+        }
+
         if (searchText) {
             const { rows, count } = await payment.findAndCountAll({
                 where: {
@@ -321,7 +349,9 @@ module.exports.getpayment = async (req, res) => {
                         { '$Order.deliver_to$': { [Op.like]: `%${searchText}%` } },
                         { '$Order.category_item_type$': { [Op.like]: `%${searchText}%` } },
                         { '$Order.User.name$': { [Op.like]: `%${searchText}%` } },
-                        { '$Order.User.phone$': { [Op.like]: `%${searchText}%` } }
+                        { '$Order.User.phone$': { [Op.like]: `%${searchText}%` } },
+                        { paid: { [Op.like]: `%${paidvalue}%` } }
+
                     ],
                 },
                 include: [{
