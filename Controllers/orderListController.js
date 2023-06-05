@@ -9,6 +9,8 @@ const { getDistance } = require('geolib');
 const moment = require('moment');
 const { validationResult } = require("express-validator");
 
+//Use the firebase admin initialize 
+
 
 //Add task api store all the information regarding the order
 module.exports.addtask = async (req, res, next) => {
@@ -169,6 +171,23 @@ module.exports.cancelOrder = async (req, res) => {
       });
       return res.status(200).json({ success: true, msg: "User Cancelled Order", data: orderCancel });
     };
+
+    // const fcm_tokens = await User_fcmtoken.findAll({
+    //   where: { user_id: order.driver_id },
+    //   attributes: ['fcmtoken']
+    // });
+    // console.log(fcm_tokens);
+    // fcm_tokens.forEach(user => {
+    //   let message = {
+    //     notification: {
+    //       title: "Order Canceled", body: `The customer has canceled the order #${order.order_id}`,
+    //     },
+    //     token: user.dataValues.fcmtoken
+    //   };
+    //   admin.messaging().send(message).then(async (msg) => {
+    //     await Notification.create({ user_id: order.driver_id, text: message.notification.body });
+    //   });
+    // });
     return res.json({ msg: "Order Can't Cancelled" });
   } catch (error) {
     res.status(400).json({

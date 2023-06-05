@@ -96,7 +96,7 @@ module.exports.DriverOrderAccept = async (req, res) => {
         fcm_tokens.forEach(user => {
             let message = {
                 notification: {
-                    title: "Order Confirmed", body: `You Order #${order.order_id} has Confirmed`,
+                    title: "Order Accepted", body: `Your order #${order.order_id} has been accepted by the driver. They will be on their way soon`,
                 },
                 token: user.dataValues.fcmtoken
             };
@@ -224,7 +224,7 @@ module.exports.DriverOrderComplete = async (req, res) => {
         fcm_tokens.forEach(user => {
             let message = {
                 notification: {
-                    title: "Order Complete", body: `You Order #${order.order_id} Completed Successfully`,
+                    title: "Order Completed", body: `Your order #${order.order_id} has been successfully delivered. Thank you for using our service!`,
                 }, token: user.dataValues.fcmtoken
             };
             admin.messaging().send(message).then(async (msg) => {
@@ -293,7 +293,7 @@ module.exports.DriverOrderCancell = async (req, res) => {
         fcm_tokens.forEach(user => {
             let message = {
                 notification: {
-                    title: "Order Cancel", body: `You Order #${order.order_id} Cancelled `,
+                    title: "Order Canceled", body: `The driver has canceled the order #${order.order_id}`,
                 }, token: user.dataValues.fcmtoken
             };
             admin.messaging().send(message).then(async (msg) => {

@@ -34,7 +34,7 @@ exports.pay = async (req, res) => {
       user.stripe_id,
       req.body.pay_id
     );
-    console.log('pppppppppppppppppppppppppppppppppppp', payment);
+
     const data = req.body.task_id;
     if (payment) {
       const task_detail = await TaskDetails.findOne({
@@ -42,9 +42,10 @@ exports.pay = async (req, res) => {
         where: { id: data },
         order: [['createdAt', 'DESC']]
       });
+
       //pin generate for verification 
-      var digit = Math.floor(Math.random() * 9000) + 1000; // Generate a random 4-digit code
-      var Order_Id = Math.floor(Math.random() * 90000000) + 10000000; // Generate a random 8-digit code
+      var digit = Math.floor(Math.random() * 9000) + 1000; // Generate a random 4-digit code for order_pin
+      var Order_Id = Math.floor(Math.random() * 90000000) + 10000000; // Generate a random 8-digit code for order_id
 
       const indianTime = moment.tz(Date.now(), 'Asia/Kolkata');
       const order_create = indianTime.format("DD MMMM YYYY, hh:mm A");
@@ -70,16 +71,14 @@ exports.pay = async (req, res) => {
         driver_feedback: 0
 
       });
-      console.log('ooooooooooooooooooooooooooooooooooooooooooo', order);
       const paymentdone = await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id, paid: 1 });
-
-      console.log('ppppppppppppppppppppppppppppppppppppppppppppppppp', paymentdone);
-
       res.status(200).json({
         success: true, msg: "Order Placed Successfully",
         orderdetail: order,
         payment: paymentdone,
       });
+
+      //Driver Notification 
       const fcmtoken = await User.findAll({
         where: { account_type: "1", status: '1' },
         include: [{
@@ -89,7 +88,7 @@ exports.pay = async (req, res) => {
           required: true
         }]
       });
-
+     
       const fcmlength = fcmtoken.length;
       for (var i = 0; i < fcmlength; i++) {
         var storetoken = [];
@@ -98,14 +97,14 @@ exports.pay = async (req, res) => {
         for (var j = 0; j < storelength; j++) {
           let message = {
             notification: {
-              title: "New Order Arrived", body: `New order will arrive  #${order.order_id}`,
+              title: "New Order", body: `You have received a new order #${order.order_id}`,
             },
             token: storetoken[j].dataValues.fcmtoken
           };
           admin.messaging().send(message);
         }
       }
-
+      //User notification
       const fcm_tokens = await User_fcmtoken.findAll({
         where: { user_id: order.user_id },
         attributes: ['fcmtoken']
@@ -114,7 +113,7 @@ exports.pay = async (req, res) => {
       fcm_tokens.forEach(user => {
         let message = {
           notification: {
-            title: "Order Placed", body: `You Order #${order.order_id} has Placed`,
+            title: "Order Placed", body: `Your order #${order.order_id} has been placed successfully  `,
           },
           token: user.dataValues.fcmtoken
         };
