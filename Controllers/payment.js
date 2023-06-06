@@ -213,7 +213,6 @@ exports.newPaymentMethod = async (req, res) => {
   }
 };
 
-
 //Show all the cards api
 exports.listCards = async (req, res, next) => {
   const cards = await Card.findAll({ where: { user_id: req.user.id } })

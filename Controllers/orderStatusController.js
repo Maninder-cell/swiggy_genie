@@ -293,7 +293,7 @@ module.exports.DriverOrderCancell = async (req, res) => {
         fcm_tokens.forEach(user => {
             let message = {
                 notification: {
-                    title: "Order Canceled", body: `The driver has canceled the order #${order.order_id}`,
+                    title: "Order Cancelled", body: `The driver has cancelled the order #${order.order_id}`,
                 }, token: user.dataValues.fcmtoken
             };
             admin.messaging().send(message).then(async (msg) => {
@@ -454,21 +454,6 @@ module.exports.GetDriverOrderRejected = async (req, res) => {
     }
 }
 
-module.exports.Userfcmtoken = async (req, res) => {
-    try {
-        const { user_id, fcmtoken } = req.body;
-        const Usertoken = await User_fcmtoken.create({
-            user_id: user_id,
-            fcmtoken: fcmtoken,
-        })
-        return res.json({ success: true, msg: "Your fcmtoken saved Successfully", data: Usertoken });
-    }
-    catch (error) {
-        res.status(400).json({
-            message: error.message
-        })
-    }
-}
 
 
 

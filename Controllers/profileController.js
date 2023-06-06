@@ -12,7 +12,6 @@ module.exports.editprofileController = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    // return res.json(req.user.id)
     if (!req.file) {
       const user = await User.update({
         name: req.body.name,
@@ -35,8 +34,6 @@ module.exports.editprofileController = async (req, res) => {
       });
       return res.status(201).json({ success: true, msg: "User Updated with photo Sucessfully", data: find });
     }
-
-
   } catch (error) {
     console.error(error);
     return res.status(400).json({ Message: "Something Went Wrong" });
@@ -72,13 +69,13 @@ module.exports.togglestatus = async (req, res) => {
     });
     if (user.status == 1 && statusdata == 0) {
       const off = await user.update({
-        status: '0'
+        status: 0
       });
       return res.status(200).json({ success: true, msg: "Driver go to Off-Line", });
     }
     else if (user.status == 0 && statusdata == 1) {
       const on = await user.update({
-        status: '1'
+        status: 1
       });
       return res.status(200).json({ success: true, msg: "Driver go to On-Line" });
     }

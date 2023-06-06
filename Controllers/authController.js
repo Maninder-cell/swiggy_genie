@@ -95,8 +95,6 @@ module.exports.login = async (req, res) => {
       return res.status(400).json({ msg: "You are Blocked!" });
     }
 
-    //generate token
-    console.log('bhbbbbbbbbbbbb', process.env.JWT_SECRET);
     const token = jwt.sign(
       { id: user.id, role: user.account_type },
       process.env.JWT_SECRET || "dbdad61f0eab1aded7bd4b43edd7",
@@ -190,8 +188,6 @@ module.exports.logout = async (req, res) => {
     }).catch((error) => {
       console.error('Error deleting record: ', error);
     });
-    // await User_fcmtoken.save();
-    res.clearCookie("auth_token");
 
     return res.status(200).json({
       success: true,

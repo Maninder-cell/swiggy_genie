@@ -25,7 +25,8 @@ module.exports.getuser = async (req, res) => {
         if (keyword === "block" || keyword === "bloc" || keyword === "blo" || keyword === "bl" || keyword === "b" || keyword === "Block" || keyword === "Bloc" || keyword === "Blo" || keyword === "Bl" || keyword === "B") {
             blockvalue = '0';
         };
-        if (keyword === "unblock" || keyword === "unbloc" || keyword === "unbloc" || keyword === "unblo" || keyword === "unbl" || keyword === "unb" || keyword === "un" || keyword === "u" || keyword === "Unblock" || keyword === "Unbloc" || keyword === "Unbloc" || keyword === "Unblo" || keyword === "Unbl" || keyword === "Unb" || keyword === "Un" || keyword === "U") {
+        if (keyword === "unblock" || keyword === "unbloc" || keyword === "unbloc" || keyword === "unblo" || keyword === "unbl" || keyword === "unb" || keyword === "un" || keyword === "u" || keyword === "Unblock" || keyword === "Unbloc" || keyword === "Unbloc" || keyword === "Unblo" || keyword === "Unbl" || keyword === "Unb" || keyword === "Un" || keyword === "U") 
+        {
             blockvalue = '1';
         };
 
@@ -294,7 +295,6 @@ module.exports.getorders = async (req, res) => {
 module.exports.getoneorder = async (req, res) => {
     try {
         const data = req.body.order_id
-        console.log('ddddddddddddddddddddddddddd', data);
         const Orderdata = await Order.findOne({
             where: { order_id: data },
             include: [{
