@@ -2,7 +2,8 @@ const models = require("../models");
 const Category = models.Category;
 const Order = models.Order;
 const User = models.User;
-
+const User_fcmtoken = models.User_fcmtoken;
+const Notification = models.Notification;
 const TaskDetails = models.TaskDetails;
 
 const { getDistance } = require('geolib');
@@ -10,7 +11,14 @@ const moment = require('moment');
 const { validationResult } = require("express-validator");
 
 //Use the firebase admin initialize 
-
+var admin = require("firebase-admin");
+var serviceAccount = require("../serviceAccountKey.json");
+// Check if the default app is already initialized
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
 //Add task api store all the information regarding the order
 module.exports.addtask = async (req, res, next) => {
@@ -165,12 +173,38 @@ module.exports.cancelOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
-    if (order.order_status == "1" || order.order_status == "0") {
+    if (order.order_status == '1' || order.order_status == '0') {
       const orderCancel = await order.update({
-        order_status: "3",
+        order_status: '3',
+      });
+      const fcm_tokens = await User_fcmtoken.findAll({
+        where: { user_id: order.driver_id },
+        attributes: ['fcmtoken']
+      });
+
+      fcm_tokens.forEach(async (user) => {
+        let message = {
+          notification: {
+            title: "Order Cancelled", body: `The Customer has cancelled the order #${order.order_id}`,
+          },
+          token: user.dataValues.fcmtoken
+        };
+        try {
+          await admin.messaging().send(message);
+          await Notification.create({ user_id: order.driver_id, text: message.notification.body });
+        } catch (error) {
+          if (error.code === 'messaging/registration-token-not-registered') {
+            const expiredToken = user.dataValues.fcmtoken;
+            await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
+          } else {
+            console.error('Error sending FCM notification:', error);
+          }
+        }
       });
       return res.status(200).json({ success: true, msg: "User Cancelled Order", data: orderCancel });
     };
+
+
 
     // const fcm_tokens = await User_fcmtoken.findAll({
     //   where: { user_id: order.driver_id },

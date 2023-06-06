@@ -8,10 +8,18 @@ const { Sequelize, Op } = require('sequelize');
 const moment = require('moment');
 
 //Use the firebase admin initialize 
-var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-});
+// var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+// });
+var admin = require("firebase-admin");
+var serviceAccount = require("../serviceAccountKey.json");
+// Check if the default app is already initialized
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
 // //When the order has been not to assign anyone and driver pick in the five kilometer
 module.exports.DriverOrderNoAssign = async (req, res) => {
@@ -102,11 +110,9 @@ module.exports.DriverOrderAccept = async (req, res) => {
                 await Notification.create({ user_id: order.user_id, text: message.notification.body });
             } catch (error) {
                 if (error.code === 'messaging/registration-token-not-registered') {
-                    // Handle token not registered error
                     const expiredToken = user.dataValues.fcmtoken;
                     await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
                 } else {
-                    // Handle other FCM errors
                     console.error('Error sending FCM notification:', error);
                 }
             }
@@ -155,11 +161,9 @@ module.exports.DriverOrderPickup = async (req, res) => {
                     await Notification.create({ user_id: order.user_id, text: message.notification.body });
                 } catch (error) {
                     if (error.code === 'messaging/registration-token-not-registered') {
-                        // Handle token not registered error
                         const expiredToken = user.dataValues.fcmtoken;
                         await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
                     } else {
-                        // Handle other FCM errors
                         console.error('Error sending FCM notification:', error);
                     }
                 }
@@ -252,7 +256,6 @@ module.exports.DriverOrderComplete = async (req, res) => {
             } catch (error) {
                 if (error.code === 'messaging/registration-token-not-registered') {
                     // Handle token not registered error
-                    console.log(`FCM token ${user.dataValues.fcmtoken} is not registered. Removing from database.`);
                     const expiredToken = user.dataValues.fcmtoken;
                     await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
                 } else {
@@ -280,12 +283,9 @@ module.exports.DriverOrderComplete = async (req, res) => {
                 await Notification.create({ user_id: req.user.id, text: message.notification.body });
             } catch (error) {
                 if (error.code === 'messaging/registration-token-not-registered') {
-                    // Handle token not registered error
-                    console.log(`FCM token ${user.dataValues.fcmtoken} is not registered. Removing from database.`);
                     const expiredToken = user.dataValues.fcmtoken;
                     await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
                 } else {
-                    // Handle other FCM errors
                     console.error('Error sending FCM notification:', error);
                 }
             }
@@ -347,11 +347,9 @@ module.exports.DriverOrderCancell = async (req, res) => {
                 await Notification.create({ user_id: order.user_id, text: message.notification.body });
             } catch (error) {
                 if (error.code === 'messaging/registration-token-not-registered') {
-                    // Handle token not registered error
                     const expiredToken = user.dataValues.fcmtoken;
                     await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
                 } else {
-                    // Handle other FCM errors
                     console.error('Error sending FCM notification:', error);
                 }
             }
