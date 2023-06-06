@@ -17,7 +17,6 @@ router.post("/driver/action/verify", verifyToken, orderstatus.DriverOrderVerify)
 router.post("/driver/action/complete", verifyToken, orderstatus.DriverOrderComplete);
 router.post("/driver/action/cancel", verifyToken, orderstatus.DriverOrderCancell);
 router.post("/driver/action/reject", verifyToken, orderstatus.DriverOrderReject);
-router.post('/Userfcmtoken', orderstatus.Userfcmtoken);
 
 
 module.exports = router;

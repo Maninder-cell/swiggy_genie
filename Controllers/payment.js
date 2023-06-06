@@ -78,7 +78,7 @@ exports.pay = async (req, res) => {
         payment: paymentdone,
       });
 
-      //Driver Notification 
+      // Driver Notification
       const fcmtoken = await User.findAll({
         where: { account_type: "1", status: '1' },
         include: [{
@@ -88,7 +88,7 @@ exports.pay = async (req, res) => {
           required: true
         }]
       });
-     
+
       const fcmlength = fcmtoken.length;
       for (var i = 0; i < fcmlength; i++) {
         var storetoken = [];
@@ -101,26 +101,51 @@ exports.pay = async (req, res) => {
             },
             token: storetoken[j].dataValues.fcmtoken
           };
-          admin.messaging().send(message);
+          try {
+            await admin.messaging().send(message);
+          } catch (error) {
+            if (error.code === 'messaging/registration-token-not-registered') {
+              // Handle token not registered error
+              console.log(`Driver FCM token ${storetoken[j].dataValues.fcmtoken} is not registered. Removing from database.`);
+              const expiredToken = storetoken[j].dataValues.fcmtoken;
+              await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
+            } else {
+              // Handle other FCM errors
+              console.error('Error sending FCM notification:', error);
+            }
+          }
         }
       }
-      //User notification
+
+      // User Notification
       const fcm_tokens = await User_fcmtoken.findAll({
         where: { user_id: order.user_id },
         attributes: ['fcmtoken']
       });
-      console.log(fcm_tokens);
-      fcm_tokens.forEach(user => {
+
+      fcm_tokens.forEach(async (user) => {
         let message = {
           notification: {
             title: "Order Placed", body: `Your order #${order.order_id} has been placed successfully  `,
           },
           token: user.dataValues.fcmtoken
         };
-        admin.messaging().send(message).then(async (msg) => {
+        try {
+          await admin.messaging().send(message);
           await Notification.create({ user_id: order.user_id, text: message.notification.body });
-        });
+        } catch (error) {
+          if (error.code === 'messaging/registration-token-not-registered') {
+            // Handle token not registered error
+            console.log(`User token ${user.dataValues.fcmtoken} is not registered. Removing from database.`);
+            const expiredToken = user.dataValues.fcmtoken;
+            await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
+          } else {
+            // Handle other FCM errors
+            console.error('Error sending FCM notification:', error);
+          }
+        }
       });
+
 
 
     }

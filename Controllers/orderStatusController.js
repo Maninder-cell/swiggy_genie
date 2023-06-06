@@ -37,7 +37,7 @@ module.exports.DriverOrderNoAssign = async (req, res) => {
         });
         const Till = moment().format("DD MMMM, YYYY");
         const orderTill = ` ${Till}`;
-        return res.json({ success: true, msg: "Order still not assign other driver", Till: orderTill, count: count, data: rows })
+        return res.status(200).json({ success: true, msg: "Order still not assign other driver", Till: orderTill, count: count, data: rows })
     } catch (error) {
         res.status(400).json({
             message: error.message
@@ -66,9 +66,6 @@ module.exports.DriverOrderAccept = async (req, res) => {
         });
 
         //pin generate for verification 
-
-
-
         if (orderaccept) {
             return res.json({ msg: "You are a pending order still uncomplete" });
         } else {
@@ -87,22 +84,32 @@ module.exports.DriverOrderAccept = async (req, res) => {
                 })
             }
         }
-        //Find the fcmtoken and send the order confirmed message Successfully
+        // User Notification
         const fcm_tokens = await User_fcmtoken.findAll({
             where: { user_id: order.user_id },
             attributes: ['fcmtoken']
         });
-        console.log(fcm_tokens);
-        fcm_tokens.forEach(user => {
+
+        fcm_tokens.forEach(async (user) => {
             let message = {
                 notification: {
                     title: "Order Accepted", body: `Your order #${order.order_id} has been accepted by the driver. They will be on their way soon`,
                 },
                 token: user.dataValues.fcmtoken
             };
-            admin.messaging().send(message).then(async (msg) => {
+            try {
+                await admin.messaging().send(message);
                 await Notification.create({ user_id: order.user_id, text: message.notification.body });
-            });
+            } catch (error) {
+                if (error.code === 'messaging/registration-token-not-registered') {
+                    // Handle token not registered error
+                    const expiredToken = user.dataValues.fcmtoken;
+                    await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
+                } else {
+                    // Handle other FCM errors
+                    console.error('Error sending FCM notification:', error);
+                }
+            }
         });
 
         return res.status(200).json({ success: true, msg: "Order Confirmed Successfully", data: order });
@@ -131,21 +138,31 @@ module.exports.DriverOrderPickup = async (req, res) => {
             where: { order_id: Order_Id }
         });
         if (order) {
-            //Find the fcmtoken and send the order confirmed message Successfully
             const fcm_tokens = await User_fcmtoken.findAll({
                 where: { user_id: order.user_id },
                 attributes: ['fcmtoken']
             });
-            fcm_tokens.forEach(user => {
+
+            fcm_tokens.forEach(async (user) => {
                 let message = {
                     notification: {
                         title: "Order Pickup", body: `You Order #${order.order_id} has pick-up Successfully`,
                     },
                     token: user.dataValues.fcmtoken
                 };
-                admin.messaging().send(message).then(async (msg) => {
+                try {
+                    await admin.messaging().send(message);
                     await Notification.create({ user_id: order.user_id, text: message.notification.body });
-                });
+                } catch (error) {
+                    if (error.code === 'messaging/registration-token-not-registered') {
+                        // Handle token not registered error
+                        const expiredToken = user.dataValues.fcmtoken;
+                        await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
+                    } else {
+                        // Handle other FCM errors
+                        console.error('Error sending FCM notification:', error);
+                    }
+                }
             });
             return res.status(200).json({ success: true, msg: "Order pickup Successfully" });
         } else {
@@ -215,40 +232,66 @@ module.exports.DriverOrderComplete = async (req, res) => {
         const order = await Order.findOne({
             where: { order_id: Order_Id }
         })
-        //User side notification
 
+        // User Notification
         const fcm_tokens = await User_fcmtoken.findAll({
             where: { user_id: order.user_id },
             attributes: ['fcmtoken']
         });
-        fcm_tokens.forEach(user => {
+
+        fcm_tokens.forEach(async (user) => {
             let message = {
                 notification: {
                     title: "Order Completed", body: `Your order #${order.order_id} has been successfully delivered. Thank you for using our service!`,
-                }, token: user.dataValues.fcmtoken
+                },
+                token: user.dataValues.fcmtoken
             };
-            admin.messaging().send(message).then(async (msg) => {
+            try {
+                await admin.messaging().send(message);
                 await Notification.create({ user_id: order.user_id, text: message.notification.body });
-            });;
-        })
-        //Driver side send notification
+            } catch (error) {
+                if (error.code === 'messaging/registration-token-not-registered') {
+                    // Handle token not registered error
+                    console.log(`FCM token ${user.dataValues.fcmtoken} is not registered. Removing from database.`);
+                    const expiredToken = user.dataValues.fcmtoken;
+                    await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
+                } else {
+                    // Handle other FCM errors
+                    console.error('Error sending FCM notification:', error);
+                }
+            }
+        });
+
+        // Driver Notification
         const fcm_token = await User_fcmtoken.findAll({
             where: { user_id: req.user.id },
             attributes: ['fcmtoken']
         });
-        console.log(fcm_tokens);
-        fcm_token.forEach(user => {
+
+        fcm_token.forEach(async (user) => {
             let message = {
                 notification: {
                     title: "Order Completed", body: `You have Completed Order ${Order_Id} Successfully`,
                 },
                 token: user.dataValues.fcmtoken
             };
-            admin.messaging().send(message).then(async (msg) => {
+            try {
+                await admin.messaging().send(message);
                 await Notification.create({ user_id: req.user.id, text: message.notification.body });
-            });
+            } catch (error) {
+                if (error.code === 'messaging/registration-token-not-registered') {
+                    // Handle token not registered error
+                    console.log(`FCM token ${user.dataValues.fcmtoken} is not registered. Removing from database.`);
+                    const expiredToken = user.dataValues.fcmtoken;
+                    await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
+                } else {
+                    // Handle other FCM errors
+                    console.error('Error sending FCM notification:', error);
+                }
+            }
         });
-        res.json({ success: true, msg: "Order Completed Successfully", data: OrderComplete });
+
+        return res.status(200).json({ success: true, msg: "Order Completed Successfully", data: OrderComplete });
 
     }
     catch (error) {
@@ -286,23 +329,34 @@ module.exports.DriverOrderCancell = async (req, res) => {
         const order = await Order.findOne({
             where: { order_id: Order_Id }
         })
+        //User notification send
         const fcm_tokens = await User_fcmtoken.findAll({
             where: { user_id: order.user_id },
             attributes: ['fcmtoken']
         });
-        fcm_tokens.forEach(user => {
+
+        fcm_tokens.forEach(async (user) => {
             let message = {
                 notification: {
                     title: "Order Cancelled", body: `The driver has cancelled the order #${order.order_id}`,
-                }, token: user.dataValues.fcmtoken
+                },
+                token: user.dataValues.fcmtoken
             };
-            admin.messaging().send(message).then(async (msg) => {
+            try {
+                await admin.messaging().send(message);
                 await Notification.create({ user_id: order.user_id, text: message.notification.body });
-            });;
-        })
-
-
-        return res.json({ success: true, msg: "Order Cancelled Sucessfully", data: cancelled });
+            } catch (error) {
+                if (error.code === 'messaging/registration-token-not-registered') {
+                    // Handle token not registered error
+                    const expiredToken = user.dataValues.fcmtoken;
+                    await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
+                } else {
+                    // Handle other FCM errors
+                    console.error('Error sending FCM notification:', error);
+                }
+            }
+        });
+        return res.status(200).json({ success: true, msg: "Order Cancelled Sucessfully", data: cancelled });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server error" });
@@ -323,7 +377,7 @@ module.exports.DriverOrderReject = async (req, res) => {
             driver_id: req.user.id,
             driver_order_status: "4"
         })
-        res.json({ msg: reject, msg: "Order rejected Successfully", data: reject });
+        return res.status(200).json({ msg: reject, msg: "Order rejected Successfully", data: reject });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server error" });
