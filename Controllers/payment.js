@@ -68,8 +68,8 @@ exports.pay = async (req, res) => {
         additional_charge: task_detail.additional_charge,
         order_created_time: order_create,
         order_pin: digit,
-        driver_feedback: 0
-
+        driver_feedback: 0,
+        pickup_status:0
       });
       const paymentdone = await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id, paid: 1 });
       res.status(200).json({

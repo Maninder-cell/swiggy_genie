@@ -7,25 +7,20 @@ const DriverAcceptReject = db.DriverAcceptReject;
 const { Sequelize, Op } = require('sequelize');
 const moment = require('moment');
 
-//Use the firebase admin initialize 
-// var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
-// admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount),
-// });
 var admin = require("firebase-admin");
 var serviceAccount = require("../serviceAccountKey.json");
 // Check if the default app is already initialized
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
 }
 
 // //When the order has been not to assign anyone and driver pick in the five kilometer
 module.exports.DriverOrderNoAssign = async (req, res) => {
     try {
         const rejectorderandcancel = await DriverAcceptReject.findAll({
-            where: { driver_id: req.user.id, driver_order_status: [3, 4] },
+            where: { driver_id: req.user.id, driver_order_status: 3 },
             attributes: ['order_id']
         });
 
@@ -88,7 +83,7 @@ module.exports.DriverOrderAccept = async (req, res) => {
                 await DriverAcceptReject.create({
                     order_id: Order_Id,
                     driver_id: req.user.id,
-                    driver_order_status: "1"
+                    driver_order_status: "0"
                 })
             }
         }
@@ -110,9 +105,11 @@ module.exports.DriverOrderAccept = async (req, res) => {
                 await Notification.create({ user_id: order.user_id, text: message.notification.body });
             } catch (error) {
                 if (error.code === 'messaging/registration-token-not-registered') {
+                    // Handle token not registered error
                     const expiredToken = user.dataValues.fcmtoken;
                     await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
                 } else {
+                    // Handle other FCM errors
                     console.error('Error sending FCM notification:', error);
                 }
             }
@@ -161,9 +158,11 @@ module.exports.DriverOrderPickup = async (req, res) => {
                     await Notification.create({ user_id: order.user_id, text: message.notification.body });
                 } catch (error) {
                     if (error.code === 'messaging/registration-token-not-registered') {
+                        // Handle token not registered error
                         const expiredToken = user.dataValues.fcmtoken;
                         await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
                     } else {
+                        // Handle other FCM errors
                         console.error('Error sending FCM notification:', error);
                     }
                 }
@@ -226,11 +225,11 @@ module.exports.DriverOrderComplete = async (req, res) => {
         })
 
         const checkdriver = await DriverAcceptReject.findOne({
-            where: { order_id: Order_Id, driver_order_status: 1 }
+            where: { order_id: Order_Id, driver_order_status: 0 }
         })
         console.log(checkdriver);
         await checkdriver.update({
-            driver_order_status: "2"
+            driver_order_status: "1"
         })
         //Find the fcmtoken regarding the order 
         const order = await Order.findOne({
@@ -256,6 +255,7 @@ module.exports.DriverOrderComplete = async (req, res) => {
             } catch (error) {
                 if (error.code === 'messaging/registration-token-not-registered') {
                     // Handle token not registered error
+                    console.log(`FCM token ${user.dataValues.fcmtoken} is not registered. Removing from database.`);
                     const expiredToken = user.dataValues.fcmtoken;
                     await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
                 } else {
@@ -283,9 +283,12 @@ module.exports.DriverOrderComplete = async (req, res) => {
                 await Notification.create({ user_id: req.user.id, text: message.notification.body });
             } catch (error) {
                 if (error.code === 'messaging/registration-token-not-registered') {
+                    // Handle token not registered error
+                    console.log(`FCM token ${user.dataValues.fcmtoken} is not registered. Removing from database.`);
                     const expiredToken = user.dataValues.fcmtoken;
                     await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
                 } else {
+                    // Handle other FCM errors
                     console.error('Error sending FCM notification:', error);
                 }
             }
@@ -311,11 +314,11 @@ module.exports.DriverOrderCancell = async (req, res) => {
         // const Driver_Id = req.user.id;
 
         const accept = await DriverAcceptReject.findOne({
-            where: { order_id: Order_Id, driver_order_status: 1 }
+            where: { order_id: Order_Id, driver_order_status: 0 }
         });
 
         const cancelled = await accept.update({
-            driver_order_status: 3
+            driver_order_status: 2
         });
 
         const OrderDriverStatus = await Order.findOne({
@@ -347,9 +350,11 @@ module.exports.DriverOrderCancell = async (req, res) => {
                 await Notification.create({ user_id: order.user_id, text: message.notification.body });
             } catch (error) {
                 if (error.code === 'messaging/registration-token-not-registered') {
+                    // Handle token not registered error
                     const expiredToken = user.dataValues.fcmtoken;
                     await User_fcmtoken.destroy({ where: { fcmtoken: expiredToken } });
                 } else {
+                    // Handle other FCM errors
                     console.error('Error sending FCM notification:', error);
                 }
             }
@@ -373,7 +378,7 @@ module.exports.DriverOrderReject = async (req, res) => {
         const reject = await DriverAcceptReject.create({
             order_id: Order_Id,
             driver_id: req.user.id,
-            driver_order_status: "4"
+            driver_order_status: "3"
         })
         return res.status(200).json({ msg: reject, msg: "Order rejected Successfully", data: reject });
     } catch (error) {
@@ -387,7 +392,7 @@ module.exports.GetDriverOrderAll = async (req, res) => {
     try {
 
         const accepted = await DriverAcceptReject.findAll({
-            where: { driver_id: req.user.id, driver_order_status: [1, 2, 3, 4] },
+            where: { driver_id: req.user.id, driver_order_status: [0, 1, 2, 3] },
             include: [{
                 model: Order,
                 include: [{
@@ -412,7 +417,7 @@ module.exports.GetDriverOrderAccepted = async (req, res) => {
     try {
 
         const accepted = await DriverAcceptReject.findAll({
-            where: { driver_id: req.user.id, driver_order_status: 1 },
+            where: { driver_id: req.user.id, driver_order_status: 0 },
             include: [{
                 model: Order,
                 include: [{
@@ -437,7 +442,7 @@ module.exports.GetDriverOrderCompleled = async (req, res) => {
     try {
 
         const Completed = await DriverAcceptReject.findAll({
-            where: { driver_id: req.user.id, driver_order_status: 2 },
+            where: { driver_id: req.user.id, driver_order_status: 1 },
             include: [{
                 model: Order,
                 include: [{
@@ -462,7 +467,7 @@ module.exports.GetDriverOrderCancelled = async (req, res) => {
     try {
 
         const cancelled = await DriverAcceptReject.findAll({
-            where: { driver_id: req.user.id, driver_order_status: 3 },
+            where: { driver_id: req.user.id, driver_order_status: 2 },
             include: [{
                 model: Order,
                 include: [{
@@ -486,7 +491,7 @@ module.exports.GetDriverOrderCancelled = async (req, res) => {
 module.exports.GetDriverOrderRejected = async (req, res) => {
     try {
         const reject = await DriverAcceptReject.findAll({
-            where: { driver_id: req.user.id, driver_order_status: 4 },
+            where: { driver_id: req.user.id, driver_order_status: 3 },
             include: [{
                 model: Order,
                 include: [{

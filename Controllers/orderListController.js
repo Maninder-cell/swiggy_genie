@@ -13,7 +13,7 @@ const { getDistance } = require("geolib");
 const moment = require("moment");
 const { validationResult } = require("express-validator");
 
-//Use the firebase admin initialize 
+//Use the firebase admin initialize
 var admin = require("firebase-admin");
 var serviceAccount = require("../serviceAccountKey.json");
 // Check if the default app is already initialized
@@ -22,7 +22,6 @@ if (!admin.apps.length) {
     credential: admin.credential.cert(serviceAccount)
   });
 }
-
 //Add task api store all the information regarding the order
 module.exports.addtask = async (req, res, next) => {
   try {
@@ -117,13 +116,11 @@ module.exports.getask = async (req, res, next) => {
       distance_km: distanceInKilometers,
       additional_charge: additionalCharge,
     });
-    return res
-      .status(200)
-      .json({
-        success: true,
-        msg: "Order Task details get Successfully",
-        taskupdate,
-      });
+    return res.status(200).json({
+      success: true,
+      msg: "Order Task details get Successfully",
+      taskupdate,
+    });
   } catch (err) {
     console.log(err);
     return res.status(400).json({ Message: "Something Went Wrong" });
@@ -133,7 +130,6 @@ module.exports.getask = async (req, res, next) => {
 //User show the Order history
 module.exports.getOrdersByStatus = async (req, res) => {
   try {
-    let last4 = [];
     const user_id = req.user.id;
     let orders;
     const status = req.params.status;
@@ -142,6 +138,12 @@ module.exports.getOrdersByStatus = async (req, res) => {
         orders = await Order.findAll({
           where: { user_id: user_id, order_status: "0" },
           order: [["order_created_time", "DESC"]],
+          include: [
+            {
+              model: Card,
+              attributes: ['card_no', 'name']
+            },
+          ],
         });
         break;
 
@@ -149,6 +151,12 @@ module.exports.getOrdersByStatus = async (req, res) => {
         orders = await Order.findAll({
           where: { user_id: user_id, order_status: "1" },
           order: [["order_created_time", "DESC"]],
+          include: [
+            {
+              model: Card,
+              attributes: ['card_no', 'name']
+            },
+          ],
         });
         break;
 
@@ -156,6 +164,12 @@ module.exports.getOrdersByStatus = async (req, res) => {
         orders = await Order.findAll({
           where: { user_id: user_id, order_status: "2" },
           order: [["order_created_time", "DESC"]],
+          include: [
+            {
+              model: Card,
+              attributes: ['card_no', 'name']
+            },
+          ],
         });
         break;
 
@@ -163,6 +177,12 @@ module.exports.getOrdersByStatus = async (req, res) => {
         orders = await Order.findAll({
           where: { user_id: user_id, order_status: "3" },
           order: [["order_created_time", "DESC"]],
+          include: [
+            {
+              model: Card,
+              attributes: ['card_no', 'name']
+            },
+          ],
         });
         break;
 
@@ -170,44 +190,21 @@ module.exports.getOrdersByStatus = async (req, res) => {
         orders = await Order.findAll({
           where: { user_id: user_id },
           order: [["order_created_time", "DESC"]],
+          include: [
+            {
+              model: Card,
+              attributes: ['card_no', 'name']
+            },
+          ],
+          require: false,
         });
         break;
     }
-    //  orders.forEach(async element => {
-    //       const payment = await Payment.findOne({
-    //         where: { order_id: element.order_id }
-    //       });
-    //       if(payment.last4 != null) {
-    //         const cardtype = await  Card.findOne({
-    //           where: { card_no: payment.last4 }
-    //         });
-    //         last4.push(payment.last4,cardtype.name);
-    //       }
-    //       console.log(last4);
-    //   });
-    await Promise.all(
-      orders.map(async (element) => {
-        const payment = await Payment.findOne({
-          where: { order_id: element.order_id },
-        });
-        if (payment) {
-          if (payment.last4 !== null || payment.last4 !== '') {
-            const cardtype = await Card.findOne({
-              where: { card_no: payment.last4 },
-            });
-            last4.push("orderid", payment.order_id, "last4", payment.last4);
-          }
-        }
-      })
-    );
-    res
-      .status(200)
-      .json({
-        success: true,
-        msg: "Order Detail Get Successfully",
-        orders,
-        last4,
-      });
+    res.status(200).json({
+      success: true,
+      msg: "Order Detail Get Successfully",
+      orders,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
@@ -221,11 +218,9 @@ module.exports.cancelOrder = async (req, res) => {
     const order = await Order.findOne({
       where: { order_id: orderCancelData },
     });
-    console.log('ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo', order);
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
-    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafffffffffffffffffteeeeeeeeeeeeeeeeeeerrrrrrrrrrrr');
     if (order.order_status == '1' || order.order_status == '0') {
       const orderCancel = await order.update({
         order_status: '3',
@@ -234,7 +229,6 @@ module.exports.cancelOrder = async (req, res) => {
         where: { user_id: order.driver_id },
         attributes: ['fcmtoken']
       });
-      console.log('ffffffffffffffffffffffffffffffffffffffffffffffffffffff', fcm_tokens);
       fcm_tokens.forEach(async (user) => {
         let message = {
           notification: {
@@ -272,13 +266,11 @@ module.exports.getPickstatus = async (req, res) => {
       where: { order_id: Order_id },
       attributes: ["order_id", "pickup_status"],
     });
-    return res
-      .status(200)
-      .json({
-        success: true,
-        msg: "Pickup status get successfully",
-        data: pickupstatus,
-      });
+    return res.status(200).json({
+      success: true,
+      msg: "Pickup status get successfully",
+      data: pickupstatus,
+    });
   } catch (error) {
     return res.status(400).json({
       message: error.message,
@@ -292,13 +284,11 @@ module.exports.getCategory = async (req, res) => {
     const category = await Category.findAll({
       attributes: ["id", "name", "path", "icon_name"],
     });
-    return res
-      .status(200)
-      .json({
-        success: true,
-        msg: "Category data get Successfully",
-        data: category,
-      });
+    return res.status(200).json({
+      success: true,
+      msg: "Category data get Successfully",
+      data: category,
+    });
   } catch (error) {
     res.status(400).json({
       message: error.message,
@@ -329,3 +319,4 @@ module.exports.AddCategory = async (req, res) => {
     });
   }
 };
+
