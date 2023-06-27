@@ -40,15 +40,18 @@ exports.pay = async (req, res) => {
       const task_detail = await TaskDetails.findOne({
         limit: 1,
         where: { id: data },
-        order: [['createdAt', 'DESC']]
+        order: [["createdAt", "DESC"]],
       });
-
-      //pin generate for verification 
+      const last4 = await Card.findOne({
+        where: { stripe_card_id: req.body.pay_id },
+      });
+      //pin generate for verification
       var digit = Math.floor(Math.random() * 9000) + 1000; // Generate a random 4-digit code for order_pin
       var Order_Id = Math.floor(Math.random() * 90000000) + 10000000; // Generate a random 8-digit code for order_id
 
-      const indianTime = moment.tz(Date.now(), 'Asia/Kolkata');
+      const indianTime = moment.tz(Date.now(), "Asia/Kolkata");
       const order_create = indianTime.format("DD MMMM YYYY, hh:mm A");
+
       const order = await Order.create({
         user_id: req.user.id,
         order_id: Order_Id,
@@ -69,11 +72,18 @@ exports.pay = async (req, res) => {
         order_created_time: order_create,
         order_pin: digit,
         driver_feedback: 0,
-        pickup_status:0
+        card_id: last4.id,
       });
-      const paymentdone = await Payment.create({ user_id: req.user.id, order_id: order.order_id, stripe_payment_id: payment.id, paid: 1 });
+      const paymentdone = await Payment.create({
+        user_id: req.user.id,
+        order_id: order.order_id,
+        stripe_payment_id: payment.id,
+        paid: 1,
+        last4: last4.card_no,
+      });
       res.status(200).json({
-        success: true, msg: "Order Placed Successfully",
+        success: true,
+        msg: "Order Placed Successfully",
         orderdetail: order,
         payment: paymentdone,
       });
@@ -145,8 +155,6 @@ exports.pay = async (req, res) => {
           }
         }
       });
-
-
 
     }
 

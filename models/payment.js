@@ -13,14 +13,14 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Payment.belongsTo(models.User, { foreignKey: "user_id", as: 'customer' });
-      Payment.hasOne(models.Order, { foreignKey: 'order_id', targetKey: 'order_id' });
-      Payment.belongsTo(models.Order, { foreignKey: 'order_id', targetKey: 'order_id' });
-
+      // Payment.hasOne(models.Order, { foreignKey: 'order_id' },{ onDelete: 'RESTRICT', onUpdate: 'RESTRICT' });
+      Payment.belongsTo(models.Order, { foreignKey: 'order_id',targetKey:'order_id' });
     }
   }
   Payment.init({
     user_id: DataTypes.INTEGER,
     order_id: DataTypes.INTEGER,
+    last4:DataTypes.INTEGER,
     paid: {
       type: DataTypes.INTEGER,
       comment: "0->pending\n1->paid"

@@ -36,6 +36,7 @@ exports.signup = async (req, res) => {
 //Admin login
 exports.login = async (req, res) => {
     try {
+        console.log('dshajfkjd');
         const { email, password } = req.body;
         const userdata = await user.findOne({ where: { email: email, account_type: '0' }, attributes: ['id', 'name', 'email', 'account_type', 'password', 'tokens', 'photo_uri'] });
         if (!userdata) {
@@ -193,6 +194,7 @@ exports.resetPassword = async (req, res) => {
             return res.status(400).json({ success: false, msg: "new_password & confirm_password not matched" });
         }
     }
+
     catch (error) {
         res.status(400).json({
             message: error.message

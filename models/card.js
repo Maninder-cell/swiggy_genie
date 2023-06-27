@@ -11,10 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Card.belongsTo(models.User, { foreignKey: "user_id" }, {
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE"
-      });
+      Card.belongsTo(models.User, { foreignKey: "user_id" });
+      Card.hasMany(models.Order, { foreignKey: 'card_id' }, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
     }
   }
   Card.init({

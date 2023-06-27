@@ -12,6 +12,7 @@ module.exports.editprofileController = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    // return res.json(req.user.id)
     if (!req.file) {
       const user = await User.update({
         name: req.body.name,
@@ -34,6 +35,8 @@ module.exports.editprofileController = async (req, res) => {
       });
       return res.status(201).json({ success: true, msg: "User Updated with photo Sucessfully", data: find });
     }
+
+
   } catch (error) {
     console.error(error);
     return res.status(400).json({ Message: "Something Went Wrong" });
@@ -64,6 +67,7 @@ module.exports.togglestatus = async (req, res) => {
 
     const Userdata = req.user.id;
     const statusdata = req.body.status;
+    console.log('ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',statusdata);
     const user = await User.findOne({
       where: { id: Userdata }
     });

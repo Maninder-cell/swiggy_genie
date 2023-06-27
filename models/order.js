@@ -11,18 +11,17 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
 
-      Order.belongsTo(models.User, { foreignKey: 'user_id' }, {
-        onDelete: "CASCADE",
+      Order.belongsTo(models.User, { foreignKey: 'user_id' });
+      Order.belongsTo(models.Card, { foreignKey: "card_id" });
+
+      Order.hasMany(models.DriverAcceptReject, { foreignKey: 'order_id' }, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
+      // Order.belongsTo(models.Payment, { foreignKey: 'order_id' })
+      Order.hasOne(models.Payment, {
+        sourceKey:'order_id',
+        foreignKey: 'order_id' }, {
+        onDelete: "SET NULL",
         onUpdate: "CASCADE"
       });
-
-      Order.hasMany(models.DriverAcceptReject, { foreignKey: 'order_id', targetKey: 'order_id' }, {
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE"
-      });
-
-      Order.hasOne(models.Payment, { foreignKey: 'order_id', targetKey: 'order_id' });
-      Order.belongsTo(models.Payment, { foreignKey: 'order_id', targetKey: 'order_id' })
     }
   }
   Order.init({

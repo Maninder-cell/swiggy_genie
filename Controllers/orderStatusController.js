@@ -7,6 +7,11 @@ const DriverAcceptReject = db.DriverAcceptReject;
 const { Sequelize, Op } = require('sequelize');
 const moment = require('moment');
 
+//Use the firebase admin initialize 
+// var admin = require("firebase-admin"); var serviceAccount = require("../serviceAccountKey.json");
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+// });
 var admin = require("firebase-admin");
 var serviceAccount = require("../serviceAccountKey.json");
 // Check if the default app is already initialized
@@ -133,7 +138,7 @@ module.exports.DriverOrderPickup = async (req, res) => {
         }
         //order pickup status changes from 0 to 1 successfully
         const pickup = await Order.update({
-            pickup_status: 1,
+                pickup_status: 1,
         }, { where: { order_id: Order_Id, pickup_status: 0, driver_id: req.user.id } });
 
         //find the order details
