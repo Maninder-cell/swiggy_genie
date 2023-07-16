@@ -28,7 +28,7 @@ const upload = multer({
 });
 router.post("/update", verifyToken, upload.single('photo_uri'), profileController.editprofileController);
 
-router.get("/get", verifyToken, profileController.getProfileController);
+router.get("/getuser", verifyToken, profileController.getProfileController);
 
 
 router.post("/fcmtoken", verifyToken, profileController.saveFcmTokenController);

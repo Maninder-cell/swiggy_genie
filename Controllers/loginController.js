@@ -184,10 +184,7 @@ exports.resetPassword = async (req, res) => {
                     const hashPassword = await bcrypt.hash(new_password, 12);
                     userdata.password = hashPassword;
                     userdata.save();
-                    return res.status(200).json({
-                        success: true,
-                        msg: "Password updated sucessfully",
-                    });
+                    return res.redirect('http://52.66.240.18/#/login');
                 }
             }
         } else {

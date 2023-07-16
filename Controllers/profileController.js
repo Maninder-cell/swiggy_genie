@@ -51,7 +51,9 @@ module.exports.getProfileController = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
     const find = await User.findOne({ where: { id: req.user.id }, attributes: ['id', 'name', 'photo_uri', 'address', 'email', 'calling_code', 'phone'] });
-    return res.status(200).json({ success: true, msg: "User Data Get Sucessfully", data: find });
+    const Default_Public_Token = "pk.eyJ1IjoiendpZ2F0bzEiLCJhIjoiY2xpMm1weHJvMjh1eTNkbnQybHR0aDR3ciJ9.Yhd93iMy0dXIt0DytTv69Q"
+    const accessToken= 'sk.eyJ1IjoiendpZ2F0bzEiLCJhIjoiY2xrMjc3cmppMDBnaDNkb2YxaWtoMGRxMCJ9.P3-cdDJhYbNGD6ZuYCE62Q';
+    return res.status(200).json({ success: true, msg: "User Data Get Sucessfully", data: find, Default_Public_Token,accessToken });
   } catch (error) {
     return res.status(400).json({ Message: "Something Went Wrong" });
   }

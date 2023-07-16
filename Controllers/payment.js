@@ -1,5 +1,5 @@
 const StripeMain = require("../services/stripe");
-const { validationResult } = require("express-validator");
+
 const db = require('../models');
 const Card = db.Card;
 const Order = db.Order;
@@ -22,10 +22,6 @@ if (!admin.apps.length) {
 //make the order after payment successfully api
 exports.pay = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
     const user = await User.findOne({ where: { id: req.user.id } });
 
@@ -72,6 +68,7 @@ exports.pay = async (req, res) => {
         order_created_time: order_create,
         order_pin: digit,
         driver_feedback: 0,
+        pickup_status:0,
         card_id: last4.id,
       });
       const paymentdone = await Payment.create({
@@ -81,6 +78,7 @@ exports.pay = async (req, res) => {
         paid: 1,
         last4: last4.card_no,
       });
+      console.log('pppppppppppppppppddddddddddddddddddd',paymentdone);
       res.status(200).json({
         success: true,
         msg: "Order Placed Successfully",
@@ -159,8 +157,10 @@ exports.pay = async (req, res) => {
     }
 
   } catch (error) {
+    console.log(error);
     return res.status(400).json({
       message: error.message
+      
     })
   }
 };
@@ -245,7 +245,6 @@ exports.newPaymentMethod = async (req, res) => {
     }
   }
 };
-
 //Show all the cards api
 exports.listCards = async (req, res, next) => {
   const cards = await Card.findAll({ where: { user_id: req.user.id } })
