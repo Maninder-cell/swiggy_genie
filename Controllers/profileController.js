@@ -69,7 +69,6 @@ module.exports.togglestatus = async (req, res) => {
 
     const Userdata = req.user.id;
     const statusdata = req.body.status;
-    console.log('ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',statusdata);
     const user = await User.findOne({
       where: { id: Userdata }
     });
